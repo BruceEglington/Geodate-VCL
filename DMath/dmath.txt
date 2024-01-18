@@ -1,0 +1,265 @@
+******************************************************************************
+*                                                                            *
+*                                DMATH.ZIP                                   *
+*                                                                            *
+*                      MATHEMATICAL LIBRARY IN PASCAL                        *
+*                            (Delphi version)                                *
+*                         Last updated : July 2004                           *
+*                                                                            *
+******************************************************************************
+
+
+
+                            AUTHOR : Dr Jean DEBORD
+
+               Laboratoire de Pharmacologie, Faculte de Medecine
+               2 Rue du Docteur Marcland, 87025 Limoges (France)
+                            debord.jean@wanadoo.fr
+                               debord@unilim.fr                         
+
+
+******************************************************************************
+ This library is distributed as freeware. You may use it any way you like, as
+ long as you don't charge money for it, remove the copyright notices, or hold
+ anyone liable for its results.
+******************************************************************************
+
+
+
+CONTENTS
+========
+
+Main directory
+--------------
+
+DMATH.TXT     : This file
+GUIDE.PDF     : DMath user guide (still very incomplete !)
+
+
+UNITS directory
+--------------
+
+  FMATH.PAS    : Mathematical functions / complex numbers
+  FSPEC.PAS    : Special functions / probability functions
+  MATRICES.PAS : Vectors and matrices
+  RANDNUM.PAS  : Random numbers
+  EIGEN.PAS    : Eigensystems
+  OPTIM.PAS    : Function minimization (local minimizers)
+  SIMOPT.PAS   : Function minimization (simulated annealing)
+  POLYNOM.PAS  : Polynomials and rational fractions
+  FOURIER.PAS  : Fast Fourier transform
+                 (modified from Don Cross, with permission)
+  MCMC.PAS     : Simulation by Markov Chain Monte Carlo
+  STAT.PAS     : Statistical functions
+  REGRESS.PAS  : Linear and nonlinear regressions
+  PASTRING.PAS : Turbo Pascal string routines
+  PLOTVAR.PAS  : Graphic functions common to TEXPLOT and WINPLOT
+  TEXPLOT.PAS  : Plotting routines for LaTeX / PSTricks
+  WINPLOT.PAS  : Plotting routines for Delphi
+
+  DCOMPIL.BAT  : Batch file for compiling with Delphi
+
+UNITS\REG subdirectory
+----------------------
+
+  MODELS.PAS   : Library of predefined regression models
+  FIT*.PAS     : Individual regression models (used by MODELS.PAS)
+
+DEMO directory
+--------------
+
+  DCOMPIL.BAT  : Batch file for compiling with Delphi
+
+DEMO\FMATH subdirectory
+-----------------------
+
+  TESTMACH.PAS : Displays some machine-dependent constants
+  TESTCOMP.PAS : Test of complex number functions
+  TESTFUNC.PAS : Test of elementary functions
+  SPECFUNC.PAS : Test of special functions
+  TESTW.PAS    : Test of Lambert's W function
+  ROOTPOL.PAS  : Roots of polynomial 
+
+  SPECFUNC.DAT : Data for testing special functions
+
+DEMO\FOURIER subdirectory
+-------------------------
+
+  TESTFFT.DPR  : Test of Fast Fourier Transform
+                 (modified from Don Cross, with permission)
+
+DEMO\FPLOT subdirectory
+-----------------------
+
+  FPLOT.DPR    : Function plotter
+
+DEMO\MATRICES subdirectory
+--------------------------
+
+  CHOLESK.PAS  : Cholesky factorization of a positive definite matrix
+  DETINV.PAS   : Determinant and inverse of a square matrix
+  SYSEQ.PAS    : Hilbert matrices (Gauss-Jordan elimination)
+  SYSEQ_GJ.PAS : System of linear equations (Gauss-Jordan elimination)
+  SYSEQLU.PAS  : System of linear equations (LU decomposition)
+  SYSEQSVD.PAS : System of linear equations (Singular value decomposition)
+  SYSEQ_QR.PAS : System of linear equations (QR decomposition)
+  SYSEQC.PAS   : System of linear equations with complex coefficients
+  EIGENSYM.PAS : Eigenvalues and eigenvectors of a symmetric matrix
+  EIGENVAL.PAS : Eigenvalues of a general square matrix
+  EIGENVEC.PAS : Eigenvalues and eigenvectors of a general square matrix
+  POLYROOT.PAS : Roots of a polynomial with real coefficients
+
+  MATRIX1.DAT  : Data for determinant, inverse and eigenvalues
+  MATRIX2.DAT  : Data for systems of equations
+  MATRIX3.DAT  : Data for systems of equations with complex coefficients
+  MATRIX4.DAT  : Data for Cholesky factorization
+
+DEMO\MGS subdirectory
+---------------------
+
+  MGS_DEMO.DPR : Polynomial regression by the modified Gram-Schmidt method
+                 (contributed by Mark Vaughan)
+
+DEMO\MINFUNC subdirectory
+-------------------------
+
+  MINFUNC.DPR  : Minimization of a function of several variables
+                 (GUI version contributed by Philip Fletcher)
+
+DEMO\OPTIM subdirectory
+-----------------------
+
+  HESSIAN.PAS  : Gradient and Hessian of a function of several variables
+  MIN1.PAS     : Minimization of a function of one variable
+  MINFUNC.PAS  : Minimization of a function of several variables (DOS version)
+  GENALG.PAS   : Optimization by genetic algorithm
+
+DEMO\QUADRIT subdirectory
+-------------------------
+
+  QUADRIT.DPR  : Demonstration of a chaotic system: the quadratic iterator
+
+DEMO\RANDOM subdirectory
+------------------------
+
+  RANTEST.PAS  : Test of random number generator
+  RANGAUS.PAS  : Gaussian random numbers
+  RANMUL.PAS   : Random vector from a multinormal distribution
+  RANMULL.PAS  : Random vector from a multi-lognormal distribution
+  TESTMCMC.PAS : Simulation by Markov Chain Monte Carlo (normal distrib.)
+  TESTMC2.PAS  : Simulation by Markov Chain Monte Carlo (lognormal distrib.)
+
+  RANMUL.DAT   : Data for multinormal distribution
+  RANMULL.DAT  : Data for multi-lognormal distribution
+
+DEMO\REG subdirectory
+---------------------
+
+  CORREL.PAS   : Variance-covariance and correlation matrix
+  REGMULT.PAS  : Multipe linear regression	
+  TESTPCA.PAS  : Principal component analysis
+  NIST.PAS     : Test of regression routines using NIST data
+
+  PCA.DAT      : Data for principal component analysis
+  NIST.DAT     : Data for NIST.PAS
+
+DEMO\REGNLIN subdirectory
+-------------------------
+
+  REGNLIN.DPR  : Linear and nonlinear regression
+
+  *.DAT        : Example data files
+
+
+SYSTEM REQUIREMENTS
+===================
+
+- PC or compatible
+
+- Math coprocessor recommended
+
+- Delphi 6.0 or higher
+
+
+INSTALLATION
+============
+
+- Extract the archive in a given directory. Be sure to preserve the
+  subdirectory structure of the archive (if you use PKUNZIP, be sure to
+  use the -d option to create subdirectories, i.e. pkunzip -d dmath.zip)
+
+- Add the names of the UNITS and UNITS\REG subdirectories to the search path 
+  of your projects (Menu: Project, Options, Directories/Conditionals, Search path)
+
+The use of the routines is explained in the comment part of each file.
+
+
+REFERENCES
+==========
+
+Software
+--------
+
+D. A. BARRY et al. 
+TOMS algorithm 743 (Lambert's function in Fortran)
+http://www.netlib.org/toms/743
+
+B. GOFFE
+Program SIMANN.FOR (Simulated Annealing in Fortran)
+http://www.netlib.org/opt/simann.f
+
+G. MARSAGLIA
+The Diehard Battery of Tests of Randomness
+http://stat.fsu.edu/~geo/diehard.html
+
+S. MOSHIER
+Cephes Math Library (in C) 
+http://www.moshier.net
+
+W. H. PRESS, S. A. TEUKOLSKY, W. T. VETTERLING & B. P. FLANNERY
+Numerical Recipes in Pascal (Shareware edition)
+http://garbo.uwasa.fi/pc/turbopas.html
+
+Turbo Pascal Numerical Methods Toolbox
+Borland International, 1986
+
+EISPACK: Library of Fortran routines for
+eigenvalues/eigenvectors computations.
+http://www.netlib.org/eispack
+
+Books
+-----
+
+B. P. CARLIN & T. A. LOUIS
+Bayes and Empirical Bayes Methods for Data Analysis. 
+Chapman & Hall, 1998
+
+A. R. MILLER
+Basic Programs for Scientists and Engineers.
+Sybex, 1981
+
+W. H. PRESS, S. A. TEUKOLSKY, W. T. VETTERLING & B. P. FLANNERY
+Numerical Recipes. The Art of Scientific Computing.
+Cambridge University Press, 2nd edition 1992
+Available on line at http://www.nr.com
+
+Articles
+--------
+
+R. GOMENI & C. GOMENI
+Automod : A polyalgorithm for an integrated analysis of 
+linear pharmacokinetic models.
+Comput. Biol. Med., 1979, 9, 39-48
+
+D. W. MARQUARDT
+An algorithm for least squares estimation of nonlinear parameters.
+J. Soc. Indust. Appl. Math., 1963, 11, 431-441
+
+J. A. NELDER & R. MEAD
+A simplex method for function minimization.
+Comput. J., 1964, 7, 308-313
+
+E. PERRIN, A. MANDRILLE, M. OUMOUN, C. FONTEIX & I. MARC
+Optimisation globale par strategie d'evolution. 
+Technique utilisant la genetique des individus diploides.
+Recherche operationnelle / Operations Research, 1997, 31, 161-201

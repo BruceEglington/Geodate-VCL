@@ -1,0 +1,14 @@
+      4 : begin //Ratio(Date) or mu(Date) or T(206Pb/238U)
+        HistOK:=true;
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = true)) then
+        begin
+          Xtra[i]:=InitialRatio(Age,i);
+          Xtra1[i]:=RoError(Age,0.0,i)/T_Mult;
+          Xtra2[i] := Xtra1[i];
+        end;
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = false)) then
+        begin
+          Xtra[i]:=InitialRatio(Ratio[i,3],i);
+          Xtra1[i]:=RoError(Ratio[i,3],ZPrec[i],i)/T_Mult;
+          Xtra2[i] := Xtra1[i];
+        end;
