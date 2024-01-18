@@ -382,9 +382,9 @@ begin
       Element[I,1]:=YorkSystemRec.Elem1;
       Element[I,2]:=YorkSystemRec.Elem2;
       DecayConst[I]:=YorkSystemRec.DC;
-      Chur[I,0]:=YorkSystemRec.CHUR1;
-      Chur[I,1]:=YorkSystemRec.CHUR2;
-      Chur[I,2]:=YorkSystemRec.CHUR3;
+      Chur[I,1]:=YorkSystemRec.CHUR1;
+      Chur[I,2]:=YorkSystemRec.CHUR2;
+      Chur[I,3]:=YorkSystemRec.CHUR3;
       DM[I,1]:=YorkSystemRec.DM1;
       DM[I,2]:=YorkSystemRec.DM2;
       DM[I,3]:=YorkSystemRec.DM3;

@@ -301,17 +301,17 @@ begin
   case AnalType of
     '0' : URY1 :=-1.0;
     '1','2','4'..'7','9','B','E','F','G'  : begin
-      if (CHUR[iAnalTyp,2] > 0.0) then
+      if (CHUR[iAnalTyp,3] > 0.0) then
       begin
-        if (CHUR[iAnalTyp,0] <> 0.0) then
+        if (CHUR[iAnalTyp,1] <> 0.0) then
         begin
-          URY1:=CHUR[iAnalTyp,0]*(Age*1.0e6)*(Age*1.0e6)
-            +CHUR[iAnalTyp,1]*(Age*1.0e6)
-            +CHUR[iAnalTyp,2];
+          URY1:=CHUR[iAnalTyp,1]*(Age*1.0e6)*(Age*1.0e6)
+            +CHUR[iAnalTyp,2]*(Age*1.0e6)
+            +CHUR[iAnalTyp,3];
         end;
-        if ((CHUR[iAnalTyp,0] = 0.0) and (CHUR[iAnalTyp,1] > 0.0)) then
+        if ((CHUR[iAnalTyp,1] = 0.0) and (CHUR[iAnalTyp,2] > 0.0)) then
         begin
-          URY1 := CHUR[iAnalTyp,2] - CHUR[iAnalTyp,1]*(Exp(DecayConst[iAnalTyp]*Age*1.0e6)-1.0);
+          URY1 := CHUR[iAnalTyp,3] - CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age*1.0e6)-1.0);
         end;
       end;
     end;
@@ -323,7 +323,7 @@ begin
     begin
       if (Age < 0.0) then Age := 0.0;
       T1 := DM[iAnalTyp,3];
-      T2 := CHUR[iAnalTyp,2];
+      T2 := CHUR[iAnalTyp,3];
     end;
     if (Age > 0.0) then
     begin
@@ -349,13 +349,13 @@ begin
     if (Age > 0.0) then
     begin
       T1:=Ratio[J,2]-Ratio[J,1]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
-      T2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
+      T2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
     end;
     if (Age <= 0.0) then
     begin
       if (Age < 0.0) then Age:=0.0;
       T1:=Ratio[J,2];
-      T2:=CHUR[iAnalTyp,2];
+      T2:=CHUR[iAnalTyp,3];
     end;
     Epsilon:=10000.0*(T1/T2-1.0);
   end else
@@ -375,13 +375,13 @@ begin
     if (Age > 0.0) then
     begin
       T1:=Ratio[J,2]-Ratio[J,1]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
-      T2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
+      T2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age*1.0E6)-1.0);
     end;
     if (Age <= 0.0) then
     begin
       if (Age < 0.0) then Age:=0.0;
       T1:=Ratio[J,2];
-      T2:=CHUR[iAnalTyp,2];
+      T2:=CHUR[iAnalTyp,3];
     end;
     if (iAnalTyp = 15) then
     begin
@@ -516,21 +516,21 @@ var
                :  double;
   ThisDone         :  Boolean;
 begin
-  if (CHUR[iAnalTyp,2] > 0.0) then
+  if (CHUR[iAnalTyp,3] > 0.0) then
   begin
-    if (CHUR[iAnalTyp,0] <> 0.0) then
+    if (CHUR[iAnalTyp,1] <> 0.0) then
     begin
       ThisDone:=false;
       I:=0;
       AgeMax:=4.60E9;
       repeat
         URX1:=ty-tx*(Exp(DecayConst[iAnalTyp]*AgeMax)-1.0);
-        URY1:=CHUR[iAnalTyp,0]*(AgeMax)*(AgeMax)
-            +CHUR[iAnalTyp,1]*(AgeMax)
-            +CHUR[iAnalTyp,2];
-        URY2:=(CHUR[iAnalTyp,1])+tx*DecayConst[iAnalTyp]
+        URY1:=CHUR[iAnalTyp,1]*(AgeMax)*(AgeMax)
+            +CHUR[iAnalTyp,2]*(AgeMax)
+            +CHUR[iAnalTyp,3];
+        URY2:=(CHUR[iAnalTyp,2])+tx*DecayConst[iAnalTyp]
             *(Exp(DecayConst[iAnalTyp]*AgeMax));
-        URY2:=URY2+2.0*CHUR[iAnalTyp,0]*AgeMax;
+        URY2:=URY2+2.0*CHUR[iAnalTyp,1]*AgeMax;
         URY1:=URY1-URX1;
         if (URY2 <> 0.0) then
           ApproxAge:=AgeMax-URY1/URY2
@@ -549,9 +549,9 @@ begin
         end;
       until ThisDone;
     end;
-    if ((CHUR[iAnalTyp,0] = 0.0) and (CHUR[iAnalTyp,1] > 0.0)) then
+    if ((CHUR[iAnalTyp,1] = 0.0) and (CHUR[iAnalTyp,2] > 0.0)) then
     begin
-      temp:=((ty-CHUR[iAnalTyp,2])/(tx-CHUR[iAnalTyp,1])+1.0);
+      temp:=((ty-CHUR[iAnalTyp,3])/(tx-CHUR[iAnalTyp,2])+1.0);
       if (temp>0.0) then temp1:=Ln(temp)
                     else temp1:=0.0;
       AgeMax:=(temp1/DecayConst[iAnalTyp]);
@@ -562,9 +562,9 @@ begin
     CHUR_Age := 9999.99;
   end;
   {
-  if (CHUR[iAnalTyp,2] > 0.0) then
+  if (CHUR[iAnalTyp,3] > 0.0) then
   begin
-    temp:=((ty-CHUR[iAnalTyp,2])/(tx-CHUR[iAnalTyp,1])+1.0);
+    temp:=((ty-CHUR[iAnalTyp,3])/(tx-CHUR[iAnalTyp,2])+1.0);
     if (temp>0.0) then temp1:=Ln(temp)
                   else temp1:=0.0;
     CHUR_Age:=(temp1/DecayConst[iAnalTyp])/1.0E6;
@@ -2955,16 +2955,16 @@ begin
   // Age expected in Ma
   //calculation only works for situation with linear CHUR and DM curves,
   //not for quadratic versions
-  if ((DM[iAnalTyp,3] > 0.0) and (CHUR[iAnalTyp,2] > 0.0)) then
+  if ((DM[iAnalTyp,3] > 0.0) and (CHUR[iAnalTyp,3] > 0.0)) then
   begin
     if ((DM[iAnalTyp,1] = 0.0) and (DM[iAnalTyp,2] > 0.0)
-      and (CHUR[iAnalTyp,0] = 0.0) and (CHUR[iAnalTyp,1] > 0.0)) then
+      and (CHUR[iAnalTyp,1] = 0.0) and (CHUR[iAnalTyp,2] > 0.0)) then
     begin
       //ShowMessage('Age = '+FormatFloat('####0.000000',AgePref));
       //ShowMessage('Epsilon = '+FormatFloat('####0.000000',Epsilon));
-      tKchur := CHUR[iAnalTyp,1];
+      tKchur := CHUR[iAnalTyp,2];
       //ShowMessage('tKchur = '+FormatFloat('####0.000000',tKchur));
-      tRchur := CHUR[iAnalTyp,2] - tKchur*(exp(DecayConst[iAnalTyp]*AgePref*1.0e6) - 1.0);
+      tRchur := CHUR[iAnalTyp,3] - tKchur*(exp(DecayConst[iAnalTyp]*AgePref*1.0e6) - 1.0);
       //ShowMessage('tRchur = '+FormatFloat('####0.000000',tRchur));
       tRsmp := (Epsilon/1.0e4 + 1.0) * tRchur;
       //ShowMessage('tRsmp = '+FormatFloat('####0.000000',tRsmp));

@@ -1410,8 +1410,8 @@ var
   x2, y2      : double;
   MinX, MinY, MaxX, MaxY : double;
   tUncert, tXtra1, tXtra2, tXtra3, tXtra4 : double;
-  Spectrum2 : CumArrayType;
-  SpectrumWtAv : CumArrayType;
+  Spectrum2 : TCumArrayType;
+  SpectrumWtAv : TCumArrayType;
   ShowCumGraph : boolean;
   tAge, tLower, tUpper : double;
 begin

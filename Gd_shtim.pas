@@ -87,6 +87,20 @@ type
     eZErrStr: TEdit;
     Label20: TLabel;
     eZErrTypeStr: TEdit;
+    lAgeStr: TLabel;
+    eAgeStr: TEdit;
+    Label23: TLabel;
+    eAgeErrStr: TEdit;
+    eWStr: TEdit;
+    eWErrTypeStr: TEdit;
+    Label25: TLabel;
+    eWErrStr: TEdit;
+    Label26: TLabel;
+    eWPrecStr: TEdit;
+    Label27: TLabel;
+    lWStr: TLabel;
+    lZZStr: TLabel;
+    eZZStr: TEdit;
     procedure bbOpenSheetClick(Sender: TObject);
     procedure bbImportClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -146,34 +160,11 @@ begin
     FillTabs;
     Tabs.TabIndex := Xls.ActiveSheet - 1;
     cbSheetName.ItemIndex := Xls.ActiveSheet - 1;
-    //cbSheetname.Items.Add(Xls.GetSheetName(Tabs.TabIndex+1));
-    {
-    FlexCelImport1.OpenFile(OpenDialogSprdSheet.FileName);
-    for i := 1 to FlexCelImport1.SheetCount do
-    begin
-      FlexCelImport1.ActiveSheet:=i;
-      TabControl.Tabs.Add(FlexCelImport1.ActiveSheetName);
-      cbSheetname.Items.Add(FlexCelImport1.ActiveSheetName);
-    end;
-    FlexCelImport1.ActiveSheet:=1;
-    TabControl.TabIndex:=FlexCelImport1.ActiveSheet-1;
-    cbSheetName.ItemIndex := FlexCelImport1.ActiveSheet-1;
-    Data.LoadSheet;
-    Data.Zoom := 70;
-    }
     ProjectName := SysUtils.ExtractFileName(OpenDialogSprdSheet.FileName);
     FillGrid(true);
-    {
-    for i := 1 to Tabs.Tabs.Count do
-    begin
-      cbSheetname.Items.Add(Tabs.Tabs.ValueFromIndex[i-1]);
-    end;
-    }
-    //ProjectName[0] := Char(Length(ProjectName)-4);
     gbIsoSys.Visible := true;
     gbDefineTabSheet.Visible := true;
     cbxIsoSysChange(Sender);
-    //FlexCelPreviewer1.Document := Xls;
   end;
 end;
 
@@ -209,7 +200,6 @@ begin
   ClearGrid;
   SheetData.RowCount := 1;
   SheetData.ColCount := 1;
-  //FmtBox.Text := '';
 
   SheetData.RowCount := Xls.RowCount + 1; //Include fixed row
   SheetData.ColCount := Xls.ColCount + 1; //Include fixed col. NOTE THAT COLCOUNT IS SLOW. We use it here because we really need it. See the Performance.pdf doc.
@@ -248,9 +238,6 @@ begin
     SheetData.Cells[c, 0] := TCellAddress.EncodeColumn(c);
     SheetData.ColWidths[c] := Round(Xls.GetColWidth(c) / TExcelMetrics.ColMult(Xls));
   end;
-
-  //SelectedCell(1,1);
-
 end;
 
 
@@ -258,19 +245,17 @@ procedure TfmSheetImport.GetIniFile;
 var
   AppIni   : TIniFile;
   PublicPath : string;
+  IniFileName : string;
 begin
   PublicPath := TPath.GetHomePath;
   CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
   IniFilename := CommonFilePath + 'Geodate.ini';
   AppIni := TIniFile.Create(IniFilename);
-  //PublicPath := TPath.GetPublicPath;
-  //CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  //IniFilename := CommonFilePath + 'GDW.ini';
-  //AppIni := TIniFile.Create(IniFilename);
   try
     eSampleNo.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Sample','A');
     eXXStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,1],'B');
     eYYStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,2],'C');
+    eZZStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,3],'0');
     eXStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],XRatioStr[iAnalTyp],'D');
     eXPrecStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'X Precision','E');
     eXErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'X Uncertainty','F');
@@ -280,12 +265,18 @@ begin
     eYErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Y Uncertainty','J');
     eYErrTypeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Y Uncertainty type','K');
     eZStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],ZRatioStr[iAnalTyp],'M');
-    eZPrecStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Precision','N');
-    eZErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Uncertainty','J');
-    eZErrTypeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Uncertainty type','K');
+    eZPrecStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Precision','0');
+    eZErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Uncertainty','0');
+    eZErrTypeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Z Uncertainty type','0');
     eRStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Error Correlation','L');
     eRFlagStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'R Flag','O');
     ePFlagStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'P Flag','P');
+    eAgeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Age','M');
+    eAgeErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Age Uncertainty','J');
+    eWStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],WRatioStr[iAnalTyp],'M');
+    eWPrecStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'W Precision','N');
+    eWErrStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'W Uncertainty','J');
+    eWErrTypeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'W Uncertainty type','K');
     eLatitudeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Latitude','Q');
     eLongitudeStr.Text := AppIni.ReadString('Spreadsheet columns for '+Process[iAnalTyp],'Longitude','R');
   finally
@@ -316,6 +307,7 @@ procedure TfmSheetImport.UpdateIniFile;
 var
   AppIni   : TIniFile;
   PublicPath : string;
+  IniFileName : string;
 begin
   PublicPath := TPath.GetHomePath;
   CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
@@ -330,6 +322,7 @@ begin
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Sample',eSampleNo.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,1],eXXStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,2],eYYStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],Element[iAnalTyp,3],eZZStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],XRatioStr[iAnalTyp],eXStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'X Precision',eXPrecStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'X Uncertainty',eXErrStr.Text);
@@ -345,6 +338,12 @@ begin
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Z Uncertainty type',eZErrTypeStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'R Flag',eRFlagStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'P Flag',ePFlagStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Age',eAgeStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Age Uncertainty',eAgeErrStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],WRatioStr[iAnalTyp],eWStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'W Precision',eWPrecStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'W Uncertainty',eWErrStr.Text);
+    AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'W Uncertainty type',eWErrTypeStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Latitude',eLatitudeStr.Text);
     AppIni.WriteString('Spreadsheet columns for '+Process[iAnalTyp],'Longitude',eLongitudeStr.Text);
   finally
@@ -382,11 +381,14 @@ var
   IgnoreErrorsR, IgnoreErrorsRFlag, IgnoreErrorsPFlag : boolean;
   i : integer;
   FromRow, ToRow : integer;
-  tmpStr, tmpXErrTypeStr, tmpYErrTypeStr, tmpZErrTypeStr : string;
-  iSampleNo, iXX, iYY,
+  tmpStr, tmpXErrTypeStr, tmpYErrTypeStr,
+  tmpZErrTypeStr, tmpWErrTypeStr : string;
+  iSampleNo, iXX, iYY, iZZ,
   iX, iXPrec, iXErr, iXErrType,
   iY, iYPrec, iYErr, iYErrType,
   iZ, iZPrec, iZErr, iZErrType,
+  iAge, iAgeErr,
+  iW, iWPrec, iWErr, iWErrType,
   iR,
   iRFlag, iPFlag,
   iLatitude,
@@ -435,6 +437,7 @@ begin
   iSampleNo := ConvertCol2Int(eSampleNo.Text);
   iXX := ConvertCol2Int(eXXStr.Text);
   iYY := ConvertCol2Int(eYYStr.Text);
+  iZZ := ConvertCol2Int(eZZStr.Text);
   iX := ConvertCol2Int(eXStr.Text);
   iXPrec := ConvertCol2Int(eXPrecStr.Text);
   iXErr := ConvertCol2Int(eXErrStr.Text);
@@ -450,6 +453,12 @@ begin
   iR := ConvertCol2Int(eRStr.Text);
   iRFlag := ConvertCol2Int(eRFlagStr.Text);
   iPFlag := ConvertCol2Int(ePFlagStr.Text);
+  iAge := ConvertCol2Int(eAgeStr.Text);
+  iAgeErr := ConvertCol2Int(eAgeErrStr.Text);
+  iW := ConvertCol2Int(eWStr.Text);
+  iWPrec := ConvertCol2Int(eWPrecStr.Text);
+  iWErr := ConvertCol2Int(eWErrStr.Text);
+  iWErrType := ConvertCol2Int(eWErrTypeStr.Text);
   iLatitude := ConvertCol2Int(eLatitudeStr.Text);
   iLongitude := ConvertCol2Int(eLongitudeStr.Text);
 
@@ -462,81 +471,124 @@ begin
     j := j + 1;
     Conc[j,1] := 0.0;
     Conc[j,2] := 0.0;
+    Conc[j,3] := 0.0;
     Ratio[j,1] := 0.0;
     XPrec[j] := 0.0;
-    ErrorWt[J,1] := 1.0;
+    ErrorWt[j,1] := 1.0;
     Ratio[j,2] := 0.0;
     YPrec[j] := 0.0;
-    ErrorWt[J,2] := 1.0;
+    ErrorWt[j,2] := 1.0;
     Ratio[j,3] := 0.0;
     ZPrec[j] := 0.0;
-    ErrorWt[J,3] := 1.0;
+    ErrorWt[j,3] := 1.0;
     R[j] := 0.0;
     ErrTyp[j] := '4';
     RFlg[j] := 'Y';
     PFlg[j] := 'Y';
+    Ratio[j,0] := 0.0;
+    ErrorWt[j,0] := 1.0;
+    Ratio[j,4] := 0.0;
+    WPrec[j] := 0.0;
+    ErrorWt[j,4] := 1.0;
     Latitude[j] := 0.0;
     Longitude[j] := 0.0;
+    tmpStr := '';
     if (iSampleNo > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iSampleNo);
       SmpNo[j] := eSmpPrefix.Text+tmpStr;
     end;
+    tmpStr := '';
     if (iXX > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iXX);
       Val(tmpStr,Conc[j,1],iCode);
     end;
+    tmpStr := '';
     if (iYY > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iYY);
       Val(tmpStr,Conc[j,2],iCode);
     end;
+    tmpStr := '';
+    if (iZZ > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iZZ);
+      Val(tmpStr,Conc[j,3],iCode);
+    end;
+    tmpStr := '';
     if (iX > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iX);
       Val(tmpStr,Ratio[j,1],iCode);
     end;
+    tmpStr := '';
     if (iXPrec > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iXPrec);
       Val(tmpStr,XPrec[j],iCode);
     end;
+    tmpStr := '';
     if (iXErr > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iXErr);
       Val(tmpStr,ErrorWt[j,1],iCode);
     end;
-    if (iY > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iY);
-      Val(tmpStr,Ratio[j,2],iCode);
-    end;
-    if (iYPrec > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iYPrec);
-      Val(tmpStr,YPrec[j],iCode);
-    end;
-    if (iYErr > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iYErr);
-      Val(tmpStr,ErrorWt[j,2],iCode);
-    end;
+    tmpStr := '';
     if (iXErrType > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iXErrType);
       tmpXErrTypeStr := tmpStr;
     end;
+    tmpStr := '';
+    if (iY > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iY);
+      Val(tmpStr,Ratio[j,2],iCode);
+    end;
+    tmpStr := '';
+    if (iYPrec > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iYPrec);
+      Val(tmpStr,YPrec[j],iCode);
+    end;
+    tmpStr := '';
+    if (iYErr > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iYErr);
+      Val(tmpStr,ErrorWt[j,2],iCode);
+    end;
+    tmpStr := '';
     if (iYErrType > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iYErrType);
       tmpYErrTypeStr := tmpStr;
     end;
+    tmpStr := '';
+    if (iZ > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iZ);
+      Val(tmpStr,Ratio[j,3],iCode);
+    end;
+    tmpStr := '';
+    if (iZPrec > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iZPrec);
+      Val(tmpStr,ZPrec[j],iCode);
+    end;
+    tmpStr := '';
+    if (iZErr > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iZErr);
+      Val(tmpStr,ErrorWt[j,3],iCode);
+    end;
+    tmpStr := '';
     if (iZErrType > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iZErrType);
       tmpZErrTypeStr := tmpStr;
     end;
+    tmpStr := '';
     if ((tmpXErrTypeStr = '%') and
         (tmpYErrTypeStr = '%')) then ErrTyp[j] := '1';
     if ((tmpXErrTypeStr = '%') and
@@ -545,21 +597,7 @@ begin
         (tmpYErrTypeStr = '%')) then ErrTyp[j] := '3';
     if ((tmpXErrTypeStr = 'a') and
         (tmpYErrTypeStr = 'a')) then ErrTyp[j] := '4';
-    if (iZ > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iZ);
-      Val(tmpStr,Ratio[j,3],iCode);
-    end;
-    if (iZPrec > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iZPrec);
-      Val(tmpStr,ZPrec[j],iCode);
-    end;
-    if (iZErr > 0) then
-    begin
-      tmpStr := Xls.GetStringFromCell(i,iZErr);
-      Val(tmpStr,ErrorWt[j,3],iCode);
-    end;
+    tmpStr := '';
     if (iR > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iR);
@@ -577,6 +615,7 @@ begin
         end;
       end;
     end;
+    tmpStr := '';
     if (iRFlag > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iRFlag);
@@ -594,6 +633,7 @@ begin
         end;
       end;
     end;
+    tmpStr := '';
     if (iPFlag > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iPFlag);
@@ -611,11 +651,49 @@ begin
         end;
       end;
     end;
+    tmpStr := '';
+    if (iAge > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iAge);
+      Val(tmpStr,Ratio[j,0],iCode);
+    end;
+    tmpStr := '';
+    if (iAgeErr > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iAgeErr);
+      Val(tmpStr,ErrorWt[j,0],iCode);
+    end;
+    tmpStr := '';
+    if (iW > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iW);
+      Val(tmpStr,Ratio[j,4],iCode);
+    end;
+    tmpStr := '';
+    if (iWPrec > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iWPrec);
+      Val(tmpStr,WPrec[j],iCode);
+    end;
+    tmpStr := '';
+    if (iWErr > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iWErr);
+      Val(tmpStr,ErrorWt[j,4],iCode);
+    end;
+    tmpStr := '';
+    if (iWErrType > 0) then
+    begin
+      tmpStr := Xls.GetStringFromCell(i,iWErrType);
+      tmpWErrTypeStr := tmpStr;
+    end;
+    tmpStr := '';
     if (iLatitude > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iLatitude);
       Val(tmpStr,Latitude[j],iCode);
     end;
+    tmpStr := '';
     if (iLongitude > 0) then
     begin
       tmpStr := Xls.GetStringFromCell(i,iLongitude);
@@ -756,9 +834,11 @@ begin
   end;
   lXXStr.Caption := Element[iAnalTyp,1];
   lYYStr.Caption := Element[iAnalTyp,2];
+  lZZStr.Caption := Element[iAnalTyp,3];
   lXStr.Caption := XRatioStr[iAnalTyp];
   lYStr.Caption := YRatioStr[iAnalTyp];
   lZStr.Caption := ZRatioStr[iAnalTyp];
+  lWStr.Caption := WRatioStr[iAnalTyp];
   gbDefineFields.Visible := true;
   gbDefineRows.Visible := true;
   bbImport.Visible := true;
@@ -792,6 +872,11 @@ begin
     tmpStr := eYYStr.Text;
     eYYStr.Text := UpperCase(tmpStr);
   end;
+  if (Sender = eZZStr) then
+  begin
+    tmpStr := eYYStr.Text;
+    eYYStr.Text := UpperCase(tmpStr);
+  end;
   if (Sender = eXStr) then
   begin
     tmpStr := eXStr.Text;
@@ -806,6 +891,16 @@ begin
   begin
     tmpStr := eZStr.Text;
     eZStr.Text := UpperCase(tmpStr);
+  end;
+  if (Sender = eAgeStr) then
+  begin
+    tmpStr := eAgeStr.Text;
+    eAgeStr.Text := UpperCase(tmpStr);
+  end;
+  if (Sender = eWStr) then
+  begin
+    tmpStr := eWStr.Text;
+    eWStr.Text := UpperCase(tmpStr);
   end;
   if (Sender = eRStr) then
   begin
@@ -827,6 +922,11 @@ begin
     tmpStr := eZPrecStr.Text;
     eZPrecStr.Text := UpperCase(tmpStr);
   end;
+  if (Sender = eWPrecStr) then
+  begin
+    tmpStr := eWPrecStr.Text;
+    eWPrecStr.Text := UpperCase(tmpStr);
+  end;
   if (Sender = eXErrStr) then
   begin
     tmpStr := eXErrStr.Text;
@@ -842,6 +942,16 @@ begin
     tmpStr := eZErrStr.Text;
     eZErrStr.Text := UpperCase(tmpStr);
   end;
+  if (Sender = eAgeErrStr) then
+  begin
+    tmpStr := eAgeErrStr.Text;
+    eAgeErrStr.Text := UpperCase(tmpStr);
+  end;
+  if (Sender = eWErrStr) then
+  begin
+    tmpStr := eWErrStr.Text;
+    eWErrStr.Text := UpperCase(tmpStr);
+  end;
   if (Sender = eXErrTypeStr) then
   begin
     tmpStr := eXErrTypeStr.Text;
@@ -856,6 +966,11 @@ begin
   begin
     tmpStr := eZErrTypeStr.Text;
     eZErrTypeStr.Text := UpperCase(tmpStr);
+  end;
+  if (Sender = eWErrTypeStr) then
+  begin
+    tmpStr := eWErrTypeStr.Text;
+    eWErrTypeStr.Text := UpperCase(tmpStr);
   end;
   if (Sender = eRFlagStr) then
   begin

@@ -293,6 +293,7 @@ var
   ICode    : integer;
   PublicPath : string;
   tmpTracerStr : string;
+  IniFileName : string;
 begin
   tmpStr := '1';
   //PublicPath := TPath.GetPublicPath;
@@ -340,87 +341,89 @@ begin
     iAnalTyp := Get_IAnal_from_AnalType(AnalType);
     for i := 0 to Maxtype do
     begin
-      Process[i] := AppIni.ReadString(Process[i],'Method',Process[i]);
-      XRatioStr[i] := AppIni.ReadString(Process[i],'X Ratio',XRatioStr[i]);
-      YRatioStr[i] := AppIni.ReadString(Process[i],'Y Ratio',YRatioStr[i]);
-      ZRatioStr[i] := AppIni.ReadString(Process[i],'Z Ratio',ZRatioStr[i]);
-      Element[i,1] := AppIni.ReadString(Process[i],'X element',Element[i,1]);
-      Element[i,2] := AppIni.ReadString(Process[i],'Y element',Element[i,2]);
-      GraphXRatioStr[i] := AppIni.ReadString(Process[i],'Graph X Ratio',GraphXRatioStr[i]);
-      GraphYRatioStr[i] := AppIni.ReadString(Process[i],'Graph Y Ratio',GraphYRatioStr[i]);
-      GraphZRatioStr[i] := AppIni.ReadString(Process[i],'Graph Z Ratio',GraphZRatioStr[i]);
-      tmpStr1 := DecayConstantSource[i];
+      Process[i] := AppIni.ReadString(Process[i],'Method',DefaultProcess[i]);
+      XRatioStr[i] := AppIni.ReadString(Process[i],'X Ratio',DefaultXRatioStr[i]);
+      YRatioStr[i] := AppIni.ReadString(Process[i],'Y Ratio',DefaultYRatioStr[i]);
+      ZRatioStr[i] := AppIni.ReadString(Process[i],'Z Ratio',DefaultZRatioStr[i]);
+      WRatioStr[i] := AppIni.ReadString(Process[i],'W Ratio',DefaultWRatioStr[i]);
+      Element[i,1] := AppIni.ReadString(Process[i],'X element',DefaultElement[i,1]);
+      Element[i,2] := AppIni.ReadString(Process[i],'Y element',DefaultElement[i,2]);
+      Element[i,3] := AppIni.ReadString(Process[i],'Z element',DefaultElement[i,3]);
+      GraphXRatioStr[i] := AppIni.ReadString(Process[i],'Graph X Ratio',DefaultGraphXRatioStr[i]);
+      GraphYRatioStr[i] := AppIni.ReadString(Process[i],'Graph Y Ratio',DefaultGraphYRatioStr[i]);
+      GraphZRatioStr[i] := AppIni.ReadString(Process[i],'Graph Z Ratio',DefaultGraphZRatioStr[i]);
+      tmpStr1 := DefaultDecayConstantSource[i];
       DecayConstantSource[i] := AppIni.ReadString(Process[i],'Decay Constant source',tmpStr1);
       DecayConst[i] := StrToFloat(AppIni.ReadString(Process[i],
-        'Decay Constant',FormatFloat('0.00000E+00',DecayConst[i])));
+        'Decay Constant',FormatFloat('0.00000E+00',DefaultDecayConst[i])));
       DecayConstUncertainty[i] := StrToFloat(AppIni.ReadString(Process[i],
-        'Decay Constant % Uncertainty',FormatFloat('00.00000',DecayConstUncertainty[i])));
+        'Decay Constant % Uncertainty',FormatFloat('00.00000',DefaultDecayConstUncertainty[i])));
       TracerUncertainty[i] := StrToFloat(AppIni.ReadString(Process[i],
-        'Tracer % Uncertainty',FormatFloat('0.000000',TracerUncertainty[i])));
+        'Tracer % Uncertainty',FormatFloat('0.000000',DefaultTracerUncertainty[i])));
 
       if (i in [1,2,7,9,14,15,16]) then
       begin
-        tmpStr1 := CHURModelName[i];
+        tmpStr1 := DefaultCHURModelName[i];
         CHURModelName[i] := AppIni.ReadString(Process[i],'CHUR model name',tmpStr1);
-        CHUR[i,0] := StrToFloat(AppIni.ReadString(Process[i],
-          'CHUR 1',FormatFloat('0.0000000E+00',CHUR[i,0])));
         CHUR[i,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'CHUR 2',FormatFloat('0.0000000E+00',CHUR[i,1])));
+          'CHUR 1',FormatFloat('0.0000000E+00',DefaultCHUR[i,1])));
         CHUR[i,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'CHUR 3',FormatFloat('0.0000000E+00',CHUR[i,2])));
-        tmpStr1 := DMModelName[i];
+          'CHUR 2',FormatFloat('0.0000000E+00',DefaultCHUR[i,2])));
+        CHUR[i,3] := StrToFloat(AppIni.ReadString(Process[i],
+          'CHUR 3',FormatFloat('0.0000000E+00',DefaultCHUR[i,3])));
+        tmpStr1 := DefaultDMModelName[i];
         DMModelName[i] := AppIni.ReadString(Process[i],'DM model name',tmpStr1);
         DM[i,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'DM 1',FormatFloat('0.00000000E+00',DM[i,1])));
+          'DM 1',FormatFloat('0.00000000E+00',DefaultDM[i,1])));
         DM[i,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'DM 2',FormatFloat('0.00000000E+00',DM[i,2])));
+          'DM 2',FormatFloat('0.00000000E+00',DefaultDM[i,2])));
         DM[i,3] := StrToFloat(AppIni.ReadString(Process[i],
-          'DM 3',FormatFloat('0.00000000E+00',DM[i,3])));
-        tmpStr1 := CCModelName[i];
+          'DM 3',FormatFloat('0.00000000E+00',DefaultDM[i,3])));
+        tmpStr1 := DefaultCCModelName[i];
         CCModelName[i] := AppIni.ReadString(Process[i],'CC model name',tmpStr1);
         CC[i,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'CC 1',FormatFloat('0.0000000E+00',CC[i,1])));
+          'CC 1',FormatFloat('0.0000000E+00',DefaultCC[i,1])));
         CC[i,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'CC 2',FormatFloat('0.0000000E+00',CC[i,2])));
+          'CC 2',FormatFloat('0.0000000E+00',DefaultCC[i,2])));
         CC[i,3] := StrToFloat(AppIni.ReadString(Process[i],
-          'CC 3',FormatFloat('0.0000000E+00',CC[i,3])));
+          'CC 3',FormatFloat('0.0000000E+00',DefaultCC[i,3])));
       end;
       CalcFac[i,1] := StrToFloat(AppIni.ReadString(Process[i],
-        'Calc Fac 1',FormatFloat('0.000000E+00',CalcFac[i,1])));
+        'Calc Fac 1',FormatFloat('0.000000E+00',DefaultCalcFac[i,1])));
       CalcFac[i,2] := StrToFloat(AppIni.ReadString(Process[i],
-        'Calc Fac 2',FormatFloat('0.000000E+00',CalcFac[i,2])));
+        'Calc Fac 2',FormatFloat('0.000000E+00',DefaultCalcFac[i,2])));
       if (i = 3) then
       begin
         MuV[0,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'Single stage model Start Date',FormatFloat('0.000E+00',MuV[0,1])));
+          'Single stage model Start Date',FormatFloat('0.000E+00',DefaultMuV[0,1])));
         MuV[0,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'Single stage model Start 206Pb/204Pb',FormatFloat('00.000',MuV[0,2])));
+          'Single stage model Start 206Pb/204Pb',FormatFloat('00.000',DefaultMuV[0,2])));
         MuV[0,3] := StrToFloat(AppIni.ReadString(Process[i],
-          'Single stage model Start 207Pb/204Pb',FormatFloat('00.000',MuV[0,3])));
+          'Single stage model Start 207Pb/204Pb',FormatFloat('00.000',DefaultMuV[0,3])));
         MuV[0,4] := StrToFloat(AppIni.ReadString(Process[i],
-          'Single stage model Start 208Pb/204Pb',FormatFloat('00.000',MuV[0,4])));
+          'Single stage model Start 208Pb/204Pb',FormatFloat('00.000',DefaultMuV[0,4])));
         MuV[0,5] := StrToFloat(AppIni.ReadString(Process[i],
-          'Single stage model Start 238U/204Pb',FormatFloat('00.000',MuV[0,5])));
+          'Single stage model Start 238U/204Pb',FormatFloat('00.000',DefaultMuV[0,5])));
         MuV[1,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'Stacey and Kramers 2nd stage Start Date',FormatFloat('0.000E+00',MuV[1,1])));
+          'Stacey and Kramers 2nd stage Start Date',FormatFloat('0.000E+00',DefaultMuV[1,1])));
         MuV[1,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'Stacey and Kramers 2nd stage Start 206Pb/204Pb',FormatFloat('00.000',MuV[1,2])));
+          'Stacey and Kramers 2nd stage Start 206Pb/204Pb',FormatFloat('00.000',DefaultMuV[1,2])));
         MuV[1,3] := StrToFloat(AppIni.ReadString(Process[i],
-          'Stacey and Kramers 2nd stage Start 207Pb/204Pb',FormatFloat('00.000',MuV[1,3])));
+          'Stacey and Kramers 2nd stage Start 207Pb/204Pb',FormatFloat('00.000',DefaultMuV[1,3])));
         MuV[1,4] := StrToFloat(AppIni.ReadString(Process[i],
-          'Stacey and Kramers 2nd stage Start 208Pb/204Pb',FormatFloat('00.000',MuV[1,4])));
+          'Stacey and Kramers 2nd stage Start 208Pb/204Pb',FormatFloat('00.000',DefaultMuV[1,4])));
         MuV[1,5] := StrToFloat(AppIni.ReadString(Process[i],
-          'Stacey and Kramers 2nd stage Start 238U/204Pb',FormatFloat('00.000',MuV[1,5])));
+          'Stacey and Kramers 2nd stage Start 238U/204Pb',FormatFloat('00.000',DefaultMuV[1,5])));
         MuV[2,1] := StrToFloat(AppIni.ReadString(Process[i],
-          'User defined model Start Date',FormatFloat('0.000E+00',MuV[2,1])));
+          'User defined model Start Date',FormatFloat('0.000E+00',DefaultMuV[2,1])));
         MuV[2,2] := StrToFloat(AppIni.ReadString(Process[i],
-          'User defined model Start 206Pb/204Pb',FormatFloat('00.000',MuV[2,2])));
+          'User defined model Start 206Pb/204Pb',FormatFloat('00.000',DefaultMuV[2,2])));
         MuV[2,3] := StrToFloat(AppIni.ReadString(Process[i],
-          'User defined model Start 207Pb/204Pb',FormatFloat('00.000',MuV[2,3])));
+          'User defined model Start 207Pb/204Pb',FormatFloat('00.000',DefaultMuV[2,3])));
         MuV[2,4] := StrToFloat(AppIni.ReadString(Process[i],
-          'User defined model Start 208Pb/204Pb',FormatFloat('00.000',MuV[2,4])));
+          'User defined model Start 208Pb/204Pb',FormatFloat('00.000',DefaultMuV[2,4])));
         MuV[2,5] := StrToFloat(AppIni.ReadString(Process[i],
-          'User defined model Start 238U/204Pb',FormatFloat('00.000',MuV[2,5])));
+          'User defined model Start 238U/204Pb',FormatFloat('00.000',DefaultMuV[2,5])));
         mu_choice := Round(StrToFloat(AppIni.ReadString(Process[i],
           'Default model','1')));
         if (mu_choice = 0) then
@@ -445,7 +448,7 @@ begin
       if (i in [8]) then
       begin
         U238U235 := StrToFloat(AppIni.ReadString(Process[i],
-        '238U/235U',FormatFloat('000.000',U238U235)));
+        '238U/235U',FormatFloat('000.000',DefaultU238U235)));
         tmpStr := AppIni.ReadString(Process[i],'Default weighting method','N');
         ClearNull(tmpStr);
         if (tmpStr = 'N') then
@@ -502,6 +505,7 @@ var
   AppIni   : TIniFile;
   i        : integer;
   PublicPath : string;
+  IniFileName : string;
 begin
   //PublicPath := TPath.GetPublicPath;
   //CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
@@ -537,8 +541,10 @@ begin
       AppIni.WriteString(Process[i],'X Ratio',XRatioStr[i]);
       AppIni.WriteString(Process[i],'Y Ratio',YRatioStr[i]);
       AppIni.WriteString(Process[i],'Z Ratio',ZRatioStr[i]);
+      AppIni.WriteString(Process[i],'W Ratio',WRatioStr[i]);
       AppIni.WriteString(Process[i],'X element',Element[i,1]);
       AppIni.WriteString(Process[i],'Y element',Element[i,2]);
+      AppIni.WriteString(Process[i],'Z element',Element[i,3]);
       AppIni.WriteString(Process[i],'Graph X Ratio',GraphXRatioStr[i]);
       AppIni.WriteString(Process[i],'Graph Y Ratio',GraphYRatioStr[i]);
       AppIni.WriteString(Process[i],'Graph Z Ratio',GraphZRatioStr[i]);
@@ -552,9 +558,9 @@ begin
       if (i in [1,2,7,9,14,15,16]) then
       begin
         AppIni.WriteString(Process[i],'CHUR model name',CHURModelName[i]);
-        AppIni.WriteString(Process[i],'CHUR 1',FormatFloat('0.0000000E+00',CHUR[i,0]));
-        AppIni.WriteString(Process[i],'CHUR 2',FormatFloat('0.0000000E+00',CHUR[i,1]));
-        AppIni.WriteString(Process[i],'CHUR 3',FormatFloat('0.0000000E+00',CHUR[i,2]));
+        AppIni.WriteString(Process[i],'CHUR 1',FormatFloat('0.0000000E+00',CHUR[i,1]));
+        AppIni.WriteString(Process[i],'CHUR 2',FormatFloat('0.0000000E+00',CHUR[i,2]));
+        AppIni.WriteString(Process[i],'CHUR 3',FormatFloat('0.0000000E+00',CHUR[i,3]));
         AppIni.WriteString(Process[i],'DM model name',DMModelName[i]);
         AppIni.WriteString(Process[i],'DM 1',FormatFloat('0.00000000E+00',DM[i,1]));
         AppIni.WriteString(Process[i],'DM 2',FormatFloat('0.00000000E+00',DM[i,2]));

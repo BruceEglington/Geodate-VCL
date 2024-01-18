@@ -802,7 +802,7 @@ begin
                 end;
                 InitRatioError:=InterceptError*T_Mult;
                 t1:=Intercept;
-                t2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*
+                t2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*
                     (Exp(DecayConst[iAnalTyp]*Age)-1.0);
                 Epsilon1:=10000.0*(t1/t2-1.0);
                 EpError1:=T_Mult*10000.0*InterceptError/Intercept;
@@ -822,7 +822,7 @@ begin
                 t2:=Sqrt(t2+t1*t1);
                 InitRatioError:=t2;
                 t1:=Intercept;
-                t2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*(Exp(DecayConst[iAnalTyp]*Age)-1.0);
+                t2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age)-1.0);
                 Epsilon1:=10000.0*(t1/t2-1.0);
                 EpError1:=10000.0*InitRatioError/Intercept;
               end;
@@ -1020,7 +1020,7 @@ begin
                 end;
                 InitRatioError:=InterceptError*T_Mult;
                 t1:=Intercept;
-                t2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*
+                t2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*
                     (Exp(DecayConst[iAnalTyp]*Age)-1.0);
                 Epsilon1:=100.0*(t1/t2-1.0);
                 EpError1:=T_Mult*100.0*InterceptError/Intercept;
@@ -1040,7 +1040,7 @@ begin
                 t2:=Sqrt(t2+t1*t1);
                 InitRatioError:=t2;
                 t1:=Intercept;
-                t2:=CHUR[iAnalTyp,2]-CHUR[iAnalTyp,1]*(Exp(DecayConst[iAnalTyp]*Age)-1.0);
+                t2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age)-1.0);
                 Epsilon1:=100.0*(t1/t2-1.0);
                 EpError1:=100.0*InitRatioError/Intercept;
               end;

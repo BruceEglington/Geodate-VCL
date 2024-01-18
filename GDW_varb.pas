@@ -24,7 +24,7 @@ const
   //YorkExt          : string[2] = 'YK';
   YorkExt          : string = 'YK';
   GeodateExt          : string = 'GE';
-  U238U235 : double = 137.818;
+  DefaultU238U235 : double = 137.818;
   UPbTracerUncertainty_pc : double = 0.015;
   iCurveLineMinus = 15;
   iCurveLinePlus = 14;
@@ -55,20 +55,11 @@ type
   str80           = string[80];
   CharSet         = set of char;
   MaskArray       = string[12];
-  //Error           = array [1..4] of string[13];
-  Error           = array [1..4] of string;
-  //ElementType     = array [0..MaxType,1..2] of string[2];
-  ElementType     = array [0..MaxType,1..3] of string;
-  //XRatioType      = array [0..MaxType] of string[11];
-  //YRatioType      = array [0..MaxType] of string[11];
-  //ZRatioType      = array [0..MaxType] of string[11];
-  //ProcessType     = array [0..MaxType] of string[11];
-  XRatioType      = array [0..MaxType] of string;
-  YRatioType      = array [0..MaxType] of string;
-  ZRatioType      = array [0..MaxType] of string;
-  WRatioType      = array [0..MaxType] of string;
-  ProcessType     = array [0..MaxType] of string;
-  DataRecord      = packed record
+  TErrorNameType           = array [1..4] of string;
+  TElementNameType     = array [0..MaxType,1..3] of string;
+  TRatioNameType      = array [0..MaxType] of string;
+  TProcessNameType     = array [0..MaxType] of string;
+  RDataRecord      = packed record
          case shortint of
           1 : (Sano       :  string[10];
               XElemConc, YElemConc, XRatio, XPrecis, XError,
@@ -88,8 +79,8 @@ type
                NRep      :  smallint;
               sparefield :  array[1..45] of byte);
          end;
-  Yorkfiletype    =  file of DataRecord;
-  GeodateRecord      = record
+  Yorkfiletype    =  file of RDataRecord;
+  RGeodateRecord      = record
          case shortint of
           1 : (Sano       :  string[20];
               XElemConc, YElemConc,
@@ -120,7 +111,7 @@ type
                NRep      :  smallint;
               sparefield :  array[1..45] of byte);
          end;
-  Geodatefiletype    =  file of GeodateRecord;
+  Geodatefiletype    =  file of RGeodateRecord;
   //Prompt          = string[64];
   //AnTypStr        = string[11];
   //ErTypStr        = string[11];
@@ -131,29 +122,22 @@ type
   ZErTypStr        = string;
   WErTypStr        = string;
   Samp            = string;
-  DecayConstantSourceType = array[0..MaxType] of string;
-  Decay           = array [0..MaxType] of double;
-  DecayUncertainty = array [0..MaxType] of double;
-  CHURval         = array [0..MaxType,0..2] of double;
-  //CHURModelNameType = array[0..MaxType] of string[50];
-  //DMModelNameType = array[0..MaxType] of string[50];
-  CHURModelNameType = array[0..MaxType] of string;
-  DMModelNameType = array[0..MaxType] of string;
-  CCModelNameType = array[0..MaxType] of string;
-  TracerUnc       = array [0..MaxType] of double;
-  DMval           = array [0..MaxType,1..3] of double;
-  CCval           = array [0..MaxType,1..3] of double;
-  Muval           = array [0..2,1..5] of double;
-  CalcFacType     = array [0..MaxType,1..2] of double;
-  GraphColourType = array [0..9,1..3] of integer;
-  {
-  MSUM_Record     = packed record
-                      M_Array : array[0..100] of double;
-                    end;
-  }
+  TDecayConstantSourceType = array[0..MaxType] of string;
+  TDecayConstantValueType           = array [0..MaxType] of double;
+  TDecayUncertaintyValueType = array [0..MaxType] of double;
+  TModelNameType = array[0..MaxType] of string;
+  //TDMModelNameType = array[0..MaxType] of string;
+  //TCCModelNameType = array[0..MaxType] of string;
+  TTracerUncertaintyValueType       = array [0..MaxType] of double;
+  TModelValueType           = array [0..MaxType,1..3] of double;
+  //TCHURvalType         = array [0..MaxType,0..2] of double;
+  //TCCvalType           = array [0..MaxType,1..3] of double;
+  TMuValueType           = array [0..2,1..5] of double;
+  TCalcFacValueType     = array [0..MaxType,1..2] of double;
+  TGraphRGBColourType = array [0..9,1..3] of integer;
   FreqArrayType = array[0..21] of byte;
-  CumArrayType  = array[0..Steps+1] of double;
-  TTechnique    = (atGeneral,atRbSr,atSmNd,atPbPb,
+  TCumArrayType  = array[0..Steps+1] of double;
+  TTechniqueType    = (atGeneral,atRbSr,atSmNd,atPbPb,
                    at238UPb,at235UPb,atThPb,
                    atLuHf,atConcordia,atLaCe,atTeraWasserburg,atKAr,
                    atArAr,atArInverse,atKCa,atReOs,atLaBa,atEvapPb,
@@ -170,12 +154,12 @@ const
   N_Rep           :       integer = 999;  // used to be 60
   ArArJ           :       double = 1.0;
   ArArJ1sig       :       double = 0.1;
-  ErrTypeStr        :  Error
+  ErrTypeStr        :  TErrorNameType
                   = ('% X     % Y  ',
                      '% X     act Y',
                      'act X   % Y  ',
                      'act X   act Y');
-  Element           :  ElementType
+  DefaultElement           :  TElementNameType
                   = (('X ','Y ','Z'),    { 0}
                      ('Rb','Sr','Z'),
                      ('Sm','Nd','Z'),    { 2}
@@ -196,7 +180,7 @@ const
                      ('T','Pb','Z'),    {17 H}
                      ('Ar ','Ar','Z'),  {18 I}
                      ('X ','Y ','Z'));   {19 J}
-  XRatioStr         :  XRatioType
+  DefaultXRatioStr         :  TRatioNameType
                   = ('X          ',
                      '87Rb/86Sr',
                      '147Sm/144Nd',
@@ -217,7 +201,7 @@ const
                      '204Pb/206Pb',
                      '%39Ar      ',
                      'Age (Ma)   ');
-  YRatioStr         :  YRatioType
+  DefaultYRatioStr         :  TRatioNameType
                   = ('Y          ',
                      '87Sr/86Sr  ',
                      '143Nd/144Nd',
@@ -238,7 +222,7 @@ const
                      '208Pb/206Pb',
                      '40Ar*/39Ar ',
                      'Epsilon    ');
-  ZRatioStr         :  ZRatioType
+  DefaultZRatioStr         :  TRatioNameType
                   = ('Extra      ',
                      'Date       ',
                      'Date       ',
@@ -259,7 +243,7 @@ const
                      '207Pb/206Pb',
                      'J          ',
                      'Extra      ');
-  WRatioStr         :  WRatioType
+  DefaultWRatioStr         :  TRatioNameType
                   = ('Extra      ',
                      'Date       ',
                      'Date       ',
@@ -280,7 +264,7 @@ const
                      '207Pb/206Pb',
                      'J          ',
                      'Extra      ');
-  GraphXRatioStr         :  XRatioType
+  DefaultGraphXRatioStr         :  TRatioNameType
                   = ('X          ',
                      '<sup>87</sup>Rb/<sup>86</sup>Sr',
                      '<sup>147</sup>Sm/<sup>144</sup>Nd',
@@ -301,7 +285,7 @@ const
                      '<sup>204</sup>Pb/<sup>206</sup>Pb',
                      '%<sup>39</sup>Ar      ',
                      'Age (Ma)   ');
-  GraphYRatioStr         :  YRatioType
+  DefaultGraphYRatioStr         :  TRatioNameType
                   = ('Y          ',
                      '<sup>87</sup>Sr/<sup>86</sup>Sr  ',
                      '<sup>143</sup>Nd/<sup>144</sup>Nd',
@@ -322,7 +306,7 @@ const
                      '<sup>208</sup>Pb/<sup>206</sup>Pb',
                      '<sup>40</sup>Ar<sup>*/<sup>39</sup>Ar ',
                      'Epsilon    ');
-  GraphZRatioStr         :  ZRatioType
+  DefaultGraphZRatioStr         :  TRatioNameType
                   = ('Extra      ',
                      'Date       ',
                      'Date       ',
@@ -343,7 +327,7 @@ const
                      '<sup>207</sup>Pb/<sup>206</sup>Pb',
                      'J          ',
                      'Extra      ');
-  Process           :  ProcessType
+  DefaultProcess           :  TProcessNameType
                   = ('X-Y general',
                      'Rb-Sr      ',
                      'Sm-Nd      ',
@@ -364,7 +348,7 @@ const
                      'Evap Pb    ',
                      'Ar Plateau ',
                      'Age-Ep-T2DM');
-  ProcessAbr        :  ProcessType
+  DefaultProcessAbr        :  TProcessNameType
                   = ('X-Y general',
                      'Rb-Sr      ',
                      'Sm-Nd      ',
@@ -373,7 +357,7 @@ const
                      '235U-Pb    ',
                      'Th-Pb      ',
                      'Lu-Hf      ',
-                     'Concordia  ',
+                     'Wetherill  ',
                      'La-Ce      ',
                      'TeraWass   ',
                      'K-Ar       ',
@@ -385,7 +369,7 @@ const
                      'Evap Pb    ',
                      'Ar Plateau ',
                      'Age-Ep-T2DM');
-  DecayConstantSource       :  DecayConstantSourceType
+  DefaultDecayConstantSource       :  TDecayConstantSourceType
                   = ('none         ',
                      'Steiger and Jager (1977)',
                      'Lugmair and Marti (1978)',
@@ -406,7 +390,7 @@ const
                      'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)');
-  DecayConst        :  Decay
+  DefaultDecayConst        :  TDecayConstantValueType
                   = (1,
                      1.42E-11,
                      6.54E-12,
@@ -427,7 +411,7 @@ const
                      1,
                      1,
                      1);
-  DecayConstUncertainty        :  DecayUncertainty
+  DefaultDecayConstUncertainty        :  TDecayUncertaintyValueType
                   = (0.000001,
                      0.000001,
                      0.000001,
@@ -448,7 +432,7 @@ const
                      0.000001,
                      0.000001,
                      0.000001);
-  TracerUncertainty        :  TracerUnc
+  DefaultTracerUncertainty        :  TTracerUncertaintyValueType
                   = (0,
                      0.0,
                      0.0,
@@ -469,7 +453,7 @@ const
                      0.0,
                      0.0,
                      0.0);
-  CHURModelName     :  CHURModelNameType
+  DefaultCHURModelName     :  TModelNameType
                   = ('UR         ',
                      'UR         ',
                      'CHUR       ',
@@ -490,7 +474,7 @@ const
                      'UR         ',
                      'nd         ',
                      'nd         ');
-  CHUR              :  CHURval
+  DefaultCHUR              :  TModelValueType
                   = ((0, 0      ,0        ),
                      (0, 0.0847 ,0.7047   ),
                      (0, 0.1967 ,0.51264  ),
@@ -511,7 +495,7 @@ const
                      (0, 0      ,0        ),
                      (0, 0      ,0        ),
                      (0, 0      ,0        ));
-  DMModelName       :  DMModelNameType
+  DefaultDMModelName       :  TModelNameType
                   = ('none         ',
                      'Ben Othman et al. (1984)',
                      'De Paolo (1981)',
@@ -532,7 +516,7 @@ const
                      'DM         ',
                      'DM         ',
                      'DM         ');
-  DM                :  DMval
+  DefaultDM                :  TModelValueType
                   = ((0      ,0        ,0),
                      (-1.54985776E-22 ,-1.6007234E-13,0.70273029),
                      ( 1.53077E-23    ,-1.4435742E-12,0.513078),
@@ -553,7 +537,7 @@ const
                      (0      ,0        ,0),
                      (0      ,0        ,0),
                      (0      ,0        ,0));
-  CCModelName       :  CCModelNameType
+  DefaultCCModelName       :  TModelNameType
                   = ('none         ',
                      'CC         ',
                      'CC         ',
@@ -574,7 +558,7 @@ const
                      'CC         ',
                      'CC         ',
                      'CC         ');
-  CC              :  CCval
+  DefaultCC              :  TModelValueType
                   = ((0, 0      ,0    ),
                      (0, 0.10   ,0.0  ),
                      (0, 0.11   ,0.0  ),
@@ -595,7 +579,7 @@ const
                      (0, 0      ,0    ),
                      (0, 0      ,0    ),
                      (0, 0      ,0    ));
-  MuV               :  Muval
+  DefaultMuV               :  TMuValueType
                   = ((4.57E9 , 9.307 ,10.294 ,29.487,8.00),
                      (3.70E9 ,11.152 ,12.998 ,31.230,9.74),
                      (3.70E9 ,11.152 ,12.998 ,31.230,9.74));
@@ -605,7 +589,7 @@ const
   mu_206            : double    = 11.152;
   mu_207            : double    = 12.998;
   BlanketZErrVal    :  double   = 0.001;
-  CalcFac           :  CalcFacType
+  DefaultCalcFac           :  TCalcFacValueType
                   = ((0.0      ,0.0      ),
                      (2.692948 ,0.283040 ),
                      (0.531497 ,0.142521 ),
@@ -626,7 +610,7 @@ const
                      (0.000001 ,0.000001 ),
                      (0.0      ,0.0      ),
                      (0.0      ,0.0      ));
-  GraphColour      :  GraphColourType     {Red, Blue, Green}
+  DefaultGraphColour      :  TGraphRGBColourType     {Red, Blue, Green}
                   = ((000, 000, 000),     {0 Spare}
                      (255, 000, 000),     {1 Points included}
                      (000, 255, 000),     {2 Points excluded}
@@ -643,11 +627,12 @@ var
   AdjustForNegativeIntercept : boolean;
   //N_Rep             : integer;  // used to be 60 but now needs to be set to 999
   //temporaryAnalType :  string[1];
+  U238U235 : double;
   temporaryAnalType :  string;
   ItemsHaveChanged  :  boolean;
-  ITechnique        :  set of TTechnique;
-  IAnalType         :  TTechnique;
-  IAnalTyp          :  integer;
+  iTechnique        :  set of TTechniqueType;
+  iAnalType         :  TTechniqueType;
+  iAnalTyp          :  integer;
   AnyChar           :  char;
   //RegisteredUser    :  string[30];
   RegisteredUser    :  string;
@@ -667,9 +652,9 @@ var
   Is_OK             :  boolean;
   Msg,Title         :  Prompt;
   York_file         :  YorkFileType;
-  TempDataRec       :  DataRecord;
+  TempDataRec       :  RDataRecord;
   Geodate_file         :  GeodateFileType;
-  GeodateDataRec       :  GeodateRecord;
+  GeodateDataRec       :  RGeodateRecord;
   SmpNo             :  array [1..MaxSamp] of Samp;
   RecordNo          :  array [1..MaxSamp] of integer;
   Latitude,
@@ -795,7 +780,7 @@ var
   HistArray       : FreqArrayType;
   //NameString      : string[20];
   NameString      : string;
-  Spectrum        : CumArrayType;
+  Spectrum        : TCumArrayType;
   //SuiteName       : string[50];
   SuiteName       : string;
   //LitholName      : string[50];
@@ -808,12 +793,36 @@ var
   LastCountry : string;
   cdsPath : string;
   CommonFilePath : string;
-  IniFilename : string;
   TicksEvery : double;
   MaxAgeConcordia : double;
   FormationAge,
   RequiredAge : double;
   DefaultErrorType : string;
+
+  Element               :  TElementNameType;
+  XRatioStr             :  TRatioNameType;
+  YRatioStr             :  TRatioNameType;
+  ZRatioStr             :  TRatioNameType;
+  WRatioStr             :  TRatioNameType;
+  GraphXRatioStr        :  TRatioNameType;
+  GraphYRatioStr        :  TRatioNameType;
+  GraphZRatioStr        :  TRatioNameType;
+  Process               : TProcessNameType;
+  ProcessAbr            :  TProcessNameType;
+  DecayConstantSource   :  TDecayConstantSourceType;
+  DecayConst            :  TDecayConstantValueType;
+  DecayConstUncertainty :  TDecayUncertaintyValueType;
+  TracerUncertainty     :  TTracerUncertaintyValueType;
+  CHURModelName         :  TModelNameType;
+  CHUR                  :  TModelValueType;
+  DMModelName           :  TModelNameType;
+  DM                    :  TModelValueType;
+  CCModelName           :  TModelNameType;
+  CC                    :  TModelValueType;
+  MuV                   :  TMuValueType;
+  CalcFac               :  TCalcFacValueType;
+  GraphColour           :  TGraphRGBColourType;
+
 
 implementation
 
