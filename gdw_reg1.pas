@@ -234,6 +234,9 @@ type
     //  H 17 = Evaporation Pb
     //  I 18 = Ar plateau
     //  J 19 = T(2DM) from Age-Epsilon values
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
     //
     ChartRow : integer;
     RowNumber : integer;
@@ -427,8 +430,8 @@ begin
         begin
           temp:=ConcordiaIntercept(5.0e9,NewSlope,NewIntercept);
           temp1:=ConcordiaIntercept(-1.0e9,NewSlope,NewIntercept);
-          X_Uint:=Exp(DecayConst[5]*temp)-1;
-          X_Lint:=Exp(DecayConst[5]*temp1)-1;
+          X_Uint:=Exp(DecayConst[ord(at238UPb)]*temp)-1;
+          X_Lint:=Exp(DecayConst[ord(at238UPb)]*temp1)-1;
         end;
         if CharInSet(AnalType,['A']) then
         begin
@@ -613,7 +616,7 @@ begin
     try
       GetErrorchronOptionForm := TfmGetErrorchronOption.Create(Self);
       ModelOption:='?';
-      if CharInSet(AnalType,['1','2','4'..'7','9','B','C','D','E','F','G']) then
+      if CharInSet(AnalType,['1','2','4'..'7','9','B','C','D','E','F','G','K','L','M']) then
       //if (Analtype in ['1','2','4'..'7','9','B','C','D','E','F','G']) then
         GetErrorchronOptionForm.rbbVarInit.Visible := true
       else
@@ -779,6 +782,7 @@ var
   //AgeErrorPlusIncl, AgeErrorMinusIncl : double;
   IncludeDCUncertainty : boolean;
   AgePlusAgeMinus : string;
+  tAgeErrorPlus, tAgeErrorMinus : double;
 begin
   IncludeDCUncertainty := false;
   AgePlusAgeMinus := 'neither';
@@ -795,10 +799,17 @@ begin
               if (Model <> 5) then
               begin
                 AgeError := ln(1.0+T_Mult*SlopeError)/DecayConst[iAnalTyp];
+                tAgeErrorPlus := (ln(1.0+Slope+T_Mult*SlopeError))/DecayConst[iAnalTyp] - Age;
+                tAgeErrorMinus := Age - (ln(1.0+Slope-T_Mult*SlopeError))/DecayConst[iAnalTyp];
+                AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
                 if (DecayConstUncertainty[iAnalTyp] > 0.0) then
                 begin
-                  AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
-                  AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  tAgeErrorPlus := (ln(1.0 + Slope+T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                  tAgeErrorMinus := Age - (ln(1.0 + Slope-T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  AgeErrorPlusIncl := tAgeErrorPlus;
+                  AgeErrorMinusIncl := tAgeErrorMinus;
                 end;
                 InitRatioError:=InterceptError*T_Mult;
                 t1:=Intercept;
@@ -862,10 +873,17 @@ begin
               if Slope>-1.0 then Age:=Ln(1.0+Slope)/DecayConst[iAnalTyp]
                             else Age:=0.0;
               AgeError := (ln(1.0+T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              tAgeErrorPlus := (ln(1.0+Slope+T_Mult*SlopeError))/DecayConst[iAnalTyp] - Age;
+              tAgeErrorMinus := Age - (ln(1.0+Slope-T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
               if (DecayConstUncertainty[iAnalTyp] > 0.0) then
               begin
-                AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
-                AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                //AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                //AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                tAgeErrorPlus := (ln(1.0 + Slope+T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                tAgeErrorMinus := Age - (ln(1.0 + Slope-T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                AgeErrorPlusIncl := tAgeErrorPlus;
+                AgeErrorMinusIncl := tAgeErrorMinus;
               end;
               Age:=Age/1.0e6;
               AgeError:=AgeError/1.0e6;
@@ -1008,15 +1026,38 @@ begin
               }
             end;
       'F' : begin //Re-Os
+            //ShowMessage('d.c. = '+FormatFloat('0.00000000E+00',DecayConst[iAnalTyp]));
+            //ShowMessage('ord(atReOs) = '+IntToStr(Ord(atReOs)));
+            //ShowMessage('iAnalTyp = '+IntToStr(iAnalTyp));
               if Slope>-1.0 then Age:=Ln(1.0+Slope)/DecayConst[iAnalTyp]
                             else Age:=0.0;
-              AgeError := (ln(1.0+T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              //AgeError := (ln(1.0+T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              //ShowMessage('AgeError = '+FormatFloat('###0.000',AgeError/1.0e6));
+              tAgeErrorPlus := (ln(1.0+Slope+T_Mult*SlopeError))/DecayConst[iAnalTyp] - Age;
+              tAgeErrorMinus := Age - (ln(1.0+Slope-T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
+              //ShowMessage('AgeErrorPlus = '+FormatFloat('###0.000',tAgeErrorPlus/1.0e6));
+              //ShowMessage('AgeErrorMinus = '+FormatFloat('###0.000',tAgeErrorMinus/1.0e6));
+              //ShowMessage('AgeError avg = '+FormatFloat('###0.000',AgeError/1.0e6));
               if (Model <> 5) then
               begin
                 if (DecayConstUncertainty[iAnalTyp] > 0.0) then
                 begin
-                  AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
-                  AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //AgeErrorPlusIncl := (ln(1.0 + T_Mult*Slope))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //AgeErrorMinusIncl := (ln(1.0 + T_Mult*Slope))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //ShowMessage('AgeErrorPlusIncl = '+FormatFloat('###0.000',AgeErrorPlusIncl/1.0e6));
+                  //tAgeErrorPlus := (ln(1.0+Slope+T_Mult*SlopeError))/DecayConst[iAnalTyp];
+                  tAgeErrorPlus := (ln(1.0 + Slope+T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                  tAgeErrorMinus := Age - (ln(1.0 + Slope-T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  AgeErrorPlusIncl := tAgeErrorPlus;
+                  AgeErrorMinusIncl := tAgeErrorMinus;
+                  //ShowMessage('AgeErrorPlusPlusIncl = '+FormatFloat('###0.000',tAgeErrorPlus/1.0e6));
+                  //tAgeErrorMinus := (ln(1.0+Slope-T_Mult*SlopeError))/DecayConst[iAnalTyp];
+                  //ShowMessage('AgeErrorMinusIncl = '+FormatFloat('###0.000',tAgeErrorMinus/1.0e6));
+                  //AgeErrorPlusIncl := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
+                  //ShowMessage('AgeErrorIncl avg = '+FormatFloat('###0.000',AgeErrorPlusIncl/1.0e6));
+                  AgeErrorPlusIncl := tAgeErrorPlus;
+                  AgeErrorMinusIncl := tAgeErrorMinus;
                 end;
                 InitRatioError:=InterceptError*T_Mult;
                 t1:=Intercept;
@@ -1041,6 +1082,137 @@ begin
                 InitRatioError:=t2;
                 t1:=Intercept;
                 t2:=CHUR[iAnalTyp,3]-CHUR[iAnalTyp,2]*(Exp(DecayConst[iAnalTyp]*Age)-1.0);
+                Epsilon1:=100.0*(t1/t2-1.0);
+                EpError1:=100.0*InitRatioError/Intercept;
+              end;
+              Age:=Age/1.0e6;
+              AgeError:=AgeError/1.0e6;
+              AgeErrorPlusIncl:=AgeErrorPlusIncl/1.0e6;
+              AgeErrorMinusIncl:=AgeErrorMinusIncl/1.0e6;
+            end;
+      'K' : //Lu-Hf inverse
+            begin
+              {
+              if Slope>-1.0 then Age:=Ln(1.0+Slope)/DecayConst[iAnalTyp]
+                            else Age:=0.0;
+              AgeError := (ln(1.0+T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              tAgeErrorPlus := (ln(1.0+Slope+T_Mult*SlopeError))/DecayConst[iAnalTyp] - Age;
+              tAgeErrorMinus := Age - (ln(1.0+Slope-T_Mult*SlopeError))/DecayConst[iAnalTyp];
+              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
+              if (DecayConstUncertainty[iAnalTyp] > 0.0) then
+              begin
+                tAgeErrorPlus := (ln(1.0 + Slope+T_Mult*SlopeError))/(DecayConst[iAnalTyp]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                tAgeErrorMinus := Age - (ln(1.0 + Slope-T_Mult*SlopeError))/(DecayConst[iAnalTyp]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                AgeErrorPlusIncl := tAgeErrorPlus;
+                AgeErrorMinusIncl := tAgeErrorMinus;
+              end;
+              }
+              t1 := -1.0*Slope/Intercept;
+              //ShowMessage(FormatFloat('###0.000000',t1));
+              t1 := 1.0+t1;
+              //ShowMessage(FormatFloat('###0.000000',t1));
+              t1 := ln(t1);
+              t1 := t1/DecayConst[ord(atLuHf)];
+              if (Slope < 0.0) then Age:=Ln(1.0+(-1.0*Slope/Intercept))/DecayConst[ord(atLuHf)]
+                               else Age:=0.0;
+              //ShowMessage('K1 Age =' + FormatFloat('####0.000',Age/1.0e6));
+              AgeError := Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)];
+              AgeError := Age - AgeError;
+              tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)];
+              tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)] - Age;
+              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
+              //ShowMessage('K2 AgeError =' + FormatFloat('####0.000',AgeError/1.0e6));
+              if (Model <> 5) then
+              begin
+                if (DecayConstUncertainty[ord(atLuHf)] > 0.0) then
+                begin
+                  tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atLuHf)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atLuHf)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                  AgeErrorPlusIncl := tAgeErrorPlus;
+                  AgeErrorMinusIncl := tAgeErrorMinus;
+                  //ShowMessage('K3 AgeErrorPlusIncl =' + FormatFloat('####0.000',AgeErrorPlusIncl/1.0e6));
+                  //ShowMessage('K4 AgeErrorMinusIncl =' + FormatFloat('####0.000',AgeErrorMinusIncl/1.0e6));
+                end;
+              end;
+              InitRatio := 1.0/Intercept;
+              InitRatioError:=InitRatio*(InterceptError/Intercept)*T_Mult;
+              t1:=1.0/Intercept;
+              t2:=CHUR[ord(atReOs),3]-CHUR[ord(atReOs),2]*
+                    (Exp(DecayConst[ord(atReOs)]*Age)-1.0);
+              Epsilon1:=100.0*(t1/t2-1.0);
+              EpError1:=T_Mult*Epsilon1*InterceptError/Intercept;
+              Age:=Age/1.0e6;
+              AgeError:=AgeError/1.0e6;
+              AgeErrorPlusIncl:=AgeErrorPlusIncl/1.0e6;
+              AgeErrorMinusIncl:=AgeErrorMinusIncl/1.0e6;
+              InitRatioError:=InterceptError*T_Mult;
+            end;
+      'L' : begin //K-Ca inverse
+              MessageDlg('Not yet implemented',mtInformation,[mbOK],0);
+              {
+              if Slope>-1.0 then Age:=Ln(1.0+Slope)/DecayConst[iAnalTyp]
+                            else Age:=0.0;
+              AgeError:=Ln(1.0+T_Mult*SlopeError)/DecayConst[iAnalTyp];
+              Age:=Age*0.000001;
+              AgeError:=AgeError*0.000001;
+              InitRatioError:=InterceptError*T_Mult;
+              }
+            end;
+      'M' : begin //Re-Os inverse
+              t1 := -1.0*Slope/Intercept;
+              //ShowMessage(FormatFloat('###0.000000',t1));
+              t1 := 1.0+t1;
+              //ShowMessage(FormatFloat('###0.000000',t1));
+              t1 := ln(t1);
+              t1 := t1/DecayConst[ord(atReOs)];
+              if (Slope < 0.0) then Age:=Ln(1.0+(-1.0*Slope/Intercept))/DecayConst[ord(atReOs)]
+                               else Age:=0.0;
+              //ShowMessage('M1 Age =' + FormatFloat('####0.000',Age/1.0e6));
+              AgeError := Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)];
+              AgeError := Age - AgeError;
+              tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)];
+              tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)] - Age;
+              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
+              //ShowMessage('M2 AgeError =' + FormatFloat('####0.000',AgeError/1.0e6));
+              if (Model <> 5) then
+              begin
+                if (DecayConstUncertainty[ord(atReOs)] > 0.0) then
+                begin
+                  //AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[ord(atReOs)]*DecayConstUncertainty[ord(atReOs)]/100.0);
+                  //AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[ord(atReOs)]*DecayConstUncertainty[ord(atReOs)]/100.0);
+                  //tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  //tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                  tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
+                  tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
+                  AgeErrorPlusIncl := tAgeErrorPlus;
+                  AgeErrorMinusIncl := tAgeErrorMinus;
+                  //ShowMessage('M3 AgeErrorPlusIncl =' + FormatFloat('####0.000',AgeErrorPlusIncl/1.0e6));
+                  //ShowMessage('M4 AgeErrorMinusIncl =' + FormatFloat('####0.000',AgeErrorMinusIncl/1.0e6));
+                end;
+                InitRatio := 1.0/Intercept;
+                InitRatioError:=InitRatio*(InterceptError/Intercept)*T_Mult;
+                t1:=1.0/Intercept;
+                t2:=CHUR[ord(atReOs),3]-CHUR[ord(atReOs),2]*
+                    (Exp(DecayConst[ord(atReOs)]*Age)-1.0);
+                Epsilon1:=100.0*(t1/t2-1.0);
+                EpError1:=T_Mult*Epsilon1*InterceptError/Intercept;
+              end;
+              if (Model = 5) then
+              begin
+                t1:=SlopeError*Sqrt(Msum/MsumCutOff-1.0);
+                t2:=t1*TMultiplier(NumberOfPointsRegressed-2);
+                t2:=t2*t2;
+                t1:=SlopeError*TMultiplier(N_Rep);
+                t2:=Sqrt(t2+t1*t1);
+                AgeError:=Ln(1.0+t2)/DecayConst[ord(atReOs)];
+                t1:=InterceptError*Sqrt(Msum/MsumCutOff-1.0);
+                t2:=t1*TMultiplier(NumberOfPointsRegressed-2);
+                t2:=t2*t2;
+                t1:=InterceptError*TMultiplier(N_Rep);
+                t2:=Sqrt(t2+t1*t1);
+                InitRatioError:=t2;
+                t1:=Intercept;
+                t2:=CHUR[ord(atReOs),3]-CHUR[ord(atReOs),2]*(Exp(DecayConst[ord(atReOs)]*Age)-1.0);
                 Epsilon1:=100.0*(t1/t2-1.0);
                 EpError1:=100.0*InitRatioError/Intercept;
               end;
@@ -1142,12 +1314,12 @@ begin
   Str(N_Rep:3,N_Rep_Str);
   Str((NumberOfPointsRegressed-2):3,N_Pts_Reg_Str);
   ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed),1.0*(N_Rep),Msum,1);
-  tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+  tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
   //Str(ProbabilityOfFit:8:3,tempStr);
   eProbabilityOfFit.Text := tempStr;
   //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
   if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                               else eProbabilityOfFit.Font.Color := clBlue;
+                                 else eProbabilityOfFit.Font.Color := clBlue;
   case Model of
     1 : begin
       if Msum>MsumCutOff then
@@ -1156,16 +1328,16 @@ begin
         lIsochronErrorchron.Caption := ' Beyond anal. uncertainty';
         lIsochronErrorchron.Font.Color := clRed;
         lMSWDForced.Visible := true;
-        Str(T_Mult:7:2,tempStr);
+        Str(T_Mult:8:3,tempStr);
         lMSWDForced.Caption :='MSWD forced to the F cut-off.  Students t = '
                               +tempStr;
         ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed),1.0*(N_Rep),Msum,1);
-        tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+        tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
         //Str(ProbabilityOfFit:8:3,tempStr);
         eProbabilityOfFit.Text := tempStr;
         //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
         if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                     else eProbabilityOfFit.Font.Color := clBlue;
+                                       else eProbabilityOfFit.Font.Color := clBlue;
       end;
       if Msum<=MsumCutOff then
       begin
@@ -1173,15 +1345,15 @@ begin
         lIsochronErrorchron.Caption := ' Within anal. uncertainty';
         lIsochronErrorchron.Font.Color := clBlue;
         lMSWDForced.Visible := true;
-        Str(T_Mult:7:2,tempStr);
+        Str(T_Mult:8:3,tempStr);
         lMSWDForced.Caption :='Conf. int. based on # replicates. Students t = '+tempStr;
         ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed),1.0*(N_Rep),Msum,1);
-        tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+        tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
         //Str(ProbabilityOfFit:8:3,tempStr);
         eProbabilityOfFit.Text := tempStr;
         //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
         if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                     else eProbabilityOfFit.Font.Color := clBlue;
+                                       else eProbabilityOfFit.Font.Color := clBlue;
       end;
     end;
     2 : begin
@@ -1189,31 +1361,31 @@ begin
       lIsochronErrorchron.Caption := ' Beyond anal. uncertainty';
       lIsochronErrorchron.Font.Color := clRed;
       lMSWDForced.Visible := true;
-      Str(T_Mult:7:2,tempStr);
+      Str(T_Mult:8:3,tempStr);
       lMSWDForced.Caption :='MSWD forced to the F cut-off.  Students t = '
                               +tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed-2),1.0*(NumberOfPointsRegressed-2),Msum,1);
-      Str(ProbabilityOfFit:7:3,tempStr);
+      Str(ProbabilityOfFit:7:4,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
       if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                   else eProbabilityOfFit.Font.Color := clBlue;
+                                     else eProbabilityOfFit.Font.Color := clBlue;
     end;
     3 : begin
       Augmented:='  Assuming variable initial ratio ';
       lIsochronErrorchron.Caption := ' Beyond anal. uncertainty';
       lIsochronErrorchron.Font.Color := clRed;
       lMSWDForced.Visible := true;
-      Str(T_Mult:7:2,tempStr);
+      Str(T_Mult:8:3,tempStr);
       lMSWDForced.Caption :='MSWD forced to the F cut-off.  Students t = '
                               +tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed-2),1.0*(NumberOfPointsRegressed-2),Msum,1);
-      tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+      tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
       //Str(ProbabilityOfFit:8:3,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
       if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                   else eProbabilityOfFit.Font.Color := clBlue;
+                                     else eProbabilityOfFit.Font.Color := clBlue;
     end;
     4 : begin
       Augmented:='  Assuming multi-episodic scatter ';
@@ -1224,43 +1396,43 @@ begin
       lMSWDForced.Caption :='MSWD forced to the F cut-off.  Students t = '
                               +tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed-2),1.0*(NumberOfPointsRegressed-2),Msum,1);
-      tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+      tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
       //Str(ProbabilityOfFit:8:3,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
       if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                   else eProbabilityOfFit.Font.Color := clBlue;
+                                     else eProbabilityOfFit.Font.Color := clBlue;
     end;
     5 : begin
       Augmented:='  Assuming separate anal. and geol errors ';
       lIsochronErrorchron.Caption := ' Beyond anal. uncertainty';
       lIsochronErrorchron.Font.Color := clRed;
       lMSWDForced.Visible := true;
-      Str(T_Mult:7:2,tempStr);
+      Str(T_Mult:8:3,tempStr);
       lMSWDForced.Caption :='MSWD forced to the F cut-off.  Students t = '
                               +tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed-2),1.0*(NumberOfPointsRegressed-2),Msum,1);
-      tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+      tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
       //Str(ProbabilityOfFit:8:3,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
       if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                   else eProbabilityOfFit.Font.Color := clBlue;
+                                     else eProbabilityOfFit.Font.Color := clBlue;
     end;
     6 : begin
       Augmented:='  Errors not augmented ';
       lIsochronErrorchron.Caption := ' Beyond anal. uncertainty';
       lIsochronErrorchron.Font.Color := clRed;
       lMSWDForced.Visible := true;
-      Str(T_Mult:7:2,tempStr);
+      Str(T_Mult:8:3,tempStr);
       lMSWDForced.Caption :='Conf. int. based on # replicates. Students t = '+tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NumberOfPointsRegressed),1.0*(N_Rep),Msum,1);
-      tempStr := FormatFloat('#0.000',ProbabilityOfFit);
+      tempStr := FormatFloat('#0.0000',ProbabilityOfFit);
       //Str(ProbabilityOfFit:8:3,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
       if (ProbabilityOfFit < FAlpha) then eProbabilityOfFit.Font.Color := clRed
-                                   else eProbabilityOfFit.Font.Color := clBlue;
+                                     else eProbabilityOfFit.Font.Color := clBlue;
     end;
   end;
   eTitle.Text := Title;
@@ -1307,7 +1479,7 @@ begin
       Str(MsumCutoff:8:3,tempStr);
       eMSWD.Text := tempStr;
       ProbabilityOfFit := ProbabilityOfF(1.0*(NEquivPtsRegressed-2),1.0*(NEquivPtsRegressed-2),Msum,1);
-      tempStr := FormatFloat('##0.000',ProbabilityOfFit);
+      tempStr := FormatFloat('##0.0000',ProbabilityOfFit);
       //Str(ProbabilityOfFit:8:3,tempStr);
       eProbabilityOfFit.Text := tempStr;
       //eProbabilityOfFit.Text := FormatFloat('  0.000',ProbabilityOfFit);
@@ -1318,7 +1490,7 @@ begin
     end;
   end;
   lAugmented.Caption := Augmented;
-  if (AnalType in ['1','2','4'..'7','9','B'..'G']) then
+  if (AnalType in ['1','2','4'..'7','9','B'..'G','K','L','M']) then
   begin
     if (AnalType in ['C','D']) then
     begin
@@ -1337,6 +1509,11 @@ begin
       if ((Intercept < 10.0) and (Intercept >= 1.0)) then Str(Intercept:10:6,tempStr);
       if (Intercept < 1.0) then Str(Intercept:8:6,tempStr);
     end;
+    if (AnalType in ['K','L','M']) then
+    begin
+        InverseRatio := 1.0 / Intercept;
+        Str((InverseRatio):10:6,tempStr);
+    end;
     eRo.Text := tempStr;
     if (AnalType in ['C','D']) then
     begin
@@ -1350,7 +1527,7 @@ begin
         tmpPC := 100.0*InterceptError/Intercept;
         //tmpDiff := 1.0/Intercept-1.0/(Intercept+InitRatioError);
         tmpDiff := T_Mult*tmpPC*InverseRatio/100.0;
-        Str((tmpDiff):10:3,tempStr);
+          Str((tmpDiff):10:3,tempStr);
       end;
     end else
     begin
@@ -1358,8 +1535,14 @@ begin
       if ((InitRatio < 10.0) and (InitRatio >= 1.0)) then Str(InitRatioError:10:6,tempStr);
       if (InitRatio < 1.0) then Str(InitRatioError:8:6,tempStr);
     end;
+    if (AnalType in ['K','L','M']) then
+    begin
+        tmpPC := 100.0*InterceptError/Intercept;
+        tmpDiff := T_Mult*tmpPC*InverseRatio/100.0;
+        Str((tmpDiff):10:6,tempStr);
+    end;
     eRoErr.Text := tempStr;
-    if (AnalType in ['1','2','7','9','E','F','G']) then
+    if (AnalType in ['1','2','7','9','E','F','G','K','L','M']) then
     begin
       Str(Epsilon1:10:3,tempStr);
       eEpsilon.Text := tempStr;
@@ -1394,6 +1577,8 @@ begin
             lEpsilonPlusMinus.Visible := true;
             eEpsilonErr.Visible := true;
             lEpsilon95Percent.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(at238UPb)]);
+            lAdditionalStr.Visible := true;
             if (DecayConstUncertainty[iAnalTyp] > 0.0) then
             begin
               lDateDCIncl.Visible := true;
@@ -1409,6 +1594,8 @@ begin
               Str(AgeErrorMinusIncl:8:2,tempStr);
               eDateErrMinusIncl.Text := tempStr;
               //ShowMessage('1');
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
           end;
     '3' : begin
@@ -1469,6 +1656,8 @@ begin
             lEpsilonPlusMinus.Visible := false;
             eEpsilonErr.Visible := false;
             lEpsilon95Percent.Visible := false;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
+            lAdditionalStr.Visible := true;
             if (DecayConstUncertainty[iAnalTyp] > 0.0) then
             begin
               lDateDCIncl.Visible := true;
@@ -1484,6 +1673,8 @@ begin
               Str(AgeErrorMinusIncl:8:2,tempStr);
               eDateErrMinusIncl.Text := tempStr;
               //ShowMessage('1');
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
           end;
     '8','A' : begin
@@ -1505,6 +1696,8 @@ begin
             eRoErrMinus.Visible := true;
             lDateStr.Visible := true;
             eDate.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(at238UPb)]) + ' and ' + FormatFloat('0.000000E+00',DecayConst[ord(at235UPb)]);
+            lAdditionalStr.Visible := true;
             //including decay uncertainties
             if (DecayConstUncertainty[ord(at238UPb)] > 0.0) then
             begin
@@ -1539,6 +1732,8 @@ begin
               eLwrDateMinusErrIncl.Visible := true;
               //eLwrDatePlusErrAdjustedIncl.Visible := true;
               lLwrDate95PercentIncl.Visible := true;
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(at238UPb)]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[ord(at238UPb)]) + ' and ' + FormatFloat('0.000000E+00',DecayConst[ord(at235UPb)]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[ord(at235UPb)]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
             cbTicLabels.Visible := true;
             cbConcordiaUncertainties.Visible := true;
@@ -1691,9 +1886,11 @@ begin
             eEpsilonErr.Visible := false;
             eRo.Visible := true;
             eRoErr.Visible := true;
-            {
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
+            lAdditionalStr.Visible := true;
             if (DecayConstUncertainty[ord(atKAr)] > 0.0) then
             begin
+              {
               lDateDCIncl.Visible := true;
               //eDateIncl.Visible := true;
               lDatePlusMinusIncl.Visible := true;
@@ -1705,9 +1902,11 @@ begin
               Str(UprUprAgeErrorIncl:8:2,tempStr);
               eDateErrIncl.Text := tempStr;
               //Str(UprLwrAgeErrorIncl:8:2,tempStr);
+              }
               //eDateErrMinusIncl.Text := tempStr;
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
-            }
           end;
     'C' :
           begin
@@ -1728,6 +1927,8 @@ begin
             eEpsilonErr.Visible := false;
             eRo.Visible := true;
             eRoErr.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
+            lAdditionalStr.Visible := true;
             if ((DecayConstUncertainty[ord(atKAr)] > 0.0)) then
             begin
               lDateDCIncl.Visible := true;
@@ -1742,6 +1943,8 @@ begin
               eDateErrIncl.Text := tempStr;
               //Str(UprLwrAgeErrorIncl:8:2,tempStr);
               //eDateErrMinusIncl.Text := tempStr;
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
           end;
     'D' :
@@ -1776,6 +1979,8 @@ begin
             eEpsilonErr.Visible := false;
             Str(XItcpt:10:6,tempStr);
             eEpsilon.Text := tempStr;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atKAr)]);
+            lAdditionalStr.Visible := true;
             if (DecayConstUncertainty[ord(atKAr)] > 0.0) then
             begin
               lDateDCIncl.Visible := true;
@@ -1790,6 +1995,8 @@ begin
               eDateErrIncl.Text := tempStr;
               //Str(UprLwrAgeErrorIncl:8:2,tempStr);
               //eDateErrMinusIncl.Text := tempStr;
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atKAr)]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[ord(atKAr)]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
           end;
     'F' :
@@ -1813,6 +2020,11 @@ begin
             lEpsilonPlusMinus.Visible := true;
             eEpsilonErr.Visible := true;
             lEpsilon95Percent.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
+            lAdditionalStr.Visible := true;
+            //ShowMessage('d.c. = '+FormatFloat('0.00000000E+00',DecayConst[iAnalTyp]));
+            //ShowMessage('ord(atReOs) = '+IntToStr(Ord(atReOs)));
+            //ShowMessage('iAnalTyp = '+IntToStr(iAnalTyp));
             if (DecayConstUncertainty[iAnalTyp] > 0.0) then
             begin
               lDateDCIncl.Visible := true;
@@ -1828,6 +2040,52 @@ begin
               Str(AgeErrorMinusIncl:8:2,tempStr);
               eDateErrMinusIncl.Text := tempStr;
               //ShowMessage('1');
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma ';
+              lAdditionalStr.Visible := true;
+            end;
+          end;
+    'K','L','M' :
+          begin
+            HideResultLabels;
+            PanelDate.Visible := true;
+            lDatePlusMinus.Visible := true;
+            lDateStr.Visible := true;
+            eDate.Visible := true;
+            lDatePlusMinus.Visible := true;
+            eDateErr.Visible := true;
+            lDate95Percent.Visible := true;
+            lRoStr.Caption := 'Initial ratio =';
+            lRoPlusMinus.Visible := true;
+            lEpsilonStr.Caption := 'Epsilon =';
+            if (AnalType = 'M') then lEpsilonStr.Caption := 'Gamma =';
+            lEpsilonStr.Visible := true;
+            Str(Age:8:2,tempStr);
+            eDate.Text := tempStr;
+            Str(AgeError:8:2,tempStr);
+            eDateErr.Text := tempStr;
+            eEpsilon.Visible := true;
+            lEpsilonPlusMinus.Visible := true;
+            eEpsilonErr.Visible := true;
+            lEpsilon95Percent.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atReOs)]);
+            lAdditionalStr.Visible := true;
+            if (DecayConstUncertainty[iAnalTyp] > 0.0) then
+            begin
+              lDateDCIncl.Visible := true;
+              //eDateIncl.Visible := false;
+              lDateErrPlusOnlyIncl.Visible := true;
+              eDateErrIncl.Visible := true;
+              lDateErrMinusOnlyIncl.Visible := true;
+              eDateErrMinusIncl.Visible := true;
+              lDate95PercentIncl.Visible := true;
+              //eDateAdjustedIncl.Visible := false;
+              Str(AgeErrorPlusIncl:8:2,tempStr);
+              eDateErrIncl.Text := tempStr;
+              Str(AgeErrorMinusIncl:8:2,tempStr);
+              eDateErrMinusIncl.Text := tempStr;
+              //ShowMessage('1');
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atReOs)]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[ord(atReOs)]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
             end;
           end;
   end;//case
@@ -2007,6 +2265,7 @@ begin
     ChartReg.LeftAxis.Automatic := false;
     ChartReg.LeftAxis.Increment := IncrementAmountLeft;
     ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
+    ChartReg.LeftAxis.Automatic := true;
   //end;
   //if (NumLabelledTicsBottom > 10) then
   //begin
@@ -2244,6 +2503,7 @@ var
   StepSize, t1, t2, temp : double;
   tmpStr   : string;
   StepIncrement : integer;
+  PosDot : integer;
 begin
   try
     GetAxisValuesForm := TfmAxOpt.Create(Self);
@@ -2262,6 +2522,8 @@ begin
     if (GetAxisValuesForm.ModalResult = mrOK) then
     begin
       SaveDialogSprdSheet.InitialDir := TTPath;
+      //PosDot := Pos('.',ProjectName);
+      //ProjectName := Copy(ProjectName,1,PosDot-1);
       SaveDialogSprdSheet.FileName := ProjectName+'_Regression';
       if SaveDialogSprdSheet.Execute then
       begin
@@ -2722,6 +2984,8 @@ begin
   Val(eMaxAgeConcordia.Text,MaxAgeConcordia,iCode);
   if (iCode <>0) then MaxAgeConcordia := 4500.0;
   eMaxAgeConcordia.Text := FormatFloat('###0.0',MaxAgeConcordia);
+  //ShowMessage('1  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('1  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   //Points
   ChartReg.Series[iEllipsesExcluded].Clear;
   ChartReg.Series[iEllipsesIncluded].Clear;
@@ -2784,6 +3048,8 @@ begin
       if (MinY > Ratio[i,2]) then MinY := Ratio[i,2];
     end;
   end;
+  //ShowMessage('2  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('2  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   //Current sample from tmpRes.DB file
   ChartReg.Series[iCurrent].XValue[0] := dmGdwtmp.cdsRegXRatio.AsFloat;
   ChartReg.Series[iCurrent].YValue[0] := dmGdwtmp.cdsRegYRatio.AsFloat;
@@ -2819,6 +3085,9 @@ begin
     //until (tmpAge > (UprIntercept+50.0));
     until (tmpAge > (MaxAgeConcordia+50.0));
   end;
+  //ShowMessage('3  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('3  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('3  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
 
   //Concordia curve tics
   if (AnalType in ['8']) then
@@ -2837,21 +3106,32 @@ begin
     //until (tmpAge > (UprIntercept+50.0));
     until (tmpAge > (MaxAgeConcordia+50.0));
   end;
+  //ShowMessage('4  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('4  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('4  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
 
   //Tera-Wasserburg curve
   if (AnalType in ['A']) then
   begin
-    if (LwrIntercept < 1.0) then
-      tmpX := 12.0
-    else
-      tmpY := 1.0/(exp(DecayConst[ord(at238UPb)]*LwrIntercept*1.0e6)-1.0);
-    if (UprIntercept <=1.0) then
+    if (LwrIntercept < 101.0) then
+    begin
+      tmpX := 800.0;
+      tmpY := 0.04;
+    end else
+    begin
+      tmpX := 1.0/(exp(DecayConst[ord(at238UPb)]*(LwrIntercept-100.0)*1.0e6)-1.0);
+      //tmpY := 1.0/(exp(DecayConst[ord(at238UPb)]*(LwrIntercept-50.0)*1.0e6)-1.0);
+      tmpY := E235((LwrIntercept-50.0)*1.0e6)/E238((LwrIntercept-50.0)*1.0e6)/U238U235;
+    end;
+    if (UprIntercept <= 1.0) then
     begin
       tmpAge := 4500.0;
     end else
     begin
-      tmpAge := UprIntercept;
+      tmpAge := MaxAgeConcordia + 50.0;
     end;
+      //tmpAge := MaxAge;
+      //if (MaxAgeConcordia < MaxAge) then tmpAge := MaxAgeConcordia;
       tmpX := 1.0/(exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6)-1.0);
       tmpY := (1.0/U238U235)*(exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6)-1.0);
       tmpY := tmpY/(exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6)-1.0);
@@ -2886,29 +3166,40 @@ begin
     until (tmpAge < 1.0);
     //until (tmpAge > (4400.0));  //temporary
   end;
+  //ShowMessage('5  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('5  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('5  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
 
   //Tera-Wasserburg curve tics
   if (AnalType in ['A']) then
   begin
-    //if (LwrIntercept < 1.0) then
-    //  tmpX := 12.0
-    //else
-    //  tmpY := 1.0/(exp(DecayConst[ord(at238UPb)]*LwrIntercept*1.0e6)-1.0);
-    //if (UprIntercept <=1.0) then
-    //begin
-      tmpX := (1/U238U235)*(exp(DecayConst[ord(at235UPb)]*4500.0*1.0e6)-1.0);
-      tmpY := tmpX/(exp(DecayConst[ord(at238UPb)]*4500.00*1.0e6)-1.0);
-      MaxAge := 4500.0;
-      //ChartReg.Series[iCurveLine].AddXY(tmpX,tmpY);
-    //end else
-    //begin
-    //  tmpX := (1/U238U235)*(exp(DecayConst[ord(at235UPb)]*UprIntercept*1.0e6)-1.0);
-    //  tmpY := tmpX/(exp(DecayConst[ord(at238UPb)]*UprIntercept*1.0e6)-1.0);
-    //  MaxAge := UprIntercept;
-      //ChartReg.Series[iCurveLine].AddXY(tmpX,tmpY);
-    //end;
-    tmpAge := MaxAge;
-    //tmpAge := 0.00000001;
+    if (LwrIntercept < 101.0) then
+    begin
+      tMaxX := 800.0;
+      tMinY := 0.04;
+    end else
+    begin
+      tMaxX := 1.0/(exp(DecayConst[ord(at238UPb)]*(LwrIntercept-100.0)*1.0e6)-1.0);
+      //tmpY := 1.0/(exp(DecayConst[ord(at238UPb)]*(LwrIntercept-50.0)*1.0e6)-1.0);
+      tMinY := E235((LwrIntercept-50.0)*1.0e6)/E238((LwrIntercept-50.0)*1.0e6)/U238U235;
+    end;
+    if (UprIntercept <= 1.0) then
+    begin
+      tmpAge := 4500.0;
+    end else
+    begin
+      tmpAge := MaxAgeConcordia + 50.0;
+    end;
+    //tmpX := (1/U238U235)*(exp(DecayConst[ord(at235UPb)]*4500.0*1.0e6)-1.0);
+    //tmpY := tmpX/(exp(DecayConst[ord(at238UPb)]*4500.00*1.0e6)-1.0);
+    tMinX := (1/U238U235)*(exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0);
+    tMaxX := 1.0/(exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0);
+    tMaxY := (1/U238U235)*(exp(DecayConst[ord(at235UPb)]*(UprIntercept+50.0)*1.0e6)-1.0);
+    tMaxY := tMaxY/(exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0);
+    if (MinX > tMinX) then MinX := tMinX;
+    if (MaxX < tMaxX) then MaxX := tMaxX;
+    if (MinY > tMinY) then MinY := tMinY;
+    if (MaxY < tMaxY) then MaxY := tMaxY;
     j := 1;
     repeat
       tmpX := 1.0/(exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6)-1.0);
@@ -2922,19 +3213,23 @@ begin
     //until (tmpAge > (MaxAge+0.1*MaxAge));
     until (tmpAge < 1.0);
   end;
+  //ShowMessage('6  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('6  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('6  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  MaxY := E235((UprIntercept+50.0)*1.0e6)/E238((UprIntercept+50.0)*1.0e6)/U238U235;
 
   //Pb model curve
   if (AnalType in ['3']) then
   begin
-    OldAgeFactor8:=Exp(DecayConst[4]*MuV[mu_choice,1]);
-    OldAgeFactor5:=Exp(DecayConst[5]*MuV[mu_choice,1]);
+    OldAgeFactor8:=Exp(DecayConst[ord(at238UPb)]*MuV[mu_choice,1]);
+    OldAgeFactor5:=Exp(DecayConst[ord(at235UPb)]*MuV[mu_choice,1]);
     tmpAge:=0.0;
-    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[4]*tmpAge*1.0e6));
-    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[5]*tmpAge*1.0e6));
+    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6));
+    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6));
     j := 1;
     repeat
-      t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[4]*tmpAge*1.0e6));
-      t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[5]*tmpAge*1.0e6));
+      t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6));
+      t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6));
       ChartReg.Series[iCurveLine].AddXY(t1,t2);
       tmpAge := tmpAge + TicksEvery/5.0;
       j := j+1;
@@ -2944,21 +3239,24 @@ begin
   //Pb model curve tics
   if (AnalType in ['3']) then
   begin
-    OldAgeFactor8:=Exp(DecayConst[4]*MuV[mu_choice,1]);
-    OldAgeFactor5:=Exp(DecayConst[5]*MuV[mu_choice,1]);
+    OldAgeFactor8:=Exp(DecayConst[ord(at238UPb)]*MuV[mu_choice,1]);
+    OldAgeFactor5:=Exp(DecayConst[ord(at235UPb)]*MuV[mu_choice,1]);
     tmpAge:=0.0;
-    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[4]*tmpAge*1.0e6));
-    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[5]*tmpAge*1.0e6));
+    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6));
+    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6));
     j := 1;
     repeat
-      t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[4]*tmpAge*1.0e6));
-      t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[5]*tmpAge*1.0e6));
+      t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6));
+      t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6));
       ChartReg.Series[iCurveTic].AddXY(t1,t2);
       tmpAge := tmpAge + TicksEvery;
       j := j+1;
     until (tmpAge > 4560.0);
   end;
 
+  //ShowMessage('7  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('7  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('7  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   //Minimum and Maximum values for chart
   if (MaxX <= MinX) then MaxX := MinX + 0.1*MinX;
   if (MaxY <= MinY) then MaxY := MinY + 0.1*MinY;
@@ -2974,36 +3272,35 @@ begin
       tMinX := exp(DecayConst[ord(at235UPb)]*(LwrIntercept-10.0)*1.0e6)-1.0;
       tMinY := exp(DecayConst[ord(at238UPb)]*(LwrIntercept-10.0)*1.0e6)-1.0;
     end;
-    if (MinX > tMinX) then MinX := tMinX;
-    if (MaxX < tMaxX) then MaxX := tMaxX;
-    if (MinY > tMinY) then MinY := tMinY;
-    if (MaxY < tMaxY) then MaxY := tMaxY;
   end;
   if (AnalType in ['A']) then
   begin
     if ((LwrIntercept - 10.0) < 0.0) then
     begin
-      tMaxX := 120.0;
-      tMinY := 0.0;
+      tMaxX := 800.0;
+      tMinY := 0.04;
     end else
     begin
-      tMaxX := exp(DecayConst[ord(at235UPb)]*(LwrIntercept-10.0)*1.0e6)-1.0;
-      tMinY := exp(DecayConst[ord(at238UPb)]*(LwrIntercept-10.0)*1.0e6)-1.0;
+      tMaxX := 1.0/(E238((LwrIntercept-100.0)*1.0e6));
+      tMinY := E235((LwrIntercept-50.0)*1.0e6)/E238((LwrIntercept-50.0)*1.0e6)/U238U235;
     end;
-    if (MinX > tMinX) then MinX := tMinX;
-    if (MaxX < tMaxX) then MaxX := tMaxX;
-    if (MinY > tMinY) then MinY := tMinY;
-    if (MaxY < tMaxY) then MaxY := tMaxY;
   end;
+  if (MinX > tMinX) then MinX := tMinX;
+  if (MaxX < tMaxX) then MaxX := tMaxX;
+  if (MinY > tMinY) then MinY := tMinY;
+  if (MaxY < tMaxY) then MaxY := tMaxY;
+  //ShowMessage('8  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('8  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('8  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   //ShowMessage('start min-max for chart 2 MaxX = '+FormatFloat('########0.00000',MaxX));
   if (AnalType in ['3']) then
   begin
-    OldAgeFactor8:=Exp(DecayConst[4]*MuV[mu_choice,1]);
-    OldAgeFactor5:=Exp(DecayConst[5]*MuV[mu_choice,1]);
+    OldAgeFactor8:=Exp(DecayConst[ord(at238UPb)]*MuV[mu_choice,1]);
+    OldAgeFactor5:=Exp(DecayConst[ord(at235UPb)]*MuV[mu_choice,1]);
     tmpAge:=Age + 0.1*Age;
     //ShowMessage('Age = '+FormatFloat('###0.000',Age + 0.1*Age));
-    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[4]*tmpAge*1.0e6));
-    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[5]*tmpAge*1.0e6));
+    t1:=MuV[mu_choice,2]+MuV[mu_choice,5]*(OldAgeFactor8-Exp(DecayConst[ord(at238UPb)]*tmpAge*1.0e6));
+    t2:=MuV[mu_choice,3]+MuV[mu_choice,5]/U238U235*(OldAgeFactor5-Exp(DecayConst[ord(at235UPb)]*tmpAge*1.0e6));
     if (MinX > t1) then MinX := t1;
     if (MinY > t2) then MinY := t2;
     //ShowMessage('MinX = '+FormatFloat('###0.000',MinX));
@@ -3013,16 +3310,22 @@ begin
   begin
     tMaxX := exp(DecayConst[ord(at235UPb)]*(UprIntercept+50.0)*1.0e6)-1.0;
     tMaxY := exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0;
-    if (MaxX < tMaxX) then MaxX := tMaxX;
-    if (MaxY < tMaxY) then MaxY := tMaxY;
   end;
   if (AnalType in ['A']) then
   begin
-    tMinX := exp(DecayConst[ord(at235UPb)]*(UprIntercept+50.0)*1.0e6)-1.0;
-    tMaxY := exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0;
-    if (MinX > tMaxX) then MinX := tMaxX;
-    if (MaxY < tMaxY) then MaxY := tMaxY;
+    tMinX := 1.0/(exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0);
+    //tMaxY := exp(DecayConst[ord(at238UPb)]*(UprIntercept+50.0)*1.0e6)-1.0;
+    tMaxX := 1.0/(E238((LwrIntercept-100.0)*1.0e6));
+    tMaxY := E235((UprIntercept+50.0)*1.0e6)/E238((UprIntercept+50.0)*1.0e6)/U238U235;
+    tMinY := E235((LwrIntercept-50.0)*1.0e6)/E238((LwrIntercept-50.0)*1.0e6)/U238U235;
   end;
+  if (MinX > tMinX) then MinX := tMinX;
+  if (MaxX < tMaxX) then MaxX := tMaxX;
+  if (MinY > tMinY) then MinY := tMinY;
+  if (MaxY < tMaxY) then MaxY := tMaxY;
+  //ShowMessage('9  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('9  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('9  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   //ShowMessage('start min-max for chart 3 MaxX = '+FormatFloat('########0.00000',MaxX));
   if (AnalType in ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G']) then
   begin
@@ -3043,9 +3346,18 @@ begin
   MinX := MinX - 0.1*(MaxX-MinX);
   MaxY := MaxY + 0.1*(MaxY-MinY);
   MinY := MinY - 0.1*(MaxY-MinY);
+  if (AnalType in ['A']) then
+  begin
+    if (MinY < 0.08) then MinY := 0.04;
+    if (MinY < 0.0) then MinY := 0.0;
+  end;
+  //ShowMessage('10  MaxY = '+FormatFloat('####0.0000',MaxY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('10  MinY = '+FormatFloat('####0.0000',MinY)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
+  //ShowMessage('10  MaxX = '+FormatFloat('####0.0000',MaxX)+'  MaxAgeConcordia = '+FormatFloat('####0.0',MaxAgeConcordia));
   StepSize := (MaxX)/20;
-  ChartReg.BottomAxis.SetMinMax(MinX,MaxX);
+  ChartReg.LeftAxis.Automatic := true;
   ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
+  ChartReg.LeftAxis.Automatic := true;
   if (AnalType in ['1','2','4','5','6','7','9','B','C','D','E','F','G']) then
     ChartReg.BottomAxis.SetMinMax(0.0,MaxX);
   if (AnalType in ['3','8','A']) then
@@ -3066,21 +3378,25 @@ begin
   iRec := 1;
   ChartReg.Legend.Visible := cbLegend.Checked;
 
+  if (AnalType in ['1','2','4','5','6','7','9','B','C','D','E','F','G','K','L','M']) then
+    ChartReg.LeftAxis.Automatic := true;
   IncrementAmount := ChartReg.Axes.Left.Increment;
   //ShowMessage('Increment = '+FormatFloat('####0.000000',IncrementAmount));
   if (IncrementAmount <= 0.0) then IncrementAmount := 0.5;
   Range := MaxY-MinY;
+  Range := ChartReg.LeftAxis.Maximum-ChartReg.LeftAxis.Minimum;
   NumLabelledTics := Round(Range/IncrementAmount);
   //ShowMessage('Range = '+FormatFloat('###0.0000000',Range)+'__'+Int2Str(NumLabelledTics));
   //ShowMessage('Minimum = '+FormatFloat('###0.0000000',MinY)+'__'+'Maximum = '+FormatFloat('###0.0000000',MaxY));
   //ShowMessage('IncrementAmount = '+FormatFloat('###0.0000000',IncrementAmount)+'__'+Int2Str(NumLabelledTics));
-  if (NumLabelledTics > 10) then
+  if (NumLabelledTics > 20) then
   begin
     IncrementAmount := 1.0*Round(Range/10.0);
     //ShowMessage('Set IncrementAmount = '+FormatFloat('###0.0000000',IncrementAmount)+'__'+Int2Str(NumLabelledTics));
     ChartReg.LeftAxis.Automatic := false;
     ChartReg.LeftAxis.Increment := IncrementAmount;
     ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
+    ChartReg.LeftAxis.Automatic := true;
   end;
   Range := MaxY-MinY;
   ChartReg.Axes.Left.AxisValuesFormat := '####0.0##';
@@ -3102,8 +3418,8 @@ begin
   //if (EllipseMagnif > 1.0) then ChartReg.SubFoot.Caption := '95% conf. uncertainties';
   ChartReg.SubFoot.Visible := false;
   ChartReg.BottomAxis.SetMinMax(MinX,MaxX);
-  ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
-  if (AnalType in ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G']) then
+  //ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
+  if (AnalType in ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','K','L','M']) then
   begin
     tMinX := ChartReg.BottomAxis.Minimum;
     tMinY := ChartReg.LeftAxis.Minimum;
@@ -3116,7 +3432,7 @@ begin
     //ShowMessage('MinX = '+FormatFloat('########0.00000',MinX));
     //ShowMessage('MinY = '+FormatFloat('########0.00000',MinY));
   end;
-  if (AnalType in ['1','2','4','5','6','7','9','B','C','D','E','F','G']) then
+  if (AnalType in ['1','2','4','5','6','7','9','B','C','D','E','F','G','K','L','M']) then
     ChartReg.BottomAxis.SetMinMax(0.0,MaxX);
   if (AnalType in ['3','8','A']) then
   begin

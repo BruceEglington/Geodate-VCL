@@ -7,7 +7,8 @@ uses
   ComCtrls, Buttons, OleCtrls, ExtCtrls, StdCtrls, AxCtrls,
   Vcl.Grids,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
-  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, FlexCel.VCLSupport,
+  FlexCel.Core;
 
 type
   TfmSheet = class(TForm)
@@ -58,8 +59,11 @@ var
   //pBuf      : string;
   //pTitle    : string;
   tmpStr    : string[3];
+PosDot : integer;
 begin
   SaveDialogSprdSheet.InitialDir := TTPath;
+  PosDot := Pos('.',ProjectName);
+  ProjectName := Copy(ProjectName,1,PosDot-1);
   SaveDialogSprdSheet.FileName := ProjectName;
   if SaveDialogSprdSheet.Execute then
   begin

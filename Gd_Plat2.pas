@@ -158,6 +158,9 @@ type
     //  H 17 = Evaporation Pb
     //  I 18 = Ar plateau
     //  J 19 = T(2DM) from Age-Epsilon values
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
     CMaxX, CMinX : double;
     iRec : integer;
     SprdSheet : TXlsFile;
@@ -1125,6 +1128,7 @@ end;
 procedure TfmPlatAr.bbSpreadSheetClick(Sender: TObject);
 var
   i, iRow, iCol    : integer;
+  PosDot : integer;
   StepSize, t1, temp : double;
   tAge, tLower, tUpper, tmpT_Mult : double;
   tmpStr   : string;
@@ -1137,16 +1141,18 @@ begin
   T_Mult:=TMultiplier(1.0*N_Rep);
   tmpT_Mult := T_Mult;
   try
-    MinX := ChPlat.BottomAxis.Minimum;
-    MaxX := ChPlat.BottomAxis.Maximum;
-    MinY := ChPlat.LeftAxis.Minimum;
-    MaxY := ChPlat.LeftAxis.Maximum;
       SaveDialogSprdSheet.InitialDir := TTPath;
+      //PosDot := Pos('.',ProjectName);
+      //ProjectName := Copy(ProjectName,1,PosDot-1);
       SaveDialogSprdSheet.FileName := ProjectName+'_Plateau';
       if SaveDialogSprdSheet.Execute then
       begin
         Drive3 := ExtractFileDir(SaveDialogSprdSheet.FileName);
         TTPath := ExtractFilePath(SaveDialogSprdSheet.FileName);
+        MinX := ChPlat.BottomAxis.Minimum;
+        MaxX := ChPlat.BottomAxis.Maximum;
+        MinY := ChPlat.LeftAxis.Minimum;
+        MaxY := ChPlat.LeftAxis.Maximum;
         try
           SprdSheet := TXlsFile.Create(true);
           SprdSheet.NewFile(1);

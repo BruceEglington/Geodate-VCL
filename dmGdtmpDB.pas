@@ -92,6 +92,14 @@ type
     SVGIconImageCollection1: TSVGIconImageCollection;
     cdsEditZWt: TFloatField;
     cdsEditZWtType: TStringField;
+    cdsEditWRatio: TFloatField;
+    cdsEditWPrec: TFloatField;
+    cdsEditWWt: TFloatField;
+    cdsEditWWtType: TStringField;
+    cdsEditAgeValue: TFloatField;
+    cdsEditAge95pcValue: TFloatField;
+    cdsEditRhoExtra: TFloatField;
+    cdsEditZZ: TFloatField;
   private
     { Private declarations }
   public

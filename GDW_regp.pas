@@ -143,6 +143,7 @@ procedure ConvertConcordia2TeraWasserburg;
 procedure ConvertTeraWasserburg2Concordia;
 function DM2_Age_From_Epsilon(AgePref, Epsilon : double) : double;
 function Get_IAnal_from_AnalType (AnalType : string) : integer;
+procedure Convert2Inverse;
 
 implementation
 
@@ -168,6 +169,9 @@ implementation
     //  H 17 = Evaporation Pb
     //  I 18 = Ar plateau
     //  J 19 = T(2DM) from Age-Epsilon values
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
 
 function TMultiplier (N : double) : double;
 {from Ludwig 1990 - ISOPLOT}
@@ -854,26 +858,30 @@ begin
         begin
           if (AgePlusAgeMinus = UncertaintyPlus) then
           begin
-            X1:=Exp((DecayConst[4]-T_MultDC*DecayConstUncertainty[4]*DecayConst[4]/100.0)*AgeMax)-1.0;
-            X2:=Exp((DecayConst[5]+T_MultDC*DecayConstUncertainty[5]*DecayConst[5]/100.0)*AgeMax)-1.0;
+            //X1:=Exp((DecayConst[ord(at238UPb)]-T_MultDC*DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
+            //X2:=Exp((DecayConst[ord(at235UPb)]+T_MultDC*DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
+            X1:=Exp((DecayConst[ord(at238UPb)]-DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
+            X2:=Exp((DecayConst[ord(at235UPb)]+DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             Y1:=X2/X1-U238U235*Slope;
-            Y2:=X1*(X2+1.0)*(DecayConst[5]+DecayConstUncertainty[5]*DecayConst[5]/100.0)-X2*(X1+1.0)*(DecayConst[4]-DecayConstUncertainty[4]*DecayConst[4]/100.0);
+            Y2:=X1*(X2+1.0)*(DecayConst[ord(at235UPb)]+DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)-X2*(X1+1.0)*(DecayConst[ord(at238UPb)]-DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0);
             //ShowMessage('plus '+FormatFloat('###0.000000',AgeMax/1.0e6)+'__'+FormatFloat('###.00000000',Slope)+'__'+FormatFloat('###.00000000',X1)+'__'+FormatFloat('###.00000000',X2)+'__'+FormatFloat('###.00000000',Y1)+'__'+FormatFloat('###.00000000',Y2));
           end;
           if (AgePlusAgeMinus = UncertaintyMinus) then
           begin
-            X1:=Exp((DecayConst[4]+T_MultDC*DecayConstUncertainty[4]*DecayConst[4]/100.0)*AgeMax)-1.0;
-            X2:=Exp((DecayConst[5]-T_MultDC*DecayConstUncertainty[5]*DecayConst[5]/100.0)*AgeMax)-1.0;
+            //X1:=Exp((DecayConst[ord(at238UPb)]+T_MultDC*DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
+            //X2:=Exp((DecayConst[ord(at235UPb)]-T_MultDC*DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
+            X1:=Exp((DecayConst[ord(at238UPb)]+DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
+            X2:=Exp((DecayConst[ord(at235UPb)]-DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             Y1:=X2/X1-U238U235*Slope;
-            Y2:=X1*(X2+1.0)*(DecayConst[5]-DecayConstUncertainty[5]*DecayConst[5]/100.0)-X2*(X1+1.0)*(DecayConst[4]+DecayConstUncertainty[4]*DecayConst[4]/100.0);
+            Y2:=X1*(X2+1.0)*(DecayConst[ord(at235UPb)]-DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)-X2*(X1+1.0)*(DecayConst[ord(at238UPb)]+DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0);
             //ShowMessage('minus '+FormatFloat('###0.000000',AgeMax/1.0e6)+'__'+FormatFloat('###.00000000',Slope)+'__'+FormatFloat('###.00000000',X1)++'__'+FormatFloat('###.00000000',X2)+'__'+FormatFloat('###.00000000',Y1)+'__'+FormatFloat('###.00000000',Y2));
           end;
         end else
         begin
-          X1:=Exp(DecayConst[4]*AgeMax)-1.0;
-          X2:=Exp(DecayConst[5]*AgeMax)-1.0;
+          X1:=Exp(DecayConst[ord(at238UPb)]*AgeMax)-1.0;
+          X2:=Exp(DecayConst[ord(at235UPb)]*AgeMax)-1.0;
           Y1:=X2/X1-U238U235*Slope;
-          Y2:=X1*(X2+1.0)*DecayConst[5]-X2*(X1+1.0)*DecayConst[4];
+          Y2:=X1*(X2+1.0)*DecayConst[ord(at235UPb)]-X2*(X1+1.0)*DecayConst[ord(at238UPb)];
         end;
         Y2:=Y2/(X1*X1);
         ApproxAge:=AgeMax-Y1/Y2;
@@ -901,13 +909,13 @@ begin
   if ((Slope>0.0) and (Slope<2.0)) then begin
     ThisDone:=false;
     AgeMax:=5.0E9;
-    Z1:=Exp(DecayConst[4]*MuV[mu_choice,1]);
-    Z2:=Exp(DecayConst[5]*MuV[mu_choice,1]);
+    Z1:=Exp(DecayConst[ord(at238UPb)]*MuV[mu_choice,1]);
+    Z2:=Exp(DecayConst[ord(at235UPb)]*MuV[mu_choice,1]);
     repeat
-      X1:=Z1-Exp(DecayConst[4]*AgeMax);
-      X2:=Z2-Exp(DecayConst[5]*AgeMax);
+      X1:=Z1-Exp(DecayConst[ord(at238UPb)]*AgeMax);
+      X2:=Z2-Exp(DecayConst[ord(at235UPb)]*AgeMax);
       Y1:=X2/X1-U238U235*Slope;
-      Y2:=X1*(Z2+X2)*DecayConst[5]-X2*(Z1+X1)*DecayConst[4];
+      Y2:=X1*(Z2+X2)*DecayConst[ord(at235UPb)]-X2*(Z1+X1)*DecayConst[ord(at238UPb)];
       Y2:=Y2/(X1*X1);
       ApproxAge:=AgeMax-Y1/Y2;
       Difference:=Abs(AgeMax-ApproxAge);
@@ -990,12 +998,12 @@ begin
   ThisDone:=false;
   ApproxMu := MaxMu;
   repeat
-    M:=(Exp(DecayConst[5]*OldAge)-Exp(DecayConst[5]*Age));
-    M:=M/(U238U235*(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age)));
-    B:=Y0+MaxMu/U238U235*(Exp(DecayConst[5]*OldAge)-Exp(DecayConst[5]*Age));
-    B:=B-M*(X0+MaxMu*(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age)));
+    M:=(Exp(DecayConst[ord(at235UPb)]*OldAge)-Exp(DecayConst[ord(at235UPb)]*Age));
+    M:=M/(U238U235*(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age)));
+    B:=Y0+MaxMu/U238U235*(Exp(DecayConst[ord(at235UPb)]*OldAge)-Exp(DecayConst[ord(at235UPb)]*Age));
+    B:=B-M*(X0+MaxMu*(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age)));
     U:=(Intercept-B)/(M-Slope);
-    ApproxMu:=(U-X0)/(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age));
+    ApproxMu:=(U-X0)/(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age));
     Difference:=Abs(MaxMu-ApproxMu);
     if Difference<MuTolerance then ThisDone:=true;
     MaxMu:=ApproxMu;
@@ -1017,17 +1025,17 @@ begin
   ThisDone:=false;
   ApproxMu := MaxMu;
   repeat
-    M:=(Exp(DecayConst[5]*OldAge)-Exp(DecayConst[5]*Age));
-    M:=M/(U238U235*(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age)));
-    B:=Y0+MaxMu/U238U235*(Exp(DecayConst[5]*OldAge)-Exp(DecayConst[5]*Age));
-    B:=B-M*(X0+MaxMu*(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age)))-Intercept;
+    M:=(Exp(DecayConst[ord(at235UPb)]*OldAge)-Exp(DecayConst[ord(at235UPb)]*Age));
+    M:=M/(U238U235*(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age)));
+    B:=Y0+MaxMu/U238U235*(Exp(DecayConst[ord(at235UPb)]*OldAge)-Exp(DecayConst[ord(at235UPb)]*Age));
+    B:=B-M*(X0+MaxMu*(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age)))-Intercept;
     D:=2.0*(B*(M-Slope)+Xcentroid*SlopeError*SlopeError);
     E:=(M-Slope)*(M-Slope)-SlopeError*SlopeError;
     V:=B*B-InterceptError*InterceptError;
     if (D*D-4.0*E*V)>0.0 then begin
       U:=(-D+(1.0*LowUp)*Sqrt(D*D-4.0*E*V))/(2.0*E);
       if U>-1 then
-        ApproxMu:=(U-X0)/(Exp(DecayConst[4]*OldAge)-Exp(DecayConst[4]*Age))
+        ApproxMu:=(U-X0)/(Exp(DecayConst[ord(at238UPb)]*OldAge)-Exp(DecayConst[ord(at238UPb)]*Age))
       else ThisDone:=true;
     end
     else ThisDone:=true;
@@ -1072,12 +1080,12 @@ var
 
 function Age5 ( Age : double) : double;
 begin
-  Age5:=Exp(DecayConst[5]*Age);
+  Age5:=Exp(DecayConst[ord(at235UPb)]*Age);
 end;
 
 function Age8 ( Age : double) : double;
 begin
-  Age8:=Exp(DecayConst[4]*Age);
+  Age8:=Exp(DecayConst[ord(at238UPb)]*Age);
 end;
 
 begin
@@ -1154,8 +1162,8 @@ end;
 procedure ModelMuSourceInitialValue(Mu,Age,OldAge,X0,Y0: double; var Pb64initial: double; var Pb74initial: double);
 {calculate model source Pb64 and Pb74 initial values for a given mu and age according to given model starting values}
 begin
-  Pb64initial := X0 + Mu * (exp(OldAge*1.0e6*DecayConst[4])-exp(Age*1.0e6*DecayConst[4]));
-  Pb74initial := Y0 + (Mu/U238U235) * (exp(OldAge*1.0e6*DecayConst[5])-exp(Age*1.0e6*DecayConst[5]));
+  Pb64initial := X0 + Mu * (exp(OldAge*1.0e6*DecayConst[ord(at238UPb)])-exp(Age*1.0e6*DecayConst[ord(at238UPb)]));
+  Pb74initial := Y0 + (Mu/U238U235) * (exp(OldAge*1.0e6*DecayConst[ord(at235UPb)])-exp(Age*1.0e6*DecayConst[ord(at235UPb)]));
 end;{MuValue}
 
 function ConcordiaIntercept ( MaxAge : double;
@@ -1168,10 +1176,10 @@ var
 begin
   ThisDone:=false;
   repeat
-    M:=DecayConst[4]/DecayConst[5]*Exp(DecayConst[4]*MaxAge-DecayConst[5]*MaxAge);
-    B:=(Exp(DecayConst[4]*MaxAge)-1.0)-M*(Exp(DecayConst[5]*MaxAge)-1.0);
+    M:=DecayConst[ord(at238UPb)]/DecayConst[ord(at235UPb)]*Exp(DecayConst[ord(at238UPb)]*MaxAge-DecayConst[ord(at235UPb)]*MaxAge);
+    B:=(Exp(DecayConst[ord(at238UPb)]*MaxAge)-1.0)-M*(Exp(DecayConst[ord(at235UPb)]*MaxAge)-1.0);
     U:=(Intercept-B)/(M-Slope);
-    if (U>-1.0) then ApproxAge:=1.0/DecayConst[5]*Ln(1.00+U)
+    if (U>-1.0) then ApproxAge:=1.0/DecayConst[ord(at235UPb)]*Ln(1.00+U)
                 else begin
                    ApproxAge:=0.0;
                    ThisDone:=true;
@@ -1201,8 +1209,8 @@ begin
   if (not IncludeDCUncertainty) then
   begin
     repeat
-      M:=DecayConst[4]/DecayConst[5]*Exp(DecayConst[4]*MaxAge-DecayConst[5]*MaxAge);
-      B:=(Exp(DecayConst[4]*MaxAge)-1.0)-M*(Exp(DecayConst[5]*MaxAge)-1.0)-Intercept;
+      M:=DecayConst[ord(at238UPb)]/DecayConst[ord(at235UPb)]*Exp(DecayConst[ord(at238UPb)]*MaxAge-DecayConst[ord(at235UPb)]*MaxAge);
+      B:=(Exp(DecayConst[ord(at238UPb)]*MaxAge)-1.0)-M*(Exp(DecayConst[ord(at235UPb)]*MaxAge)-1.0)-Intercept;
       D:=2.0*(B*(M-Slope)+Xcentroid*SlopeError*SlopeError);
       EE:=(M-Slope)*(M-Slope)-SlopeError*SlopeError;
       V:=B*B-InterceptError*InterceptError;
@@ -1218,7 +1226,7 @@ begin
       if temp1>0.0 then begin
         U:=(-1.0*D+(1.0*LowUp)*Sqrt(temp1))/(2.0*EE);
         if U>-1.0 then
-          ApproxAge:=1.0/DecayConst[5]*Ln(1.0+U)
+          ApproxAge:=1.0/DecayConst[ord(at235UPb)]*Ln(1.0+U)
         else begin
           ThisDone:=true;
           ApproxAge:=-5e9;
@@ -1238,10 +1246,10 @@ begin
   if (IncludeDCUncertainty) then
   begin
     repeat
-      tDCx := DecayConst[4];
-      tDCxErr := DecayConstUncertainty[4];
-      tDCy := DecayConst[5];
-      tDCyErr := DecayConstUncertainty[5];
+      tDCx := DecayConst[ord(at238UPb)];
+      tDCxErr := DecayConstUncertainty[ord(at238UPb)];
+      tDCy := DecayConst[ord(at235UPb)];
+      tDCyErr := DecayConstUncertainty[ord(at235UPb)];
       //for curve above the normal concordia in Wetherill plot
       if (lowercase(AgePlusAgeMinus) = UncertaintyPlus) then
       begin
@@ -1271,7 +1279,7 @@ begin
       if temp1>0.0 then begin
         U:=(-1.0*D+(1.0*LowUp)*Sqrt(temp1))/(2.0*EE);
         if U>-1.0 then
-          ApproxAge:=1.0/DecayConst[5]*Ln(1.0+U)
+          ApproxAge:=1.0/DecayConst[ord(at235UPb)]*Ln(1.0+U)
         else begin
           ThisDone:=true;
           ApproxAge:=-5e9;
@@ -1565,8 +1573,8 @@ begin
               LWt[2]:=ErrorWt[J,2]*100.0/Ratio[J,2];
             end;
     end;
-        X_Uint:=Exp(DecayConst[5]*Age)-1;
-        Y_Uint:=Exp(DecayConst[4]*Age)-1;
+        X_Uint:=Exp(DecayConst[ord(at235UPb)]*Age)-1;
+        Y_Uint:=Exp(DecayConst[ord(at238UPb)]*Age)-1;
         X_Lint:=0.0;
         Y_Lint:=0.0;
         Chordlength:=Sqrt((X_Uint-X_Lint)*(X_Uint-X_Lint)+
@@ -1684,8 +1692,8 @@ begin
               LWt[2]:=ErrorWt[J,2]*100.0/Ratio[J,2];
             end;
     end;
-    X_Uint:=Exp(DecayConst[5]*Age)-1;
-    Y_Uint:=Exp(DecayConst[4]*Age)-1;
+    X_Uint:=Exp(DecayConst[ord(at235UPb)]*Age)-1;
+    Y_Uint:=Exp(DecayConst[ord(at238UPb)]*Age)-1;
     X_Lint:=0.0;
     Y_Lint:=0.0;
     Chordlength:=Sqrt((X_Uint-X_Lint)*(X_Uint-X_Lint)+
@@ -2791,11 +2799,13 @@ begin
     begin
       if (AgePlusAgeMinus = UncertaintyPlus) then
       begin
-        Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]-T_MultDC*DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
+        //Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]-T_MultDC*DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
+        Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]-DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
       end;
       if (AgePlusAgeMinus = UncertaintyMinus) then
       begin
-        Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]+T_MultDC*DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
+        //Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]+T_MultDC*DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
+        Result := ln(X + 1.0)/(DecayConst[ord(at238UPb)]+DecayConst[ord(at238UPb)]*DecayConstUncertainty[ord(at238UPb)]/100.0);
       end;
     end else
     begin
@@ -3037,7 +3047,92 @@ begin
   if (AnalType = 'H') then iAnalTyp := 17;
   if (AnalType = 'I') then iAnalTyp := 18;
   if (AnalType = 'J') then iAnalTyp := 19;
+  if (AnalType = 'K') then iAnalTyp := 20;
+  if (AnalType = 'L') then iAnalTyp := 21;
+  if (AnalType = 'M') then iAnalTyp := 22;
   Result := iAnalTyp;
+end;
+
+procedure Convert2Inverse;
+var
+  i : integer;
+  tx, ty, tEx, tEy, tr : double;
+  sx, sy, rho : double;
+begin
+  for i := 1 to NumberOfPoints do
+  begin
+    if (Ratio[i,2] > 0.0) then
+    begin
+      ty := 1.0/Ratio[i,2];
+      tx := Ratio[i,1]/Ratio[i,2];
+      case ErrTyp[i] of
+        '1' : begin
+          Ex := ErrorWt[i,1];
+          Ey := ErrorWt[i,2];
+        end;
+        '2' : begin
+          Ex := ErrorWt[i,1];
+          Ey := 100.0*ErrorWt[i,2]/Ratio[i,2];
+        end;
+        '3' : begin
+          Ex := 100.0*ErrorWt[i,1]/Ratio[i,1];
+          Ey := ErrorWt[i,2];
+        end;
+        '4' : begin
+          Ex := 100.0*ErrorWt[i,1]/Ratio[i,1];
+          Ey := 100.0*ErrorWt[i,2]/Ratio[i,2];
+        end;
+      end;
+      {
+      tEx := Ey;
+      tEy := Sqrt(Ex*Ex+Ey*Ey-2.0*R[i]*Ex*Ey);
+      tr := (Ey-tEx*R[i])/tEy;
+      }
+      // following Li and Vermeesch (2021)
+      tEy := Ey;
+      tEx := Sqrt(Ex*Ex - 2.0*R[i]*Ex*Ey+Ey*Ey);
+      tr :=  1.0/tEx * (Ey-R[i]*Ex);
+    end else
+    begin
+      tx := 0.0;
+      ty := 0.0;
+      tEx := 0.0;
+      tEy := 0.0;
+      tr := 0.0;
+    end;
+    Ratio[i,1] := tx;
+    Ratio[i,2] := ty;
+    ErrorWt[i,1] := tEx;
+    ErrorWt[i,2] := tEy;
+    R[i] := tr;
+    ErrTyp[i] := '1';
+  end;
+  case iAnalTyp of
+    7 : begin
+      iAnalTyp := 20;
+      AnalType := 'K';
+    end;
+    20 : begin
+      iAnalTyp := 7;
+      AnalType := '7';
+    end;
+    14 : begin
+      iAnalTyp := 21;
+      AnalType := 'L';
+    end;
+    21 : begin
+      iAnalTyp := 14;
+      AnalType := 'E';
+    end;
+    15 : begin
+      iAnalTyp := 22;
+      AnalType := 'M';
+    end;
+    22 : begin
+      iAnalTyp := 15;
+      AnalType := 'F';
+    end;
+  end;
 end;
 
 end.

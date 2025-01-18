@@ -144,12 +144,15 @@ procedure TfmSheetImport.bbOpenSheetClick(Sender: TObject);
 var
   tmpStr    : string;
   i : integer;
+  PosDot : integer;
 begin
   cbSheetname.Items.Clear;
   gbDefineTabSheet.Visible := false;
   gbIsoSys.Visible := false;
   OpenDialogSprdSheet.InitialDir := TTPath;
-  ProjectName := OpenDialogSprdSheet.FileName;
+  ProjectName := ExtractFileName(OpenDialogSprdSheet.FileName);
+  PosDot := Pos('.',ProjectName);
+  ProjectName := Copy(ProjectName,1,PosDot-1);
   if OpenDialogSprdSheet.Execute then
   begin
     Drive3 := SysUtils.ExtractFileDir(OpenDialogSprdSheet.FileName);
@@ -161,6 +164,8 @@ begin
     Tabs.TabIndex := Xls.ActiveSheet - 1;
     cbSheetName.ItemIndex := Xls.ActiveSheet - 1;
     ProjectName := SysUtils.ExtractFileName(OpenDialogSprdSheet.FileName);
+    PosDot := Pos('.',ProjectName);
+    ProjectName := Copy(ProjectName,1,PosDot-1);
     FillGrid(true);
     gbIsoSys.Visible := true;
     gbDefineTabSheet.Visible := true;
@@ -789,6 +794,9 @@ begin
     'H' : iLastIsoSys := 17;
     'I' : iLastIsoSys := 18;
     'J' : iLastIsoSys := 19;
+    'K' : iLastIsoSys := 20;
+    'L' : iLastIsoSys := 21;
+    'M' : iLastIsoSys := 22;
   end;
   cbxIsoSys.ItemIndex := iLastIsoSys;
 end;
@@ -831,6 +839,9 @@ begin
     17 : AnalType := 'H';
     18 : AnalType := 'I';
     19 : AnalType := 'J';
+    20 : AnalType := 'K';
+    21 : AnalType := 'L';
+    22 : AnalType := 'M';
   end;
   lXXStr.Caption := Element[iAnalTyp,1];
   lYYStr.Caption := Element[iAnalTyp,2];

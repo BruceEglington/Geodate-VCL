@@ -6,12 +6,12 @@ interface
 
 const
   ProgramName     = 'GDW';
-  ProgVersion     = '5.0';
-  DVProgVersion   = '5.0';
-  GeodateVersionStr = 'Geodate (2023)';
+  ProgVersion     = '5.1';
+  DVProgVersion   = '5.1';
+  GeodateVersionStr = 'Geodate (2025)';
   Steps           =  2500;
   MaxSamp         =  5000;
-  MaxType         = 19;
+  MaxType         = 22;
   MaxIteration    =   199;
   NumStatisticsValues = 999;
   AllowMessages   : boolean = true;
@@ -141,13 +141,13 @@ type
                    at238UPb,at235UPb,atThPb,
                    atLuHf,atConcordia,atLaCe,atTeraWasserburg,atKAr,
                    atArAr,atArInverse,atKCa,atReOs,atLaBa,atEvapPb,
-                   atArPlateau,atEps2DM);
+                   atArPlateau,atEps2DM,atLuHfInv,atKCaInv,atReOsInv);
 
 
 const
   Model           :       shortint = 1;
   SmpNo_Len       =       10;
-  MaxAnalType     =       11;
+  MaxAnalType     =       22;      //was 11
   MaxErrType      =        6;
   MaxElem         =        4;
   Bell            :       char = #7;
@@ -160,26 +160,29 @@ const
                      'act X   % Y  ',
                      'act X   act Y');
   DefaultElement           :  TElementNameType
-                  = (('X ','Y ','Z'),    { 0}
-                     ('Rb','Sr','Z'),
-                     ('Sm','Nd','Z'),    { 2}
-                     ('U ','Pb','Z'),
-                     ('U ','Pb','Z'),    { 4}
-                     ('U ','Pb','Z'),
-                     ('Th','Pb','Z'),    { 6}
-                     ('Lu','Hf','Z'),
-                     ('U ','Pb','Z'),    { 8}
-                     ('La','Ce','Z'),    { 9}
-                     ('U ','Pb','Z'),    {10 A}
-                     ('K ','Ar','Z'),
-                     ('Ar','Ar','Z'),    {12 C}
-                     ('Ar','Ar','Z'),
-                     ('K ','Ca','Z'),    {14 E}
-                     ('Re','Os','Z'),    {15 F}
-                     ('La','Ba','Z'),    {16 G}
-                     ('T','Pb','Z'),    {17 H}
-                     ('Ar ','Ar','Z'),  {18 I}
-                     ('X ','Y ','Z'));   {19 J}
+                  = (('X ','Y ','?'),    { 0}
+                     ('Rb','Sr','?'),
+                     ('Sm','Nd','?'),    { 2}
+                     ('U ','Pb','?'),
+                     ('U ','Pb','?'),    { 4}
+                     ('U ','Pb','?'),
+                     ('Th','Pb','?'),    { 6}
+                     ('Lu','Hf','?'),
+                     ('U ','Pb','?'),    { 8}
+                     ('La','Ce','?'),    { 9}
+                     ('U ','Pb','?'),    {10 A}
+                     ('K ','Ar','?'),
+                     ('Ar','Ar','?'),    {12 C}
+                     ('Ar','Ar','?'),
+                     ('K ','Ca','?'),    {14 E}
+                     ('Re','Os','?'),    {15 F}
+                     ('La','Ba','?'),    {16 G}
+                     ('T','Pb','?'),    {17 H}
+                     ('Ar ','Ar','?'),  {18 I}
+                     ('X ','Y ','?'),   {19 J}
+                     ('Lu','Hf','?'),    {20 J}
+                     ('K ','Ca','?'),    {21 E}
+                     ('Re','Os','?'));    {22 F}
   DefaultXRatioStr         :  TRatioNameType
                   = ('X          ',
                      '87Rb/86Sr',
@@ -195,12 +198,15 @@ const
                      '40K/36Ar   ',
                      '39Ar/36Ar  ',
                      '39Ar/40Ar  ',
-                     '40Ca/42Ca  ',
+                     '40K/42Ca  ',
                      '187Re/188Os',
                      '138La/137Ba',
                      '204Pb/206Pb',
                      '%39Ar      ',
-                     'Age (Ma)   ');
+                     'Age (Ma)   ',
+                     '176Lu/176Hf',
+                     '40K/40Ca  ',
+                     '187Re/187Os');
   DefaultYRatioStr         :  TRatioNameType
                   = ('Y          ',
                      '87Sr/86Sr  ',
@@ -221,7 +227,10 @@ const
                      '138Ba/137Ba',
                      '208Pb/206Pb',
                      '40Ar*/39Ar ',
-                     'Epsilon    ');
+                     'Epsilon    ',
+                     '177Hf/176Hf',
+                     '42Ca/40Ca  ',
+                     '188Os/187Os');
   DefaultZRatioStr         :  TRatioNameType
                   = ('Extra      ',
                      'Date       ',
@@ -242,6 +251,9 @@ const
                      'Date       ',
                      '207Pb/206Pb',
                      'J          ',
+                     'Extra      ',
+                     'Extra      ',
+                     'Extra      ',
                      'Extra      ');
   DefaultWRatioStr         :  TRatioNameType
                   = ('Extra      ',
@@ -263,6 +275,9 @@ const
                      'Date       ',
                      '207Pb/206Pb',
                      'J          ',
+                     'Extra      ',
+                     'Extra      ',
+                     'Extra      ',
                      'Extra      ');
   DefaultGraphXRatioStr         :  TRatioNameType
                   = ('X          ',
@@ -284,7 +299,10 @@ const
                      '<sup>138</sup>La/<sup>137</sup>Ba',
                      '<sup>204</sup>Pb/<sup>206</sup>Pb',
                      '%<sup>39</sup>Ar      ',
-                     'Age (Ma)   ');
+                     'Age (Ma)   ',
+                     '<sup>176</sup>Lu/<sup>176</sup>Hf',
+                     '<sup>40</sup>K/<sup>40</sup>Ca  ',
+                     '<sup>187</sup>Re/<sup>187</sup>Os');
   DefaultGraphYRatioStr         :  TRatioNameType
                   = ('Y          ',
                      '<sup>87</sup>Sr/<sup>86</sup>Sr  ',
@@ -305,7 +323,10 @@ const
                      '<sup>138</sup>Ba/<sup>137</sup>Ba',
                      '<sup>208</sup>Pb/<sup>206</sup>Pb',
                      '<sup>40</sup>Ar<sup>*/<sup>39</sup>Ar ',
-                     'Epsilon    ');
+                     'Epsilon    ',
+                     '<sup>177</sup>Hf/<sup>176</sup>Hf',
+                     '<sup>42</sup>Ca/<sup>40</sup>Ca  ',
+                     '<sup>188</sup>Os/<sup>187</sup>Os');
   DefaultGraphZRatioStr         :  TRatioNameType
                   = ('Extra      ',
                      'Date       ',
@@ -326,6 +347,9 @@ const
                      'Date       ',
                      '<sup>207</sup>Pb/<sup>206</sup>Pb',
                      'J          ',
+                     'Extra      ',
+                     'Extra      ',
+                     'Extra      ',
                      'Extra      ');
   DefaultProcess           :  TProcessNameType
                   = ('X-Y general',
@@ -347,7 +371,10 @@ const
                      'La-Ba      ',
                      'Evap Pb    ',
                      'Ar Plateau ',
-                     'Age-Ep-T2DM');
+                     'Age-Ep-T2DM',
+                     'Lu-Hf Inverse',
+                     'K-Ca Inverse',
+                     'Re-Os Inverse');
   DefaultProcessAbr        :  TProcessNameType
                   = ('X-Y general',
                      'Rb-Sr      ',
@@ -368,7 +395,10 @@ const
                      'La-Ba      ',
                      'Evap Pb    ',
                      'Ar Plateau ',
-                     'Age-Ep-T2DM');
+                     'Age-Ep-T2DM',
+                     'Lu-Hf Inverse',
+                     'K-Ca Inverse',
+                     'Re-Os Inverse');
   DefaultDecayConstantSource       :  TDecayConstantSourceType
                   = ('none         ',
                      'Steiger and Jager (1977)',
@@ -378,6 +408,9 @@ const
                      'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)',
                      'Soderlund et al (2004)',
+                     'Steiger and Jager (1977)',
+                     'Steiger and Jager (1977)',
+                     'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)',
                      'Steiger and Jager (1977)',
@@ -410,6 +443,9 @@ const
                      4.44E-12,
                      1,
                      1,
+                     1,
+                     1,
+                     1,
                      1);
   DefaultDecayConstUncertainty        :  TDecayUncertaintyValueType
                   = (0.000001,
@@ -431,6 +467,9 @@ const
                      0.000001,
                      0.000001,
                      0.000001,
+                     0.000001,
+                     0.000001,
+                     0.000001,
                      0.000001);
   DefaultTracerUncertainty        :  TTracerUncertaintyValueType
                   = (0,
@@ -439,6 +478,9 @@ const
                      0.0,
                      0.0075,
                      0.0075,
+                     0.0,
+                     0.0,
+                     0.0,
                      0.0,
                      0.0,
                      0.0,
@@ -473,6 +515,9 @@ const
                      'CHUR       ',
                      'UR         ',
                      'nd         ',
+                     'nd         ',
+                     'nd         ',
+                     'nd         ',
                      'nd         ');
   DefaultCHUR              :  TModelValueType
                   = ((0, 0      ,0        ),
@@ -494,6 +539,9 @@ const
                      (0, 0      ,0        ),
                      (0, 0      ,0        ),
                      (0, 0      ,0        ),
+                     (0, 0      ,0        ),
+                     (0, 0      ,0        ),
+                     (0, 0      ,0        ),
                      (0, 0      ,0        ));
   DefaultDMModelName       :  TModelNameType
                   = ('none         ',
@@ -504,6 +552,9 @@ const
                      'DM         ',
                      'DM         ',
                      'Chauvel and Blichert-Toft (2001)',
+                     'DM         ',
+                     'DM         ',
+                     'DM         ',
                      'DM         ',
                      'DM         ',
                      'DM         ',
@@ -536,6 +587,9 @@ const
                      (0      ,0        ,0),
                      (0      ,0        ,0),
                      (0      ,0        ,0),
+                     (0      ,0        ,0),
+                     (0      ,0        ,0),
+                     (0      ,0        ,0),
                      (0      ,0        ,0));
   DefaultCCModelName       :  TModelNameType
                   = ('none         ',
@@ -546,6 +600,9 @@ const
                      'CC         ',
                      'CC         ',
                      'Belousova et al (2010)',
+                     'CC         ',
+                     'CC         ',
+                     'CC         ',
                      'CC         ',
                      'CC         ',
                      'CC         ',
@@ -569,6 +626,9 @@ const
                      (0, 0.03   ,0.0  ),
                      (0, 0      ,0    ),
                      (0, 0.015  ,0.0  ),
+                     (0, 0      ,0    ),
+                     (0, 0      ,0    ),
+                     (0, 0      ,0    ),
                      (0, 0      ,0    ),
                      (0, 0      ,0    ),
                      (0, 0      ,0    ),
@@ -608,6 +668,9 @@ const
                      (4.739172 ,0.628518 ),
                      (0.000001 ,0.000001 ),
                      (0.000001 ,0.000001 ),
+                     (0.0      ,0.0      ),
+                     (0.0      ,0.0      ),
+                     (0.0      ,0.0      ),
                      (0.0      ,0.0      ),
                      (0.0      ,0.0      ));
   DefaultGraphColour      :  TGraphRGBColourType     {Red, Blue, Green}
@@ -659,21 +722,22 @@ var
   RecordNo          :  array [1..MaxSamp] of integer;
   Latitude,
   Longitude         :  array [1..MaxSamp] of single;
-  R, YPrec, XPrec,
-  ZPrec, WPrec,
+  R, Rho2,
+  YPrec, XPrec,
+  ZPrec, WPrec, AgePrec,
   Xtra, Xtra1,
   Xtra2, Xtra3      :  array [0..MaxSamp] of double;
   Residual          :  array [1..MaxSamp,1..2] of double;
   RFlg              :  array [0..MaxSamp] of char;
   PFlg              :  array [0..MaxSamp] of char;
   Conc, ErrorWt     :  array [1..MaxSamp,0..4] of double;
-  Ratio             :  array [0..MaxSamp,0..5] of double;
+  Ratio             :  array [0..MaxSamp,0..4] of double;
   AnalTyp           :  array [1..MaxSamp] of char;
   RR, R2                :  array [0..MaxSamp] of double;
   ErrTyp            :  array [1..MaxSamp] of char;
   U, V, Z           :  array [1..MaxSamp] of double;
   Weight,
-  Wt                :  array [1..MaxSamp,1..2] of double;
+  Wt                :  array [0..MaxSamp,1..2] of double;
   Sum               :  array [1..8] of double;
   AnalTypeStr       :  AnTypStr;
   IError            :  shortint;

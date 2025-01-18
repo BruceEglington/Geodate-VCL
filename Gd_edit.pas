@@ -71,18 +71,18 @@ type
     DBEdit9: TDBEdit;
     DBComboBox2: TDBComboBox;
     bbErrorsA: TBitBtn;
-    Label5: TLabel;
+    lWStr: TLabel;
     DBEdit10: TDBEdit;
     DBEdit11: TDBEdit;
     DBEdit12: TDBEdit;
     DBComboBox3: TDBComboBox;
-    Label6: TLabel;
+    lAgeStr: TLabel;
     DBEdit13: TDBEdit;
     DBEdit14: TDBEdit;
-    Label7: TLabel;
+    lRhoExtra: TLabel;
     DBEdit16: TDBEdit;
     DBEdit15: TDBEdit;
-    Label8: TLabel;
+    lZZStr: TLabel;
     procedure FormShow(Sender: TObject);
     procedure bbCloseClick(Sender: TObject);
     procedure bbCancelClick(Sender: TObject);
@@ -122,7 +122,7 @@ begin
    if (dmGdwtmp.cdsEditYY.AsFloat<=0.0) then dmGdwtmp.cdsEditYY.AsFloat:=-1.0;
    case AnalType of
     '0' : tempratio1 := dmGdwtmp.cdsEditXRatio.AsFloat;
-    '1','2','7','9','E','F','G' : begin
+    '1','2','7','9','E','F','G','K','L','M' : begin
       if ((CalcFac[M,1] > 0.000001) or (CalcFac[M,2] > 0.000001)) then
       begin
         tempratio1 := dmGdwtmp.cdsEditXX.AsFloat/dmGdwtmp.cdsEditYY.AsFloat
@@ -168,9 +168,19 @@ begin
   if (Title = '') then Title := ProjectName;
   lXXStr.Caption := Element[iAnalTyp,1];
   lYYStr.Caption := Element[iAnalTyp,2];
+  lZZStr.Caption := Element[iAnalTyp,3];
   lXStr.Caption := XRatioStr[iAnalTyp];
   lYStr.Caption := YRatioStr[iAnalTyp];
   lZStr.Caption := ZRatioStr[iAnalTyp];
+  lWStr.Caption := WRatioStr[iAnalTyp];
+  if (iAnalTyp in [3,8,10]) then
+  begin
+    lRhoExtra.Caption := 'Error correl. 208/206';
+  end else
+  begin
+    lRhoExtra.Caption := 'Error correl. (Extra)';
+  end;
+  lAgeStr.Caption := 'Age';
   eTitle.Text := Title;
   bbEvap.Enabled := false;
   if (AnalType = 'H') then bbEvap.Enabled := true;
@@ -194,6 +204,7 @@ begin
       dmGdwtmp.cdsEditSample_No.AsString := SmpNo[j];
       dmGdwtmp.cdsEditXX.AsFloat := Conc[j,1];
       dmGdwtmp.cdsEditYY.AsFloat := Conc[j,2];
+      dmGdwtmp.cdsEditZZ.AsFloat := Conc[j,3];
       dmGdwtmp.cdsEditXRatio.AsFloat := Ratio[j,1];
       dmGdwtmp.cdsEditXPrec.AsFloat := XPrec[j];
       dmGdwtmp.cdsEditXWt.AsFloat := ErrorWt[j,1];
@@ -204,6 +215,12 @@ begin
       dmGdwtmp.cdsEditZPrec.AsFloat := ZPrec[j];
       dmGdwtmp.cdsEditZWt.AsFloat := ErrorWt[j,3];
       dmGdwtmp.cdsEditR.AsFloat := R[j];
+      dmGdwtmp.cdsEditWRatio.AsFloat := Ratio[j,4];
+      dmGdwtmp.cdsEditWPrec.AsFloat := WPrec[j];
+      dmGdwtmp.cdsEditWWt.AsFloat := ErrorWt[j,4];
+      dmGdwtmp.cdsEditAgeValue.AsFloat := Ratio[j,0];
+      dmGdwtmp.cdsEditAge95pcValue.AsFloat := AgePrec[j];
+      dmGdwtmp.cdsEditRhoExtra.AsFloat := AgePrec[j];
       case ErrTyp[j] of
         '1' : begin
           dmGdwtmp.cdsEditXWtType.AsString := '%';
@@ -305,6 +322,7 @@ begin
       SmpNo[j] := dmGdwtmp.cdsEditSample_No.AsString;
       Conc[j,1] := dmGdwtmp.cdsEditXX.AsFloat;
       Conc[j,2] := dmGdwtmp.cdsEditYY.AsFloat;
+      Conc[j,3] := dmGdwtmp.cdsEditZZ.AsFloat;
       Ratio[j,1] := dmGdwtmp.cdsEditXRatio.AsFloat;
       XPrec[j] := dmGdwtmp.cdsEditXPrec.AsFloat;
       ErrorWt[j,1] := dmGdwtmp.cdsEditXWt.AsFloat;
@@ -315,6 +333,12 @@ begin
       ZPrec[j] := dmGdwtmp.cdsEditZPrec.AsFloat;
       ErrorWt[j,3] := dmGdwtmp.cdsEditZWt.AsFloat;
       R[j] := dmGdwtmp.cdsEditR.AsFloat;
+      Ratio[j,4] := dmGdwtmp.cdsEditWRatio.AsFloat;
+      WPrec[j] := dmGdwtmp.cdsEditWPrec.AsFloat;
+      ErrorWt[j,4] := dmGdwtmp.cdsEditWWt.AsFloat;
+      Ratio[j,0] := dmGdwtmp.cdsEditAgeValue.AsFloat;
+      AgePrec[j] := dmGdwtmp.cdsEditAge95pcValue.AsFloat;
+      Rho2[j] := dmGdwtmp.cdsEditRhoExtra.AsFloat;
       if ((dmGdwtmp.cdsEditXWtType.AsString = '%') and
           (dmGdwtmp.cdsEditYWtType.AsString = '%')) then ErrTyp[j] := '1';
       if ((dmGdwtmp.cdsEditXWtType.AsString = '%') and

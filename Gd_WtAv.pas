@@ -160,6 +160,9 @@ type
     //  H 17 = Evaporation Pb
     //  I 18 = Ar plateau
     //  J 19 = T(2DM) from Age-Epsilon values
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
     //
     CMaxX, CMinX : double;
     iRec : integer;
@@ -299,6 +302,7 @@ var
   AgePlusAgeMinus : string;
   NumLabelledTics : integer;
 begin
+  //ShowMessage(ProjectName);
   IncludeDCUncertainty := false;
   AgePlusAgeMinus := 'neither';
   HideResultLabels;
@@ -350,6 +354,24 @@ begin
   CMaxX := 0.0;
   CMinX := 0.0;
   T_Mult:=TMultiplier(1.0*N_Rep);
+
+  ChWtAv.Series[iRegressionLine].BeginUpdate;
+  ChWtAv.Series[iEnvelopeLower].BeginUpdate;
+  ChWtAv.Series[iEnvelopeUpper].BeginUpdate;
+  Series11.BeginUpdate;
+  Series12.BeginUpdate;
+  ChWtAv.Series[iCurrent].BeginUpdate;
+  ChWtAv.Series[iEllipsesExcluded].BeginUpdate;
+  ChWtAv.Series[iEllipsesIncluded].BeginUpdate;
+  ChWtAv.Series[iCurveTic].BeginUpdate;
+  ChWtAv.Series[iCurveLine].BeginUpdate;
+  ChWtAv.Series[iDataExcluded].BeginUpdate;
+  ChWtAv.Series[iDataIncluded].BeginUpdate;
+  ChWtAv.Series[iErrorExcluded].BeginUpdate;
+  ChWtAv.Series[iErrorIncluded].BeginUpdate;
+  ChWtAv.Series[iEllipseConcordia].BeginUpdate;
+  ChWtAv.Series[iDataConcordia].BeginUpdate;
+
   ChWtAv.Series[iEllipsesExcluded].Clear;
   ChWtAv.Series[iEllipsesIncluded].Clear;
   ChWtAv.Series[iEnvelopeLower].Clear;
@@ -377,7 +399,7 @@ begin
   //if (HistOK) then tmpHistOKstr := 'HistOK is true';
   //ShowMessage('VarbNoX = '+IntToStr(VarbNoX)+'   AnalType = '+AnalType+'   '+tmpHistOKstr);
   //if ((VarbNoX in [1,2,3,4,5,6,7,8,9,10]) and (HistOK)) then
-  if ((VarbNoX in [1,2,3,4,5,6,7,8,9,10,11,12,13])) then
+  if ((VarbNoX in [1,2,3,4,5,6,7,8,9,10,11,12,13,20,21,22])) then
   begin
     case VarbNoX of
       1 : begin
@@ -385,7 +407,7 @@ begin
         FileVarStr := 'Mean Xratio';
         ChWtAv.Visible := true;
         ChWtAv.LeftAxis.Title.Text := GraphXRatioStr[IAnalTyp];
-        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G']) then
+        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           ChWtAv.LeftAxis.AxisValuesFormat := '#####0.000000';
         end;
@@ -396,7 +418,7 @@ begin
         FileVarStr := 'Mean Yratio';
         ChWtAv.Visible := true;
         ChWtAv.LeftAxis.Title.Text := GraphYRatioStr[IAnalTyp];
-        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G']) then
+        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           ChWtAv.LeftAxis.AxisValuesFormat := '#####0.000000';
         end;
@@ -407,7 +429,7 @@ begin
         FileVarStr := 'Mean Zratio';
         ChWtAv.Visible := true;
         ChWtAv.LeftAxis.Title.Text := GraphZRatioStr[IAnalTyp];
-        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G']) then
+        if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           ChWtAv.LeftAxis.AxisValuesFormat := '#####0.000000';
         end;
@@ -415,7 +437,7 @@ begin
       end;
       4 : begin
         bExport.Enabled := false;
-        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           if (AllSame) then
           begin
@@ -432,7 +454,7 @@ begin
             ChWtAv.LeftAxis.Title.Text := GraphYRatioStr[IAnalTyp];
             lCaption2.Caption := 'calculated for individually specified dates and 1 sigma uncertainties';
           end;
-          if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G']) then
+          if CharInSet(AnalType,['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
           begin
             ChWtAv.LeftAxis.AxisValuesFormat := '#####0.000000';
           end;
@@ -492,7 +514,7 @@ begin
         ChWtAv.LeftAxis.AxisValuesFormat := '#####0.000000';
       end;
       6 : begin
-        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           lResultTitle.Caption := 'Mean T ('+FormatFloat('###0.000000',InitRatio)+')';
           FileVarStr := 'Mean T ratio';
@@ -524,7 +546,7 @@ begin
                      else ChWtAv.Visible := true; //need to check if this should be false
       end;
       7 : begin
-        if (AnalType in ['1','2','7','9','E','G']) then
+        if (AnalType in ['1','2','7','9','E','G','K','L','M']) then
         begin
           lResultTitle.Caption := 'Mean T (CHUR)';
           FileVarStr := 'Mean T CHUR';
@@ -543,7 +565,7 @@ begin
         ChWtAv.Visible := true; //need to check if this should be true
       end;
       8 : begin
-        if (AnalType in ['1','2','7','9','E','F','G']) then
+        if (AnalType in ['1','2','7','9','E','F','G','K','L','M']) then
         begin
           lResultTitle.Caption := 'Mean T (DM)';
           FileVarStr := 'Mean T DM';
@@ -575,7 +597,7 @@ begin
           ChWtAv.LeftAxis.Title.Text := 'T (RD)';
           lCaption2.Caption := ' ';
         end;
-        if (AnalType in ['1','2','7','9','E','G']) then
+        if (AnalType in ['1','2','7','9','E','G','K','L','M']) then
         begin
           lResultTitle.Caption := 'Mean T (2DM)';
           FileVarStr := 'Mean T 2DM';
@@ -724,9 +746,9 @@ begin
       begin
         if (SD1 >= SD2) then
         begin
-          SDMult := SD1*TMultiplier(1.0*(N_Rep));
-          Str((SD1*TMultiplier(1.0*(N_Rep))):12:6,tmpStr);
-          Str((SD1*TMultiplier(1.0*(N_Rep))):12:6,tmpStrIncl);
+          SDMult := SD2*TMultiplier(1.0*(N_Rep));
+          Str((SD2*TMultiplier(1.0*(N_Rep))):12:6,tmpStr);
+          Str((SD2*TMultiplier(1.0*(N_Rep))):12:6,tmpStrIncl);
         end;
         if (SD1 < SD2) then
         begin
@@ -831,8 +853,10 @@ begin
         IncludeDCUncertainty := true;
         AgePlusAgeMinus := UncertaintyMinus;
         UprUprAgeErrorIncl:=PbPbAge(Slope,IncludeDCUncertainty,AgePlusAgeMinus);
+        //ShowMessage('PbPb 3 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
         //ShowMessage('plus age error ='+FormatFloat('####0.000',UprUprAgeErrorIncl/1.0e6));
         UprUprAgeErrorIncl:=PbPbAge(Slope,IncludeDCUncertainty,AgePlusAgeMinus)-Age;
+        //ShowMessage('PbPb 4 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
         //ShowMessage('7');
         //Application.ProcessMessages;
         if ((ProbabilityOfFit >= FAlpha) and (SD1 >= SD2)) then
@@ -978,6 +1002,7 @@ begin
           Slope:=temp+SDAugmented*TMultiplier(1.0*(Icnt-1));
         //ShowMessage('Plus Slope = '+FormatFloat('###0.000000',Slope)+'__'+FormatFloat('###0.000',Age238(Slope,IncludeDCUncertainty,AgePlusAgeMinus)/1.0e6)+' Ma');
         UprUprAgeErrorIncl:=Age238(Slope,IncludeDCUncertainty,AgePlusAgeMinus)-Age;
+        //ShowMessage('UPb 5 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
         AgePlusAgeMinus := UncertaintyMinus;
         if ((ProbabilityOfFit >= FAlpha) and (SD1 >= SD2)) then
           Slope:=temp-SD1*TMultiplier(1.0*N_Rep);
@@ -988,6 +1013,7 @@ begin
         //ShowMessage('Minus Slope = '+FormatFloat('###0.000000',Slope)+'__'+FormatFloat('###0.000',Age238(Slope,IncludeDCUncertainty,AgePlusAgeMinus)/1.0e6)+' Ma');
         if (Slope<0.0) then UprLwrAgeErrorIncl:=Age
                        else UprLwrAgeErrorIncl:=Age-Age238(Slope,IncludeDCUncertainty,AgePlusAgeMinus);
+        //ShowMessage('UPb 6 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
         Age:=Age/1.0e6;
         UprUprAgeError:=UprUprAgeError/1.0e6;
         UprLwrAgeError:=UprLwrAgeError/1.0e6;
@@ -1071,7 +1097,7 @@ begin
   MaxY := -1e9;
   MinY :=  9e9;
   MaxAge := 0.0;
-  if ((Icnt > 0) and AllSame and (VarbNoX in [1..3,5,7,8,10])) then
+  if ((Icnt > 0) and AllSame and (VarbNoX in [1..3,5,7,8,10,20,21,22])) then
   begin
     ChWtAv.Series[iRegressionLine].AddXY(0.5,temp);
     for i := 1 to NumberOfPoints do
@@ -1092,7 +1118,7 @@ begin
     end;
     ChWtAv.Series[iEnvelopeUpper].AddXY(0.5+1.0*NumberOfPoints,temp+SDMult);
   end;
-  if ((Icnt > 0) and AllSame and (VarbNoX in [6]) and (AnalType in ['1'..'7','9','B'..'H'])) then
+  if ((Icnt > 0) and AllSame and (VarbNoX in [6]) and (AnalType in ['1'..'7','9','B'..'H','K','L','M'])) then
   begin
     ChWtAv.Series[iRegressionLine].AddXY(0.5,temp);
     for i := 1 to NumberOfPoints do
@@ -1113,7 +1139,7 @@ begin
     end;
     ChWtAv.Series[iEnvelopeUpper].AddXY(0.5+1.0*NumberOfPoints,temp+SDMult);
   end;
-  if ((Icnt > 0) and AllSame and (VarbNoX in [4]) and (AnalType in ['1'..'7','9','B'..'H'])) then
+  if ((Icnt > 0) and AllSame and (VarbNoX in [4]) and (AnalType in ['1'..'7','9','B'..'H','K','L','M'])) then
   begin
     ChWtAv.Series[iRegressionLine].AddXY(0.5,temp);
     for i := 1 to NumberOfPoints do
@@ -1185,7 +1211,7 @@ begin
       end;
       if ((AllSame) and (VarbNox in [4,5,7,8,9,10])) then
       begin
-        if (AnalType in ['1'..'2','4'..'7','9','B'..'H']) then
+        if (AnalType in ['1'..'2','4'..'7','9','B'..'H','K','L','M']) then
         begin
           if (MaxY < (Xtra[i]+T_Mult_Visual*Xtra1[i])) then MaxY := Xtra[i]+T_Mult_Visual*Xtra1[i];
           if (MinY > (Xtra[i]-T_Mult_Visual*Xtra2[i])) then MinY := Xtra[i]-T_Mult_Visual*Xtra2[i];
@@ -1255,7 +1281,7 @@ begin
       end;
       if ((AllSame) and (VarbNoX in [6])) then
       begin
-        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           if (MaxY < (Xtra[i]+T_Mult_Visual*Xtra1[i])) then MaxY := Xtra[i]+T_Mult_Visual*Xtra1[i];
           if (MinY > (Xtra[i]-T_Mult_Visual*Xtra2[i])) then MinY := Xtra[i]-T_Mult_Visual*Xtra2[i];
@@ -1297,9 +1323,11 @@ begin
           IncludeDCUncertainty := false;
           AgePlusAgeMinus := 'neither';
           UprUprAgeError:=PbPbAge(Slope,IncludeDCUncertainty,AgePlusAgeMinus)-Age;
+          //ShowMessage('7 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
           IncludeDCUncertainty := true;
           AgePlusAgeMinus := UncertaintyPlus;
           UprUprAgeErrorIncl:=PbPbAge(Slope,IncludeDCUncertainty,AgePlusAgeMinus)-Age;
+          //ShowMessage('8 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
           Slope:=temp-Xtra1[i]*TMultiplier(1.0*N_Rep);
           IncludeDCUncertainty := false;
           AgePlusAgeMinus := 'neither';
@@ -1309,6 +1337,7 @@ begin
           AgePlusAgeMinus := UncertaintyMinus;
           if (Slope<0.0) then UprLwrAgeErrorIncl:=Age
                          else UprLwrAgeErrorIncl:=Age-PbPbAge(Slope,IncludeDCUncertainty,AgePlusAgeMinus);
+          //ShowMessage('9 '+FormatFloat('###0.000',UprUprAgeErrorIncl/1.0e6));
           Age:=Age/1.0e6;
           UprUprAgeError:=UprUprAgeError/1.0e6;
           UprLwrAgeError:=UprLwrAgeError/1.0e6;
@@ -1341,7 +1370,7 @@ begin
       end;
       if ((not AllSame) and (VarbNoX in [4])) then
       begin
-        if (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G','K','L','M']) then
         //if (AnalType in [atRbSr,atSmNd,atPbPb,at238UPb,at235UPb,atThPb,atLuHf,atLaCe,atKAr,atKCa,atReOs,atLaBa]) then
         begin
           if (MaxY < (Xtra[i]+T_Mult_Visual*Xtra1[i])) then MaxY := Xtra[i]+T_Mult_Visual*Xtra1[i];
@@ -1368,7 +1397,7 @@ begin
       end;
       if ((not AllSame) and (VarbNoX in [5])) then
       begin
-        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           if (MaxY < (Xtra[i]+T_Mult_Visual*Xtra1[i])) then MaxY := Xtra[i]+T_Mult_Visual*Xtra1[i];
           if (MinY > (Xtra[i]-T_Mult_Visual*Xtra2[i])) then MinY := Xtra[i]-T_Mult_Visual*Xtra2[i];
@@ -1394,7 +1423,7 @@ begin
       end;
       if ((not AllSame) and (VarbNoX in [6])) then
       begin
-        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G']) then
+        if (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M']) then
         begin
           if (MaxY < (Xtra[i]+T_Mult_Visual*Xtra1[i])) then MaxY := Xtra[i]+T_Mult_Visual*Xtra1[i];
           if (MinY > (Xtra[i]-T_Mult_Visual*Xtra2[i])) then MinY := Xtra[i]-T_Mult_Visual*Xtra2[i];
@@ -1545,7 +1574,7 @@ begin
   //ShowMessage('MinX = '+FormatFloat('####0.000',MinX)+'   MaxX = '+FormatFloat('####0.000',MaxX));
   if ((not AllSame) and (VarbNoX in [4])) then
   begin
-    if ((Icnt > 0)and (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G'])) then
+    if ((Icnt > 0)and (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G','K','L','M'])) then
     begin
       tmpMin := MinX;
       tmpMax := MaxX;
@@ -1570,7 +1599,7 @@ begin
   end;
   if ((not AllSame) and (VarbNoX in [5])) then
   begin
-    if ((Icnt > 0)and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G'])) then
+    if ((Icnt > 0)and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M'])) then
     begin
       tmpMin := MinX;
       tmpMax := MaxX;
@@ -1595,7 +1624,7 @@ begin
   end;
   if ((not AllSame) and (VarbNoX in [6])) then
   begin
-    if ((Icnt > 0)and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G'])) then
+    if ((Icnt > 0)and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M'])) then
     begin
       tmpMin := MinX;
       tmpMax := MaxX;
@@ -1656,6 +1685,23 @@ begin
     ChWtAv.LeftAxis.SetMinMax(MinY,MaxY);
   end;
   //ShowMessage('Range = '+FormatFloat('####0.000000',Range));
+  ChWtAv.Series[iRegressionLine].EndUpdate;
+  ChWtAv.Series[iEnvelopeLower].EndUpdate;
+  ChWtAv.Series[iEnvelopeUpper].EndUpdate;
+  Series11.EndUpdate;
+  Series12.EndUpdate;
+  ChWtAv.Series[iCurrent].EndUpdate;
+  ChWtAv.Series[iEllipsesExcluded].EndUpdate;
+  ChWtAv.Series[iEllipsesIncluded].EndUpdate;
+  ChWtAv.Series[iCurveTic].EndUpdate;
+  ChWtAv.Series[iCurveLine].EndUpdate;
+  ChWtAv.Series[iDataExcluded].EndUpdate;
+  ChWtAv.Series[iDataIncluded].EndUpdate;
+  ChWtAv.Series[iErrorExcluded].EndUpdate;
+  ChWtAv.Series[iErrorIncluded].EndUpdate;
+  ChWtAv.Series[iEllipseConcordia].EndUpdate;
+  ChWtAv.Series[iDataConcordia].EndUpdate;
+
   ChWtAv.Axes.Left.AxisValuesFormat := '####0.0##';
   if (Range <= 0.7) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.000';
   if (Range <= 0.07) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.0000';
@@ -1688,6 +1734,7 @@ begin
   end;
   dmGdwtmp.cdsReg.First;
   bbCumHistClick(Sender);
+  //ShowMessage(ProjectName);
 end;
 
 procedure TfmWtAv.bbOKClick(Sender: TObject);
@@ -1736,7 +1783,7 @@ begin
       end;
       3 : begin //ZRatio
         HistOK:=true;
-        if (IAnalTyp in [0..7,9..16]) then
+        if (IAnalTyp in [0..7,9..16,20,21,22]) then
         begin
           if (Ratio[i,VarbNoX] > 0.0) then Xtra[i]:=Ratio[i,VarbNoX]
           else begin
@@ -1816,14 +1863,14 @@ begin
       end;
       4 : begin //Ratio(Date) or mu(Date) or T(206Pb/238U)
         HistOK:=true;
-        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = true)) then
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16,20,21,22]) and (AllSame = true)) then
         begin
           Xtra[i]:=InitialRatio(Age,i);
           //Xtra1[i]:=RoError(Age,0.0,i)/T_Mult;  // original version before allowing for 1 sigma uncertainty
           Xtra1[i]:=RoError(Age,AgeError,i)/T_Mult;
           Xtra2[i] := Xtra1[i];
         end;
-        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = false)) then
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16,20,21,22]) and (AllSame = false)) then
         begin
           Xtra[i]:=InitialRatio(Ratio[i,3],i);
           Xtra1[i]:=RoError(Ratio[i,3],ZPrec[i],i)/T_Mult;
@@ -1902,14 +1949,14 @@ begin
       end;
       5 : begin //Epsilon(Date)
         HistOK:=true;
-        if ((IAnalTyp in [1,2,7,9,14,15,16]) and (AllSame = true)) then
+        if ((IAnalTyp in [1,2,7,9,14,15,16,20,21,22]) and (AllSame = true)) then
         begin
           Xtra[i]:=EpsilonGamma(Age,i,IAnalTyp);
           //Xtra1[i]:=EpGammaError(Age,0.0,i,IAnalTyp)/T_Mult;  // original version before allowing for 1 sigma uncertainty
           Xtra1[i]:=EpGammaError(Age,AgeError,i,IAnalTyp)/T_Mult;
           Xtra2[i] := Xtra1[i];
         end;
-        if ((IAnalTyp in [1,2,7,9,14,15,16]) and (AllSame = false)) then
+        if ((IAnalTyp in [1,2,7,9,14,15,16,20,21,22]) and (AllSame = false)) then
         begin
           Xtra[i]:=EpsilonGamma(Ratio[i,3],i,IAnalTyp);
           Xtra1[i]:=EpGammaError(Ratio[i,3],ZPrec[i],i,IAnalTyp)/T_Mult;
@@ -1918,14 +1965,14 @@ begin
       end;
       6 : begin //T(Ratio) or T(207Pb/206Pb)
         HistOK:=true;
-        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = true)) then
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16,20,21,22]) and (AllSame = true)) then
         begin
           Xtra[i]:=ModelAge(InitRatio,i);
           //Xtra1[i]:=ModelAgeError(InitRatio,0.0,i)/T_Mult;  // original version before allowing for 1 sigma uncertainty
           Xtra1[i]:=ModelAgeError(InitRatio,InitRatioError,i)/T_Mult;
           Xtra2[i] := Xtra1[i];
         end;
-        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16]) and (AllSame = false)) then
+        if ((IAnalTyp in [1,2,4,5,6,7,9,11,14,15,16,20,21,22]) and (AllSame = false)) then
         begin
           Xtra[i]:=ModelAge(Ratio[i,3],i);
           Xtra1[i]:=ModelAgeError(Ratio[i,3],ZPrec[i],i)/T_Mult;
@@ -2070,7 +2117,7 @@ begin
       end;
       7 : begin //T(CHUR)
         HistOK:=true;
-        if (IAnalTyp in [1,2,7,9,14,15,16]) then
+        if (IAnalTyp in [1,2,7,9,14,15,16,20,21,22]) then
         begin
           Xtra[i]:=CHUR_Age(Ratio[i,1],Ratio[i,2]);
           Xtra1[i]:=CHUR_Age_Error(i)/T_Mult;
@@ -2079,7 +2126,7 @@ begin
       end;
       8 : begin //T(DM)
         HistOK:=true;
-        if (IAnalTyp in [1,2,7,9,14,15,16]) then
+        if (IAnalTyp in [1,2,7,9,14,15,16,20,21,22]) then
         begin
           Xtra[i] := DM_Age(Ratio[i,1],Ratio[i,2]);
           Xtra1[i] := DM_Age_Error(i)/T_Mult;
@@ -2144,13 +2191,13 @@ begin
             Xtra1[i] := RD_Age_Error(i)/T_Mult;
             Xtra2[i] := Xtra1[i];
           end;
-          if ((IAnalTyp in [1,2,7,9,14,16]) and (AllSame = true)) then
+          if ((IAnalTyp in [1,2,7,9,14,16,20,21,22]) and (AllSame = true)) then
           begin
             Xtra[i] := DM2_Age(Age,Ratio[i,1],Ratio[i,2]);
             Xtra1[i] := DM_Age_Error(i)/T_Mult;
             Xtra2[i] := Xtra1[i];
           end;
-          if ((IAnalTyp in [1,2,7,9,14,16]) and (AllSame = false)) then
+          if ((IAnalTyp in [1,2,7,9,14,16,20,21,22]) and (AllSame = false)) then
           begin
             Xtra[i] := DM2_Age(Ratio[i,3],Ratio[i,1],Ratio[i,2]);
             Xtra1[i] := DM_Age_Error(i)/T_Mult;
@@ -2579,6 +2626,7 @@ end;
 procedure TfmWtAv.bbSpreadSheetClick(Sender: TObject);
 var
   i, iRow, iCol    : integer;
+  PosDot : integer;
   StepSize, t1, t2, temp, tOldAge : double;
   tmpStr   : string;
   StepIncrement : integer;
@@ -2586,18 +2634,21 @@ var
   zero : double;
   tPb64initial, tPb74initial : double;
 begin
+  //ShowMessage(ProjectName);
   zero := 0.0;
   try
-    MinX := ChWtAv.BottomAxis.Minimum;
-    MaxX := ChWtAv.BottomAxis.Maximum;
-    MinY := ChWtAv.LeftAxis.Minimum;
-    MaxY := ChWtAv.LeftAxis.Maximum;
-      SaveDialogSprdSheet.InitialDir := TTPath;
+      //SaveDialogSprdSheet.InitialDir := TTPath;
+      //PosDot := Pos('.',ProjectName);
+      //ProjectName := Copy(ProjectName,1,PosDot-1);
       SaveDialogSprdSheet.FileName := ProjectName+'_WtAver';
       if SaveDialogSprdSheet.Execute then
       begin
         Drive3 := ExtractFileDir(SaveDialogSprdSheet.FileName);
         TTPath := ExtractFilePath(SaveDialogSprdSheet.FileName);
+        MinX := ChWtAv.BottomAxis.Minimum;
+        MaxX := ChWtAv.BottomAxis.Maximum;
+        MinY := ChWtAv.LeftAxis.Minimum;
+        MaxY := ChWtAv.LeftAxis.Maximum;
         try
           SprdSheet := TXlsFile.Create(true);
           SprdSheet.NewFile(1);
@@ -2853,19 +2904,19 @@ begin
             begin
               temp := Age;
             end;
-            if ((VarbNox in [4]) and (not AllSame) and (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G'])) then
+            if ((VarbNox in [4]) and (not AllSame) and (AnalType in ['1','2','3','4','5','6','7','9','B','E','F','G','K','L','M'])) then
             begin
               temp := Ratio[i,3];
             end;
-            if ((VarbNox in [5]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G'])) then
+            if ((VarbNox in [5]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M'])) then
             begin
               temp := Ratio[i,3];
             end;
-            if ((VarbNox in [6]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G'])) then
+            if ((VarbNox in [6]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M'])) then
             begin
               temp := Ratio[i,3];
             end;
-            if ((VarbNox in [10]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G'])) then
+            if ((VarbNox in [10]) and (not AllSame) and (AnalType in ['1','2','4','5','6','7','9','B','E','F','G','K','L','M'])) then
             begin
               temp := Ratio[i,3];
             end;
@@ -2962,6 +3013,22 @@ var
   SpectrumWtAv : TCumArrayType;
   ShowCumGraph : boolean;
 begin
+  ChCum.Series[iEllipsesExcluded].BeginUpdate;
+  ChCum.Series[iEllipsesIncluded].BeginUpdate;
+  ChCum.Series[iEnvelopeLower].BeginUpdate;
+  ChCum.Series[iEnvelopeUpper].BeginUpdate;
+  ChCum.Series[iCurveTic].BeginUpdate;
+  ChCum.Series[iCurveLine].BeginUpdate;
+  ChCum.Series[iRegressionLine].BeginUpdate;
+  ChCum.Series[iDataExcluded].BeginUpdate;
+  ChCum.Series[iDataIncluded].BeginUpdate;
+  ChCum.Series[iErrorExcluded].BeginUpdate;
+  ChCum.Series[iErrorIncluded].BeginUpdate;
+  ChCum.Series[iEllipseConcordia].BeginUpdate;
+  ChCum.Series[iDataConcordia].BeginUpdate;
+  ChCum.Series[iCurrent].BeginUpdate;
+  ChCum.Series[iCurveLinePlus].BeginUpdate;
+
   ChCum.Series[iEllipsesExcluded].Clear;
   ChCum.Series[iEllipsesIncluded].Clear;
   ChCum.Series[iEnvelopeLower].Clear;
@@ -3155,6 +3222,21 @@ begin
         tXtra4 := 0.0;
         tXtra4 := DecayConstUncertainty[ord(atEps2DM)]; // decay constant uncertainty expressed as a percentage
     end;
+    'K' : begin
+        tXtra3 := TracerUncertainty[ord(atLuHfInv)];  // tracer uncertainty already expressed as a percentage
+        tXtra4 := 0.0;
+        tXtra4 := DecayConstUncertainty[ord(atLuHfInv)]; // decay constant uncertainty expressed as a percentage
+    end;
+    'L' : begin
+        tXtra3 := TracerUncertainty[ord(atKCAInv)];  // tracer uncertainty already expressed as a percentage
+        tXtra4 := 0.0;
+        tXtra4 := DecayConstUncertainty[ord(atKCaInv)]; // decay constant uncertainty expressed as a percentage
+    end;
+    'M' : begin
+        tXtra3 := TracerUncertainty[ord(atReOsInv)];  // tracer uncertainty already expressed as a percentage
+        tXtra4 := 0.0;
+        tXtra4 := DecayConstUncertainty[ord(atReOsInv)]; // decay constant uncertainty expressed as a percentage
+    end;
   end;
   //ShowMessage('DC val = '+FormatFloat('###0.0000000000',DecayConst[ord(at238UPb)]*1.0e6)+'__'+FormatFloat('###0.000000',DecayConstUncertainty[ord(at238UPb)]));
   //calculate cumulative spectrum with tracer and decay constant uncertainties
@@ -3275,6 +3357,22 @@ begin
   ChCum.LeftAxis.Automatic := true;
   ChCum.Visible := true;
   ChCum.Foot.Caption := GeodateVersionStr;
+
+  ChCum.Series[iEllipsesExcluded].EndUpdate;
+  ChCum.Series[iEllipsesIncluded].EndUpdate;
+  ChCum.Series[iEnvelopeLower].EndUpdate;
+  ChCum.Series[iEnvelopeUpper].EndUpdate;
+  ChCum.Series[iCurveTic].EndUpdate;
+  ChCum.Series[iCurveLine].EndUpdate;
+  ChCum.Series[iRegressionLine].EndUpdate;
+  ChCum.Series[iDataExcluded].EndUpdate;
+  ChCum.Series[iDataIncluded].EndUpdate;
+  ChCum.Series[iErrorExcluded].EndUpdate;
+  ChCum.Series[iErrorIncluded].EndUpdate;
+  ChCum.Series[iEllipseConcordia].EndUpdate;
+  ChCum.Series[iDataConcordia].EndUpdate;
+  ChCum.Series[iCurrent].EndUpdate;
+  ChCum.Series[iCurveLinePlus].EndUpdate;
 end;
 
 procedure TfmWtAv.bbExportmdlToXMLClick(Sender: TObject);

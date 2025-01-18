@@ -1002,16 +1002,16 @@ begin
     //ShowMessage('i = '+Int2Str(i)+'  Xtra4 X = '+FormatFloat('####0.00000',Xtra4[i,1])+'  Xtra4 Y = '+FormatFloat('####0.00000',Xtra4[i,2]));
   end;
   try
-    MinX := ChartConcordia.BottomAxis.Minimum;
-    MaxX := ChartConcordia.BottomAxis.Maximum;
-    MinY := ChartConcordia.LeftAxis.Minimum;
-    MaxY := ChartConcordia.LeftAxis.Maximum;
       SaveDialogModels.InitialDir := TTPath;
       SaveDialogModels.FileName := ProjectName+'_ConcordiaAge';
       if SaveDialogModels.Execute then
       begin
         Drive3 := ExtractFileDir(SaveDialogModels.FileName);
         TTPath := ExtractFilePath(SaveDialogModels.FileName);
+        MinX := ChartConcordia.BottomAxis.Minimum;
+        MaxX := ChartConcordia.BottomAxis.Maximum;
+        MinY := ChartConcordia.LeftAxis.Minimum;
+        MaxY := ChartConcordia.LeftAxis.Maximum;
         try
           SprdSheet := TXlsFile.Create(true);
           SprdSheet.NewFile(1);

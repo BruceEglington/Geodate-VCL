@@ -10,6 +10,7 @@
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
+        <ProjectName Condition="'$(ProjectName)'==''">GDW4</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -147,8 +148,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_Build>0</VerInfo_Build>
-        <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=EggSoft;FileDescription=$(MSBuildProjectName);FileVersion=5.0.0.0;InternalName=GDW;LegalCopyright=Bruce Eglington;LegalTrademarks=;OriginalFilename=GeoDate;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.6.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=EggSoft;FileDescription=$(MSBuildProjectName);FileVersion=5.1.0.0;InternalName=GDW;LegalCopyright=Bruce Eglington;LegalTrademarks=;OriginalFilename=GeoDate;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.6.0.0;Comments=</VerInfo_Keys>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
         <Icon_MainIcon>GDW4_Icon1.ico</Icon_MainIcon>
@@ -322,6 +323,12 @@
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madBasic\BDS23\win32\madBasic_.bpl">madBasic  ·  www.madshi.net</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madBasic\BDS23\win32\madHelp_.bpl">madHelp  ·  www.madshi.net</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madDisAsm\BDS23\win32\madDisAsm_.bpl">madDisAsm  ·  www.madshi.net</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madExcept\BDS23\win32\madExcept_.bpl">madExcept  ·  www.madshi.net</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madExcept\BDS23\win32\madExceptVcl_.bpl">madExceptVcl  ·  www.madshi.net</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\madCollection\madExcept\BDS23\win32\madExceptWizard_.bpl">madExceptWizard  ·  www.madshi.net</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
@@ -991,6 +998,9 @@
                     <Platform Name="Win64">
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="Win64x">
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1252,6 +1262,7 @@
                 <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

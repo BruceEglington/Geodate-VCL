@@ -18,7 +18,7 @@ uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Menus,
 type
   TGDW1_MainForm = class(TForm)
     MainMenuGDW1: TMainMenu;
-    Panel1: TPanel;
+    pStatusBar: TPanel;
     StatusLine: TPanel;
     File1: TMenuItem;
     FileOpenItem: TMenuItem;
@@ -40,7 +40,7 @@ type
     WindowNewItem: TMenuItem;
     N6: TMenuItem;
     Options1: TMenuItem;
-    ToolsConvert: TMenuItem;
+    EditConvert: TMenuItem;
     Models: TMenuItem;
     Averages: TMenuItem;
     Regress1: TMenuItem;
@@ -81,21 +81,18 @@ type
     FileImportSpreadSheet: TMenuItem;
     FileExportSpreadsheet: TMenuItem;
     N11: TMenuItem;
-    ToolsConvertConcordia2TeraWasserburg: TMenuItem;
-    ToolsConvertTeraWasserburg2Concordia: TMenuItem;
+    EditConvertConcordia2TeraWasserburg: TMenuItem;
+    EditConvertTeraWasserburg2Concordia: TMenuItem;
     Registeruser1: TMenuItem;
-    Label1: TLabel;
     N5: TMenuItem;
     AverageArArPlateau: TMenuItem;
     AverageConcordia: TMenuItem;
     N12: TMenuItem;
-    Memo1: TMemo;
     OptionsAlphaLevel: TMenuItem;
     Models206Pb238U: TMenuItem;
     OptionsEllipseMagnification: TMenuItem;
     OptionsEllipseMagnification1: TMenuItem;
     OptionsEllipseMagnification2: TMenuItem;
-    lItemsHaveChanged: TLabel;
     ModelsRPostFormation: TMenuItem;
     ModelsTRD: TMenuItem;
     OptionsDefaultErrorType: TMenuItem;
@@ -106,7 +103,7 @@ type
     N3: TMenuItem;
     ModelsT2DMfromAgeEpsilonValues: TMenuItem;
     Styles1: TMenuItem;
-    Panel2: TPanel;
+    pButtons: TPanel;
     bSaveGDWFile: TButton;
     bOpen: TButton;
     bExit: TButton;
@@ -120,7 +117,10 @@ type
     N4: TMenuItem;
     FileOpenLegacy: TMenuItem;
     OpenDialogLegacyGEODATE: TOpenDialog;
+    EditConvertIsochron2InverseIsochron: TMenuItem;
+    EditConvertInverseIsochron2Isochron: TMenuItem;
     SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    lItemsHaveChanged: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FileOpenItemClick(Sender: TObject);
     procedure HelpAboutItemClick(Sender: TObject);
@@ -153,10 +153,10 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FileExportSpreadsheetClick(Sender: TObject);
     procedure FileImportSpreadsheetClick(Sender: TObject);
-    procedure ToolsConvertConcordia2TeraWasserburgClick(Sender: TObject);
+    procedure EditConvertConcordia2TeraWasserburgClick(Sender: TObject);
     procedure Registeruser1Click(Sender: TObject);
     procedure HelpBugReportClick(Sender: TObject);
-    procedure ToolsConvertTeraWasserburg2ConcordiaClick(Sender: TObject);
+    procedure EditConvertTeraWasserburg2ConcordiaClick(Sender: TObject);
     procedure ResultsTable1Click(Sender: TObject);
     procedure DatabaseTables1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -176,6 +176,7 @@ type
     procedure StyleClick(Sender: TObject);
     procedure Test1Click(Sender: TObject);
     procedure FileOpenLegacyClick(Sender: TObject);
+    procedure EditConvertIsochron2InverseIsochronClick(Sender: TObject);
   private
     //Private declarations
     //  0 = X-Y general
@@ -198,6 +199,9 @@ type
     //  H 17 = Evaporation Pb
     //  I 18 = Ar plateau
     //  J 19 = T(2DM) from Age-Epsilon values
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
     procedure ShowHint(Sender: TObject);
     procedure CheckAcceptableUser;
     procedure CheckMuChoice;
@@ -291,7 +295,7 @@ var
   tmpStr   : string;
   tmpStr1  : string;
   ICode    : integer;
-  PublicPath : string;
+  HomePath : string;
   tmpTracerStr : string;
   IniFileName : string;
 begin
@@ -303,9 +307,9 @@ begin
   //software to write to this path.
   //Now changed to use CSIDL_COMMON_DOCUMENTS which automatically permits
   //all users to have both read and write permission
-  PublicPath := TPath.GetHomePath;
-  CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  IniFilename := CommonFilePath + 'Geodate.ini';
+  HomePath := TPath.GetHomePath;
+  CommonFilePath := TPath.Combine(HomePath,'EggSoft');
+  IniFilename := TPath.Combine(CommonFilePath,'Geodate.ini');
   AppIni := TIniFile.Create(IniFilename);
   try
     RegisteredUser := AppIni.ReadString('Registration','Registered user','not defined');
@@ -316,10 +320,10 @@ begin
     {
     GdwNetFileDir := AppIni.ReadString('Default directories','NetFileDir','C:\');
     }
-    Drive1 := AppIni.ReadString('Default directories','Drive1',CommonFilePath+'Geodate\');
-    Drive2 := AppIni.ReadString('Default directories','Drive2',CommonFilePath+'Geodate\DATA\');
-    Drive3 := AppIni.ReadString('Default directories','Drive3',CommonFilePath+'Geodate\TEMP\');
-    cdsPath := AppIni.ReadString('Default directories','cds',CommonFilePath+'Geodate\');
+    Drive1 := AppIni.ReadString('Default directories','Drive1',TPath.Combine(CommonFilePath,'Geodate'));
+    Drive2 := AppIni.ReadString('Default directories','Drive2',TPath.Combine(CommonFilePath,'Geodate','DATA'));
+    Drive3 := AppIni.ReadString('Default directories','Drive3',TPath.Combine(CommonFilePath,'Geodate','TEMP'));
+    cdsPath := AppIni.ReadString('Default directories','cds',TPath.Combine(CommonFilePath,'Geodate'));
     LastCountry := AppIni.ReadString('Last country','LastCountry','SA');
     tmpStr := AppIni.ReadString('Statistics','Alpha','0.050');
     Val(tmpStr,FAlpha,ICode);
@@ -361,7 +365,7 @@ begin
       TracerUncertainty[i] := StrToFloat(AppIni.ReadString(Process[i],
         'Tracer % Uncertainty',FormatFloat('0.000000',DefaultTracerUncertainty[i])));
 
-      if (i in [1,2,7,9,14,15,16]) then
+      if (i in [1,2,7,9,14,15,16,20,21,22]) then
       begin
         tmpStr1 := DefaultCHURModelName[i];
         CHURModelName[i] := AppIni.ReadString(Process[i],'CHUR model name',tmpStr1);
@@ -498,25 +502,24 @@ begin
   finally
     AppIni.Free;
   end;
+  {
+  for i := 0 to Maxtype do
+  begin
+    ShowMessage(Process[i]+' '+IntToStr(i)+' '+FormatFloat('0.00000000E+00',DecayConst[i]));
+  end;
+  }
 end;
 
 procedure TGDW1_MainForm.SetIniFile;
 var
   AppIni   : TIniFile;
   i        : integer;
-  PublicPath : string;
+  HomePath : string;
   IniFileName : string;
 begin
-  //PublicPath := TPath.GetPublicPath;
-  //CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  //Used to use CSIDL_COMMON_APPDATA but some users do not have access to this
-  //and don't know how to change their system settings and permissions to all
-  //software to write to this path.
-  //Now changed to use CSIDL_COMMON_DOCUMENTS which automatically permits
-  //all users to have both read and write permission
-  PublicPath := TPath.GetHomePath;
-  CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  IniFilename := CommonFilePath + 'Geodate.ini';
+  HomePath := TPath.GetHomePath;
+  CommonFilePath := TPath.Combine(HomePath,'EggSoft');
+  IniFilename := TPath.Combine(CommonFilePath,'Geodate.ini');
   AppIni := TIniFile.Create(IniFilename);
   try
     AppIni.WriteString('Registration','Registered user',RegisteredUser);
@@ -537,6 +540,7 @@ begin
     AppIni.WriteString('Last analysis type','AnalType',AnalType);
     for i := 0 to MaxType do
     begin
+      {
       AppIni.WriteString(Process[i],'Method',Process[i]);
       AppIni.WriteString(Process[i],'X Ratio',XRatioStr[i]);
       AppIni.WriteString(Process[i],'Y Ratio',YRatioStr[i]);
@@ -548,15 +552,21 @@ begin
       AppIni.WriteString(Process[i],'Graph X Ratio',GraphXRatioStr[i]);
       AppIni.WriteString(Process[i],'Graph Y Ratio',GraphYRatioStr[i]);
       AppIni.WriteString(Process[i],'Graph Z Ratio',GraphZRatioStr[i]);
+      }
       if (DecayConst[i] > 0.0) then
       begin
+        {
         AppIni.WriteString(Process[i],'Decay Constant source',DecayConstantSource[i]);
         AppIni.WriteString(Process[i],'Decay Constant',FormatFloat('0.00000E+00',DecayConst[i]));
         AppIni.WriteString(Process[i],'Decay Constant % Uncertainty',FormatFloat('00.00000',DecayConstUncertainty[i]));
+        }
       end;
+      {
       AppIni.WriteString(Process[i],'Tracer % Uncertainty',FormatFloat('0.000000',TracerUncertainty[i]));
-      if (i in [1,2,7,9,14,15,16]) then
+      }
+      if (i in [1,2,7,9,14,15,16,20,21,22]) then
       begin
+        {
         AppIni.WriteString(Process[i],'CHUR model name',CHURModelName[i]);
         AppIni.WriteString(Process[i],'CHUR 1',FormatFloat('0.0000000E+00',CHUR[i,1]));
         AppIni.WriteString(Process[i],'CHUR 2',FormatFloat('0.0000000E+00',CHUR[i,2]));
@@ -569,14 +579,18 @@ begin
         AppIni.WriteString(Process[i],'CC 1',FormatFloat('0.00000000E+00',CC[i,1]));
         AppIni.WriteString(Process[i],'CC 2',FormatFloat('0.00000000E+00',CC[i,2]));
         AppIni.WriteString(Process[i],'CC 3',FormatFloat('0.00000000E+00',CC[i,3]));
+        }
       end;
       if ((CalcFac[i,1] <> 0.0) and (CalcFac[i,2] <> 0.0)) then
       begin
+        {
         AppIni.WriteString(Process[i],'Calc Fac 1',FormatFloat('0.000000E+00',CalcFac[i,1]));
         AppIni.WriteString(Process[i],'Calc Fac 2',FormatFloat('0.000000E+00',CalcFac[i,2]));
+        }
       end;
       if (i = 3) then
       begin
+        {
         AppIni.WriteString(Process[i],'Single stage model Start Date',FormatFloat('0.000E+00',MuV[0,1]));
         AppIni.WriteString(Process[i],'Single stage model Start 206Pb/204Pb',FormatFloat('00.000',MuV[0,2]));
         AppIni.WriteString(Process[i],'Single stage model Start 207Pb/204Pb',FormatFloat('00.000',MuV[0,3]));
@@ -592,6 +606,7 @@ begin
         AppIni.WriteString(Process[i],'User defined model Start 207Pb/204Pb',FormatFloat('00.000',MuV[2,3]));
         AppIni.WriteString(Process[i],'User defined model Start 208Pb/204Pb',FormatFloat('00.000',MuV[2,4]));
         AppIni.WriteString(Process[i],'User defined model Start 238U/204Pb',FormatFloat('00.000',MuV[2,5]));
+        }
         AppIni.WriteString(Process[i],'Default model',FormatFloat('0',1.0*mu_choice));
       end;
       if (i in [8]) then
@@ -606,6 +621,7 @@ begin
         AppIni.WriteString(Process[i],'Default minimum 207Pb/206Pb',FormatFloat('0.00000',BlanketZErrVal));
       end;
     end;
+    {
     AppIni.WriteInteger('Graph colours','Points included Red',GraphColour[1,1]);
     AppIni.WriteInteger('Graph colours','Points included Blue',GraphColour[1,2]);
     AppIni.WriteInteger('Graph colours','Points included Green',GraphColour[1,3]);
@@ -633,6 +649,7 @@ begin
     AppIni.WriteInteger('Graph colours','Cumulative histogram Red',GraphColour[9,1]);
     AppIni.WriteInteger('Graph colours','Cumulative histogram Blue',GraphColour[9,2]);
     AppIni.WriteInteger('Graph colours','Cumulative histogram Green',GraphColour[9,3]);
+    }
   finally
     AppIni.Free;
   end;
@@ -777,10 +794,18 @@ begin
     //  H = Evaporation Pb
     //  I = Ar plateau
     //  J = T(2DM) from Age-Epsilon value pairs
+    //  K 20 = Lu-Hf inverse
+    //  L 21 = K-Ca inverse
+    //  M 22 = Re-Os inverse
     FileExportSpreadsheet.Enabled := true;
     Edit1.Enabled := true;
     EditEdit.Enabled := true;
     bEdit.Enabled := true;
+    EditConvert.Enabled := false;
+    EditConvertConcordia2TeraWasserburg.Enabled := false;
+    EditConvertTeraWasserburg2Concordia.Enabled := false;
+    EditConvertIsochron2InverseIsochron.Enabled := false;
+    EditConvertInverseIsochron2Isochron.Enabled := false;
     Regress1.Enabled := true;
     bRegressConstrained.Enabled := true;
     bRegressUnconstrained.Enabled := true;
@@ -860,7 +885,7 @@ begin
         ModelsRDate.Enabled := true;
         ModelsRIndividual.Enabled := true;
       end;
-      '7' : begin
+      '7','K' : begin
         Models.Enabled := true;
         ModelsTRatio.Enabled := true;
         ModelsTCHUR.Enabled := true;
@@ -871,15 +896,20 @@ begin
         ModelsRIndividual.Enabled := true;
         ModelsEpsilonDate.Enabled := true;
         ModelsEpsilonIndividual.Enabled := true;
+        EditConvert.Enabled := true;
+        if (AnalType = '7') then EditConvertIsochron2InverseIsochron.Enabled := true;
+        if (AnalType = 'K') then EditConvertInverseIsochron2Isochron.Enabled := true;
       end;
       '8' : begin
         Models.Enabled := true;
         Models207Pb206Pb.Enabled := true;
         if (OptionsNormal.Checked) then AnalType8 := 'N';
         if (OptionsDiscordance.Checked) then AnalType8 := 'U';
-        ToolsConvert.Enabled := true;
-        ToolsConvertConcordia2TeraWasserburg.Enabled := true;
-        ToolsConvertTeraWasserburg2Concordia.Enabled := false;
+        EditConvert.Enabled := true;
+        EditConvertConcordia2TeraWasserburg.Enabled := true;
+        EditConvertTeraWasserburg2Concordia.Enabled := false;
+        EditConvertIsochron2InverseIsochron.Enabled := false;
+        EditConvertInverseIsochron2Isochron.Enabled := false;
         Models206Pb238U.Enabled := true;
         AverageConcordia.Enabled := true;
       end;
@@ -900,9 +930,11 @@ begin
         Models207Pb206Pb.Enabled := true;
         if (OptionsNormal.Checked) then AnalType8 := 'N';
         if (OptionsDiscordance.Checked) then AnalType8 := 'U';
-        ToolsConvert.Enabled := true;
-        ToolsConvertConcordia2TeraWasserburg.Enabled := false;
-        ToolsConvertTeraWasserburg2Concordia.Enabled := true;
+        EditConvert.Enabled := true;
+        EditConvertConcordia2TeraWasserburg.Enabled := false;
+        EditConvertTeraWasserburg2Concordia.Enabled := true;
+        EditConvertIsochron2InverseIsochron.Enabled := false;
+        EditConvertInverseIsochron2Isochron.Enabled := false;
         Models206Pb238U.Enabled := true;
         AverageConcordia.Enabled := true;
       end;
@@ -918,7 +950,7 @@ begin
         Models.Enabled := false;
         AverageArArPlateau.Enabled := false;
       end;
-      'E' : begin
+      'E','L' : begin
         Models.Enabled := true;
         ModelsTRatio.Enabled := true;
         ModelsTCHUR.Enabled := true;
@@ -929,8 +961,11 @@ begin
         ModelsRIndividual.Enabled := true;
         ModelsEpsilonDate.Enabled := true;
         ModelsEpsilonIndividual.Enabled := true;
+        EditConvert.Enabled := true;
+        if (AnalType = 'E') then EditConvertIsochron2InverseIsochron.Enabled := true;
+        if (AnalType = 'L') then EditConvertInverseIsochron2Isochron.Enabled := true;
       end;
-      'F' : begin
+      'F','M' : begin
         Models.Enabled := true;
         ModelsTRatio.Enabled := true;
         ModelsTCHUR.Enabled := true;
@@ -940,6 +975,9 @@ begin
         ModelsEpsilonDate.Enabled := true;
         ModelsEpsilonIndividual.Enabled := true;
         ModelsTCHUR.Caption := 'T (MA)';
+        EditConvert.Enabled := true;
+        if (AnalType = 'F') then EditConvertIsochron2InverseIsochron.Enabled := true;
+        if (AnalType = 'M') then EditConvertInverseIsochron2Isochron.Enabled := true;
       end;
       'G' : begin
         Models.Enabled := true;
@@ -1020,9 +1058,12 @@ begin
 end;
 
 procedure TGDW1_MainForm.FileSaveAsItemClick(Sender: TObject);
+var
+  PosDot : integer;
 begin
   //ShowMessage('2 '+AnalType);
   SaveDialogGEODATE.InitialDir := SPath;
+  //ShowMessage('3 '+SaveDialogGEODATE.FileName);
   case AnalType of
     '0' : SaveDialogGEODATE.DefaultExt := '.GE0';
     '1' : SaveDialogGEODATE.DefaultExt := '.GE1';
@@ -1044,13 +1085,21 @@ begin
     'H' : SaveDialogGEODATE.DefaultExt := '.GEH';
     'I' : SaveDialogGEODATE.DefaultExt := '.GEI';
     'J' : SaveDialogGEODATE.DefaultExt := '.GEJ';
+    'K' : SaveDialogGEODATE.DefaultExt := '.GEK';
+    'L' : SaveDialogGEODATE.DefaultExt := '.GEL';
+    'M' : SaveDialogGEODATE.DefaultExt := '.GEM';
   end;
   iAnalTyp := Get_Ianal_from_AnalType(AnalType);
   if (iAnalTyp < 0) then Exit;
+  PosDot := Pos('.',ProjectName);
+  ProjectName := Copy(ProjectName,1,PosDot-1);
   SaveDialogGEODATE.FileName := ProjectName;
+  //ShowMessage('Projectname '+ProjectName);
   SaveDialogGEODATE.FilterIndex := iAnalTyp + 1;
+  //ShowMessage('iAnalTyp+1 '+Int2Str(iAnalTyp + 1));
   if SaveDialogGEODATE.Execute then
   begin
+    //ShowMessage('4 '+SaveDialogGEODATE.FileName);
     AssignFile(Geodate_file, SaveDialogGEODATE.FileName);
     Rewrite(Geodate_file);
     Write_Geodate_File_Data;
@@ -1060,6 +1109,8 @@ begin
     OpenDialogGEODATE.FileName := SaveDialogGEODATE.FileName;
     lProjectName.Visible := true;
     ProjectName := ExtractFileName(OpenDialogGEODATE.FileName);
+    PosDot := Pos('.',ProjectName);
+    ProjectName := Copy(ProjectName,1,PosDot-1);
     lProjectName.Caption := 'Project = '+ProjectName;
     lItemsHaveChanged.Visible := false;
     ItemsHaveChanged := false;
@@ -1081,6 +1132,30 @@ procedure TGDW1_MainForm.RegressUnconstrainedClick(Sender: TObject);
 var
   J : integer;
 begin
+  Age := -999.0;
+  AgeError := -999.0;
+  AgeErrorPlusIncl := -999.0;
+  AgeErrorMinusIncl := -999.0;
+  UpperAgeErrorIncl := -999.0;
+  LowerAgeErrorIncl := -999.0;
+  UpperAgeError := -999.0;
+  LowerAgeError := -999.0;
+  UprUprAgeErrorIncl := -999.0;
+  UprLwrAgeErrorIncl := -999.0;
+  UprUprAgeError := -999.0;
+  UprLwrAgeError := -999.0;
+  UprUprAgeError2 := -999.0;
+  UprUprAgeError2Incl := -999.0;
+  LwrUprAgeErrorIncl := -999.0;
+  LwrLwrAgeErrorIncl := -999.0;
+  LwrUprAgeError := -999.0;
+  LwrLwrAgeError := -999.0;
+  InitRatio := -999.0;
+  InitRatioError := -999.0;
+  Epsilon1 := -999.0;
+  EpError1 := -999.0;
+
+
   AdjustForNegativeIntercept := false;
   try
     RegressForm := TfmRegressionResult.Create(Self);
@@ -1090,9 +1165,9 @@ begin
     }
     ConstrainFlag := false;
     {
-    if ((iAnalTyp in [0..17]) or ((iAnalTyp in [11..13]) and AcceptableUser))
+    if ((iAnalTyp in [0..22]) or ((iAnalTyp in [11..13]) and AcceptableUser))
     }
-    if (iAnalTyp in [0..17]) then
+    if (iAnalTyp in [0..22]) then
     begin
       NumberOfPointsRegressed:=0;
       for J:=1 to NumberOfPoints do begin
@@ -1118,6 +1193,28 @@ procedure TGDW1_MainForm.RegressConstrainedClick(Sender: TObject);
 var
   J : integer;
 begin
+  Age := -999.0;
+  AgeError := -999.0;
+  AgeErrorPlusIncl := -999.0;
+  AgeErrorMinusIncl := -999.0;
+  UpperAgeErrorIncl := -999.0;
+  LowerAgeErrorIncl := -999.0;
+  UpperAgeError := -999.0;
+  LowerAgeError := -999.0;
+  UprUprAgeErrorIncl := -999.0;
+  UprLwrAgeErrorIncl := -999.0;
+  UprUprAgeError := -999.0;
+  UprLwrAgeError := -999.0;
+  UprUprAgeError2 := -999.0;
+  UprUprAgeError2Incl := -999.0;
+  LwrUprAgeErrorIncl := -999.0;
+  LwrLwrAgeErrorIncl := -999.0;
+  LwrUprAgeError := -999.0;
+  LwrLwrAgeError := -999.0;
+  InitRatio := -999.0;
+  InitRatioError := -999.0;
+  Epsilon1 := -999.0;
+  EpError1 := -999.0;
   AdjustForNegativeIntercept := false;
   try
     RegressForm := TfmRegressionResult.Create(Self);
@@ -1751,6 +1848,7 @@ end;
 procedure TGDW1_MainForm.FileImportSpreadsheetClick(Sender: TObject);
 var
   ModalResultLocal : boolean;
+  PosDot : integer;
 begin
   try
     ModalResultLocal := false;
@@ -1769,6 +1867,8 @@ begin
         if (EditForm.ModalResult = mrOK) then
         begin
           //ShowMessage('2'+ProjectName);
+          PosDot := Pos('.',ProjectName);
+          ProjectName := Copy(ProjectName,1,PosDot-1);
           SaveDialogGEODATE.Filename := ProjectName;
           FileSaveAsItemClick(Sender);
           GDWSetEnabled;
@@ -1803,13 +1903,35 @@ begin
   ShowMessage(dmGDWtmp.ChosenStyle);
 end;
 
-procedure TGDW1_MainForm.ToolsConvertConcordia2TeraWasserburgClick(
+procedure TGDW1_MainForm.EditConvertConcordia2TeraWasserburgClick(
   Sender: TObject);
+var
+  PosDot : integer;
 begin
   ConvertConcordia2TeraWasserburg;
-  if (Sender = ToolsConvertConcordia2TeraWasserburg) then
+  if (Sender = EditConvertConcordia2TeraWasserburg) then
   begin
+    PosDot := Pos('.',ProjectName);
+    ProjectName := Copy(ProjectName,1,PosDot-1);
     SaveDialogGEODATE.FileName := ProjectName;
+    FileSaveAsItemClick(Sender);
+  end;
+  GDWSetEnabled;
+end;
+
+procedure TGDW1_MainForm.EditConvertIsochron2InverseIsochronClick(
+  Sender: TObject);
+var
+  PosDot : integer;
+begin
+  Convert2Inverse;
+  if ((Sender = EditConvertIsochron2InverseIsochron) or (Sender = EditConvertInverseIsochron2Isochron)) then
+  begin
+    //ShowMessage(SaveDialogGEODATE.FileName);
+    PosDot := Pos('.',ProjectName);
+    ProjectName := Copy(ProjectName,1,PosDot-1);
+    SaveDialogGEODATE.FileName := ProjectName;
+    //ShowMessage(SaveDialogGEODATE.FileName);
     FileSaveAsItemClick(Sender);
   end;
   GDWSetEnabled;
@@ -1962,12 +2084,16 @@ begin
   end;
 end;
 
-procedure TGDW1_MainForm.ToolsConvertTeraWasserburg2ConcordiaClick(
+procedure TGDW1_MainForm.EditConvertTeraWasserburg2ConcordiaClick(
   Sender: TObject);
+var
+  PosDot : integer;
 begin
   ConvertTeraWasserburg2Concordia;
-  if (Sender = ToolsConvertTeraWasserburg2Concordia) then
+  if (Sender = EditConvertTeraWasserburg2Concordia) then
   begin
+    PosDot := Pos('.',ProjectName);
+    ProjectName := Copy(ProjectName,1,PosDot-1);
     SaveDialogGEODATE.FileName := ProjectName;
     FileSaveAsItemClick(Sender);
   end;
@@ -2008,7 +2134,7 @@ begin
   N_Rep := 999;
   FAlpha := 0.050;
   NumberOfPoints := 0;
-  GetIniFile;
+  //GetIniFile;
   iAnalTyp := Get_Ianal_from_AnalType(AnalType);
   if (RegisteredUser = 'not defined') then
   begin
@@ -2052,9 +2178,11 @@ begin
   OpenDialogGEODATE.InitialDir := Drive2;
   SaveDialogGEODATE.InitialDir := Drive2;
   lProjectName.Visible := false;
-  ToolsConvert.Enabled := false;
-  ToolsConvertConcordia2TeraWasserburg.Enabled := false;
-  ToolsConvertTeraWasserburg2Concordia.Enabled := false;
+  EditConvert.Enabled := false;
+  EditConvertConcordia2TeraWasserburg.Enabled := false;
+  EditConvertTeraWasserburg2Concordia.Enabled := false;
+  EditConvertIsochron2InverseIsochron.Enabled := false;
+  EditConvertInverseIsochron2Isochron.Enabled := false;
   PlotErrorEnvelope := 'N';
   ChooseEllipse := 'N';
   lItemsHaveChanged.Visible := false;
@@ -2085,7 +2213,7 @@ begin
       if (AnalType = 'A') then
       begin
         TemporaryAnalType := AnalType;
-        ToolsConvertTeraWasserburg2ConcordiaClick(Sender);
+        EditConvertTeraWasserburg2ConcordiaClick(Sender);
       end;
       ConcordiaDateForm.ShowModal;
     end else
