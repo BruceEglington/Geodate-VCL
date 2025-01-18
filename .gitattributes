@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+*.pas eol=crlf
+*.dfm eol=crlf
+*.dpr eol=crlf
+*.groupproj eol=crlf
