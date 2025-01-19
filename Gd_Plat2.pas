@@ -994,8 +994,39 @@ end;
 
 
 procedure TfmPlatAr.ChPlatZoom(Sender: TObject);
+var
+  IncrementAmountLeft, IncrementAmountBottom : double;
+  NumLabelledTicsLeft, NumLabelledTicsBottom : integer;
+  RangeLeft, RangeBottom : double;
+  MinX, MaxX,
+  MinY, MaxY : double;
+  tFactor : double;
+  NumTics : integer;
 begin
-  //
+  MinY := ChPlat.Axes.Left.Minimum;
+  MaxY := ChPlat.Axes.Left.Maximum;
+  MinX := ChPlat.Axes.Bottom.Minimum;
+  MaxX := ChPlat.Axes.Bottom.Maximum;
+  RangeLeft := MaxY-MinY;
+  //ShowMessage('RangeLeft = '+FormatFloat('####0.000000',RangeLeft));
+  ChPlat.Axes.Left.AxisValuesFormat := '####0.0#####';
+  if (RangeLeft > 0.7) then ChPlat.Axes.Left.AxisValuesFormat := '###0.00####';
+  if (RangeLeft > 7.0) then ChPlat.Axes.Left.AxisValuesFormat := '###0.######';
+  if (RangeLeft <= 0.7) then ChPlat.Axes.Left.AxisValuesFormat := '###0.000###';
+  if (RangeLeft <= 0.07) then ChPlat.Axes.Left.AxisValuesFormat := '###0.0000##';
+  if (RangeLeft <= 0.007) then ChPlat.Axes.Left.AxisValuesFormat := '###0.00000#';
+  if (RangeLeft <= 0.0007) then ChPlat.Axes.Left.AxisValuesFormat := '###0.000000';
+  if (RangeLeft <= 0.00007) then ChPlat.Axes.Left.AxisValuesFormat := '###0.000000';
+  RangeBottom := MaxX-MinX;
+  //ShowMessage('RangeBottom = '+FormatFloat('####0.000000',RangeBottom));
+  ChPlat.Axes.Bottom.AxisValuesFormat := '####0.0#####';
+  if (RangeBottom > 0.7) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.0#####';
+  if (RangeBottom > 7.0) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.######';
+  if (RangeBottom <= 0.7) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.00####';
+  if (RangeBottom <= 0.07) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.000###';
+  if (RangeBottom <= 0.007) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.0000##';
+  if (RangeBottom <= 0.0007) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.00000#';
+  if (RangeBottom <= 0.00007) then ChPlat.Axes.Bottom.AxisValuesFormat := '###0.000000';
 end;
 
 procedure TfmPlatAr.ShowCurrentPoint;

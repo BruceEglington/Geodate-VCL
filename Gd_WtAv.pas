@@ -2311,47 +2311,24 @@ begin
   MaxY := ChWtAv.Axes.Left.Maximum;
   MinX := ChWtAv.Axes.Bottom.Minimum;
   MaxX := ChWtAv.Axes.Bottom.Maximum;
-  IncrementAmountLeft := ChWtAv.Axes.Left.Increment;
-  IncrementAmountBottom := ChWtAv.Axes.Bottom.Increment;
-  //ShowMessage('IncrementLeft = '+FormatFloat('####0.000000',IncrementAmountLeft));
-  if (IncrementAmountLeft <= 0.0) then IncrementAmountLeft := 0.5;
-  if (IncrementAmountBottom <= 0.0) then IncrementAmountBottom := 0.5;
-  RangeLeft := MaxY-MinY;
-  NumLabelledTicsLeft := Round(RangeLeft/IncrementAmountLeft);
-  NumLabelledTicsBottom := Round(RangeBottom/IncrementAmountBottom);
-  //ShowMessage('RangeLeft = '+FormatFloat('###0.0000000',RangeLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  //ShowMessage('Minimum = '+FormatFloat('###0.0000000',MinY)+'__'+'Maximum = '+FormatFloat('###0.0000000',MaxY));
-  //ShowMessage('IncrementAmountLeft = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  if (NumLabelledTicsLeft > 10) then
-  begin
-    IncrementAmountLeft := 1.0*Round(RangeLeft/10.0);
-    //ShowMessage('Set IncrementAmountLeft = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-    ChWtAv.LeftAxis.Automatic := false;
-    ChWtAv.LeftAxis.Increment := IncrementAmountLeft;
-    ChWtAv.LeftAxis.SetMinMax(MinY,MaxY);
-  end;
-  if (NumLabelledTicsBottom > 10) then
-  begin
-    IncrementAmountBottom := 1.0*Round(RangeBottom/10.0);
-    //ShowMessage('Set IncrementAmountBottom = '+FormatFloat('###0.0000000',IncrementAmountBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-    ChWtAv.BottomAxis.Automatic := false;
-    ChWtAv.BottomAxis.Increment := IncrementAmountBottom;
-    ChWtAv.BottomAxis.SetMinMax(MinX,MaxX);
-  end;
   RangeLeft := MaxY-MinY;
   //ShowMessage('RangeLeft = '+FormatFloat('####0.000000',RangeLeft));
-  ChWtAv.Axes.Left.AxisValuesFormat := '####0.0##';
-  if (RangeLeft <= 0.7) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.000';
-  if (RangeLeft <= 0.07) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.0000';
-  if (RangeLeft <= 0.007) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.00000';
+  ChWtAv.Axes.Left.AxisValuesFormat := '####0.0#####';
+  if (RangeLeft > 0.7) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.00####';
+  if (RangeLeft > 7.0) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.######';
+  if (RangeLeft <= 0.7) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.000###';
+  if (RangeLeft <= 0.07) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.0000##';
+  if (RangeLeft <= 0.007) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.00000#';
   if (RangeLeft <= 0.0007) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.000000';
   if (RangeLeft <= 0.00007) then ChWtAv.Axes.Left.AxisValuesFormat := '###0.000000';
   RangeBottom := MaxX-MinX;
-  ChWtAv.Axes.Bottom.AxisValuesFormat := '####0.0##';
-  if (RangeBottom <= 0.7) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.00';
-  if (RangeBottom <= 0.07) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.000';
-  if (RangeBottom <= 0.007) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.0000';
-  if (RangeBottom <= 0.0007) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.00000';
+  ChWtAv.Axes.Bottom.AxisValuesFormat := '####0.0#####';
+  if (RangeBottom > 0.7) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.0#####';
+  if (RangeBottom > 7.0) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.######';
+  if (RangeBottom <= 0.7) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.00####';
+  if (RangeBottom <= 0.07) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.000###';
+  if (RangeBottom <= 0.007) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.0000##';
+  if (RangeBottom <= 0.0007) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.00000#';
   if (RangeBottom <= 0.00007) then ChWtAv.Axes.Bottom.AxisValuesFormat := '###0.000000';
 end;
 
