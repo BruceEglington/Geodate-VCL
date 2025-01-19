@@ -2081,6 +2081,10 @@ begin
     Regress1.Enabled := true;
     Models.Enabled := true;
     Averages.Enabled := true;
+    if (Sender = FileOpenLegacy) then
+    begin
+      FileSaveItem.Enabled := false;
+    end;
   end;
 end;
 
