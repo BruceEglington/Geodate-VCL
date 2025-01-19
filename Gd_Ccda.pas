@@ -113,8 +113,6 @@ type
     Series15: TLineSeries;
     Series16: TLineSeries;
     ChartEditor1: TChartEditor;
-    Label20: TLabel;
-    Edit1: TEdit;
     Label21: TLabel;
     eTicFormat: TEdit;
     procedure FormShow(Sender: TObject);
