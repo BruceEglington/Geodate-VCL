@@ -2188,113 +2188,29 @@ var
   tFactor : double;
   NumTics : integer;
 begin
-  NumTics := 10;
-  MinY := ChartReg.Axes.Left.Minimum;
-  MaxY := ChartReg.Axes.Left.Maximum;
-  MinX := ChartReg.Axes.Bottom.Minimum;
-  MaxX := ChartReg.Axes.Bottom.Maximum;
-  IncrementAmountLeft := ChartReg.Axes.Left.Increment;
-  IncrementAmountBottom := ChartReg.Axes.Bottom.Increment;
-  //ShowMessage('Default IncrementLeft = '+FormatFloat('####0.000000',IncrementAmountLeft));
-  //ShowMessage('Default IncrementBottom = '+FormatFloat('####0.000000',IncrementAmountBottom));
-  //if (IncrementAmountLeft <= 0.0) then IncrementAmountLeft := 0.1;
-  //if (IncrementAmountBottom <= 0.0) then IncrementAmountBottom := 0.1;
-  RangeLeft := MaxY-MinY;
-  RangeBottom := MaxX-MinX;
-  if (IncrementAmountLeft <= 0.0) then IncrementAmountLeft := RangeLeft/(1.0*NumTics);
-  if (IncrementAmountBottom <= 0.0) then IncrementAmountBottom := RangeBottom/(1.0*NumTics);
-  NumLabelledTicsLeft := Round(RangeLeft/IncrementAmountLeft);
-  NumLabelledTicsBottom := Round(RangeBottom/IncrementAmountBottom);
-  //ShowMessage('RangeLeft = '+FormatFloat('###0.0000000',RangeLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  IncrementAmountLeft := RangeLeft/(1.0*NumTics);
-  IncrementAmountBottom := RangeBottom/(1.0*NumTics);
-  //ShowMessage('Minimum = '+FormatFloat('###0.0000000',MinY)+'__'+'Maximum = '+FormatFloat('###0.0000000',MaxY));
-  NumLabelledTicsLeft := Round(RangeLeft/IncrementAmountLeft);
-  NumLabelledTicsBottom := Round(RangeBottom/IncrementAmountBottom);
-  //ShowMessage('IncrementAmountLeft before = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  //ShowMessage('IncrementAmountBottom before = '+FormatFloat('###0.0000000',IncrementAmountBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-  MinY := ChartReg.Axes.Left.Minimum;
-  MaxY := ChartReg.Axes.Left.Maximum;
-  MinX := ChartReg.Axes.Bottom.Minimum;
-  MaxX := ChartReg.Axes.Bottom.Maximum;
-  RangeLeft := MaxY-MinY;
-  RangeBottom := MaxX-MinX;
-  if (IncrementAmountLeft < 1.0) then
-  begin
-    tFactor := (1.0/IncrementAmountLeft)/10.0;
-    tFactor := 10.0*Round(tFactor);
-    IncrementAmountLeft := 1.0/tFactor;
-  end else
-  begin
-    if (IncrementAmountLeft >= 10.0) then
-    begin
-      IncrementAmountLeft := Round(RangeLeft/10.0);
-    end else
-    begin
-      IncrementAmountLeft := RangeLeft/10.0;
-    end;
-  end;
-  if (IncrementAmountBottom < 1.0) then
-  begin
-    tFactor := (1.0/IncrementAmountBottom)/10.0;
-    tFactor := 10.0*Round(tFactor);
-    IncrementAmountBottom := 1.0/tFactor;
-  end else
-  begin
-    if (IncrementAmountBottom >= 10.0) then
-    begin
-      IncrementAmountBottom := Round(RangeBottom/10.0);
-    end else
-    begin
-      IncrementAmountBottom := RangeBottom/10.0;
-    end;
-  end;
-  NumLabelledTicsLeft := Round(RangeLeft/IncrementAmountLeft);
-  NumLabelledTicsBottom := Round(RangeBottom/IncrementAmountBottom);
-  //ShowMessage('IncrementAmountLeft before = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  ///ShowMessage('IncrementAmountBottom before = '+FormatFloat('###0.0000000',IncrementAmountBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-  //ShowMessage('IncrementAmountLeft after = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-  //ShowMessage('RangeBottom = '+FormatFloat('###0.0000000',RangeBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-  //ShowMessage('Minimum = '+FormatFloat('###0.0000000',MinX)+'__'+'Maximum = '+FormatFloat('###0.0000000',MaxX));
-  //ShowMessage('IncrementAmountBottom = '+FormatFloat('###0.0000000',IncrementAmountBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-  //if (NumLabelledTicsLeft > 10) then
-  //begin
-    //IncrementAmountLeft := 1.0*Round(RangeLeft/10.0);
-    if (IncrementAmountLeft <= 0.0) then IncrementAmountLeft := RangeLeft/(1.0*NumTics);
-    //ShowMessage('Set IncrementAmountLeft = '+FormatFloat('###0.0000000',IncrementAmountLeft)+'__'+Int2Str(NumLabelledTicsLeft));
-    ChartReg.LeftAxis.Automatic := false;
-    ChartReg.LeftAxis.Increment := IncrementAmountLeft;
-    ChartReg.LeftAxis.SetMinMax(MinY,MaxY);
-    ChartReg.LeftAxis.Automatic := true;
-  //end;
-  //if (NumLabelledTicsBottom > 10) then
-  //begin
-    //IncrementAmountBottom := 1.0*Round(RangeBottom/10.0);
-    if (IncrementAmountBottom <= 0.0) then IncrementAmountBottom := RangeBottom/(1.0*NumTics);
-    //ShowMessage('Set IncrementAmountBottom = '+FormatFloat('###0.0000000',IncrementAmountBottom)+'__'+Int2Str(NumLabelledTicsBottom));
-    ChartReg.BottomAxis.Automatic := false;
-    ChartReg.BottomAxis.Increment := IncrementAmountBottom;
-    ChartReg.BottomAxis.SetMinMax(MinX,MaxX);
-  //end;
   MinY := ChartReg.Axes.Left.Minimum;
   MaxY := ChartReg.Axes.Left.Maximum;
   MinX := ChartReg.Axes.Bottom.Minimum;
   MaxX := ChartReg.Axes.Bottom.Maximum;
   RangeLeft := MaxY-MinY;
   //ShowMessage('RangeLeft = '+FormatFloat('####0.000000',RangeLeft));
-  ChartReg.Axes.Left.AxisValuesFormat := '####0.0##';
-  if (RangeLeft <= 0.7) then ChartReg.Axes.Left.AxisValuesFormat := '###0.000';
-  if (RangeLeft <= 0.07) then ChartReg.Axes.Left.AxisValuesFormat := '###0.0000';
-  if (RangeLeft <= 0.007) then ChartReg.Axes.Left.AxisValuesFormat := '###0.00000';
+  ChartReg.Axes.Left.AxisValuesFormat := '####0.0#####';
+  if (RangeLeft > 0.7) then ChartReg.Axes.Left.AxisValuesFormat := '###0.00####';
+  if (RangeLeft > 7.0) then ChartReg.Axes.Left.AxisValuesFormat := '###0.######';
+  if (RangeLeft <= 0.7) then ChartReg.Axes.Left.AxisValuesFormat := '###0.000###';
+  if (RangeLeft <= 0.07) then ChartReg.Axes.Left.AxisValuesFormat := '###0.0000##';
+  if (RangeLeft <= 0.007) then ChartReg.Axes.Left.AxisValuesFormat := '###0.00000#';
   if (RangeLeft <= 0.0007) then ChartReg.Axes.Left.AxisValuesFormat := '###0.000000';
   if (RangeLeft <= 0.00007) then ChartReg.Axes.Left.AxisValuesFormat := '###0.000000';
   RangeBottom := MaxX-MinX;
   //ShowMessage('RangeBottom = '+FormatFloat('####0.000000',RangeBottom));
-  ChartReg.Axes.Bottom.AxisValuesFormat := '####0.0##';
-  if (RangeBottom <= 0.7) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.00';
-  if (RangeBottom <= 0.07) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.000';
-  if (RangeBottom <= 0.007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.0000';
-  if (RangeBottom <= 0.0007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.00000';
+  ChartReg.Axes.Bottom.AxisValuesFormat := '####0.0#####';
+  if (RangeBottom > 0.7) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.0#####';
+  if (RangeBottom > 70.0) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.######';
+  if (RangeBottom <= 0.7) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.00####';
+  if (RangeBottom <= 0.07) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.000###';
+  if (RangeBottom <= 0.007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.0000##';
+  if (RangeBottom <= 0.0007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.00000#';
   if (RangeBottom <= 0.00007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.000000';
 end;
 
