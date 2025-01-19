@@ -2206,7 +2206,7 @@ begin
   //ShowMessage('RangeBottom = '+FormatFloat('####0.000000',RangeBottom));
   ChartReg.Axes.Bottom.AxisValuesFormat := '####0.0#####';
   if (RangeBottom > 0.7) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.0#####';
-  if (RangeBottom > 7.0) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.######';
+  if (RangeBottom > 70.0) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.######';
   if (RangeBottom <= 0.7) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.00####';
   if (RangeBottom <= 0.07) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.000###';
   if (RangeBottom <= 0.007) then ChartReg.Axes.Bottom.AxisValuesFormat := '###0.0000##';
