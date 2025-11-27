@@ -5,19 +5,18 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, DBCtrls, ExtCtrls, Grids, DBGrids, Printers, OleCtrls,
+  FireDAC.Comp.Dataset, FireDAC.Stan.Intf,
+  System.IOUtils, System.UITypes,
   Mask, AxCtrls, VclTee.TeeGDIPlus, VCLTee.Series, VCLTee.TeEngine,
   VCLTee.TeeComma, VCLTee.TeeProcs, VCLTee.Chart, VCLTee.TeeErrorPoint,
   VCLTee.TeeSpline, VCLTee.TeeTools, VCL.Themes, GD_MSWD,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, Vcl.ComCtrls, System.ImageList,
-  Vcl.ImgList, Vcl.VirtualImageList, SVGIconVirtualImageList, VCLTee.TeeEdit;
+  Vcl.ImgList, Vcl.VirtualImageList, VCLTee.TeeEdit, ImageCollection_dm;
 
 type
   TfmConcordiaDate = class(TForm)
     pButtonsTop: TPanel;
-    pResultLeft: TPanel;
     pResultsBottom: TPanel;
-    eTitle: TEdit;
-    Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -41,7 +40,6 @@ type
     eDateW: TEdit;
     eProbWO: TEdit;
     lErrorsBased: TLabel;
-    lResultTitle: TLabel;
     pGraphRight: TPanel;
     SaveDialogModels: TSaveDialog;
     Label5: TLabel;
@@ -71,11 +69,8 @@ type
     lEllipseMagnif: TLabel;
     lResidual: TLabel;
     pGraphs: TPanel;
-    Panel6: TPanel;
     Panel7: TPanel;
-    Splitter1: TSplitter;
     ChartConcordia: TChart;
-    TeeCommander1: TTeeCommander;
     Series1: TLineSeries;
     Series2: TPointSeries;
     Series3: TPointSeries;
@@ -95,7 +90,6 @@ type
     Series14: TPointSeries;
     Label18: TLabel;
     eTicksEvery: TEdit;
-    lModifyGraphSettings: TLabel;
     eNsamp: TEdit;
     Label19: TLabel;
     Splitter4: TSplitter;
@@ -103,18 +97,18 @@ type
     TreeView1: TTreeView;
     bClose: TButton;
     bSprdSheet: TButton;
-    bCumHist: TButton;
-    bExport: TButton;
+    bExportForDateView: TButton;
     bRecalculate: TButton;
     TeeFunction1: TSmoothingFunction;
     lMaxAgeConcordia: TLabel;
     eMaxAgeConcordia: TEdit;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
     Series15: TLineSeries;
     Series16: TLineSeries;
-    ChartEditor1: TChartEditor;
     Label21: TLabel;
     eTicFormat: TEdit;
+    VirtualImageList1: TVirtualImageList;
+    TeeCommander1: TTeeCommander;
+    TeeGDIPlus1: TTeeGDIPlus;
     procedure FormShow(Sender: TObject);
     procedure bbSprdSheetClick(Sender: TObject);
     procedure bbStoreMdlClick(Sender: TObject);
@@ -131,6 +125,7 @@ type
     procedure ChartConcordiaDblClick(Sender: TObject);
     procedure bPrintClick(Sender: TObject);
     procedure ChartConcordiaZoom(Sender: TObject);
+    procedure bExportForDateViewClick(Sender: TObject);
   private
     //Private declarations
     //  0 = X-Y general
@@ -167,6 +162,8 @@ type
     VarbNoX : integer;
     AllSame : boolean;
     FileVarStr : string;
+    DatePlusMinusWO, DatePlusMinusW : double;
+    ProbabilityOfFitE : double;
     procedure Choose_Wt_Field;
     procedure SprdSheetEllipse ( i : integer);
     procedure DrawEllipse ( i : integer);
@@ -305,8 +302,8 @@ begin
   if (EllipseMagnif = 1.0) then lEllipseMagnif.Caption := 'Ellipses are 1 sigma';
   if (EllipseMagnif > 1.0) then lEllipseMagnif.Caption := 'Ellipses are 95% confidence';
   lNotApplicable.Visible := false;
-  bExport.Enabled := false;
-  eTitle.Text := Title;
+  bExportForDateView.Enabled := false;
+  //eTitle.Text := Title;
   ChartConcordia.Title.Caption := Title;
   CMaxX := 0.0;
   CMinX := 0.0;
@@ -358,7 +355,6 @@ var
   t1, t2, t3, t4 : double;
   SD3       : double;
   tx, ty, tEx, tEy, tr : double;
-  ProbabilityOfFitE : double;
   tmpX, tmpY, tmpZ : double;
   tmpXp, tmpYp, tmpXm, tmpYm : double;
   Range : double;
@@ -377,9 +373,9 @@ begin
       9 : begin
         if CharInSet(AnalType, ['8','A']) then
         begin
-          lResultTitle.Caption := 'Mean T (concordia)';
+          //lResultTitle.Caption := 'Mean T (concordia)';
           FileVarStr := 'Mean T concordia';
-          bExport.Enabled := true;
+          bExportForDateView.Enabled := true;
         end;
         {
         if (AllSame) then VtChWtAv.Visible := false
@@ -464,7 +460,8 @@ begin
         lNotApplicable.Visible := true;
       end;
       eDateWO.Text := FormatFloat(' ###0.0',DateWO/1.0e6);
-      eDatePlusMinusWO.Text := FormatFloat(' ###0.0',T_Mult*Sqrt(VarDateWO)/1.0e6);
+      DatePlusMinusWO := T_Mult*Sqrt(VarDateWO)/1.0e6;
+      eDatePlusMinusWO.Text := FormatFloat(' ###0.0',DatePlusMinusWO);
       eMSWDwo.Text := FormatFloat('###0.000',MSWDwo);
       edfWO.Text := IntToStr(Idf+1);
       if (Idf+1 <= 0) then
@@ -489,7 +486,8 @@ begin
       if (ProbabilityOfFitWO < FAlpha) then eProbWO.Font.Color := clRed
                                      else eProbWO.Font.Color := clBlue;
       eDateW.Text := FormatFloat(' ###0.0',DateW/1.0e6);
-      eDatePlusMinusW.Text := FormatFloat(' ###0.0',T_Mult*Sqrt(VarDateW)/1.0e6);
+      DatePlusMinusW := T_Mult*Sqrt(VarDateW)/1.0e6;
+      eDatePlusMinusW.Text := FormatFloat(' ###0.0',DatePlusMinusW);
       eMSWDw.Text := FormatFloat('###0.000',MSWDw);
       edfW.Text := IntToStr(Idf+1);
       if (Idf+1 <= 0) then
@@ -1129,7 +1127,8 @@ begin
               //tmpStr := FloatToStr(ErrorWt[i,1]);
               SprdSheet.SetCellValue(iRow,iCol,ErrorWt[i,1]);
               iCol := 7;
-              if (ErrTyp[i] in ['1','2']) then
+              if CharInSet(ErrTyp[i],['1','2']) then
+              //if (ErrTyp[i] in ['1','2']) then
                 tmpStr := '%'
               else
                 tmpStr := 'a';
@@ -1313,6 +1312,67 @@ begin
     end;
   end;
   }
+end;
+
+procedure TfmConcordiaDate.bExportForDateViewClick(Sender: TObject);
+const
+  DefaultZero = 0.0;
+  DefaultEmptyString = '';
+var
+  FileNameStr : string;
+  MaxRecordID : integer;
+begin
+  FileNameStr := TPath.Combine(ExportPath,'DateViewResults.XML');
+  //ShowMessage(FileNameStr);
+  try
+    dmGDWtmp.FDMemTableResults.LoadFromFile(FileNameStr,sfAuto);
+    dmGDWtmp.FDMemTableResults.Open;
+    dmGDWtmp.FDMemTableResults.Last;
+    if (dmGDWtmp.FDMemTableResults.RecordCount > 0) then MaxRecordID := dmGDWtmp.FDMemTableResultsRecordID.AsInteger
+                                                    else MaxRecordID := 0;
+    dmGDWtmp.FDMemTableResults.Append;
+    dmGDWtmp.FDMemTableResultsDateTimeCreated.AsDateTime := Now;
+    dmGDWtmp.FDMemTableResultsRecordID.AsInteger := MaxRecordID + 1;;
+    dmGDWtmp.FDMemTableResultsProject.AsString := ProjectName;
+    dmGDWtmp.FDMemTableResultsIsotopeSystemID.AsString := DefaultIsotopeSystem[iAnalTyp];
+    dmGDWtmp.FDMemTableResultsApproachID.AsString := 'Conco';
+    dmGDWtmp.FDMemTableResultsAgeX.AsFloat := DateWO/1.0e6;
+    dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := DatePlusMinusWO;
+    dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := DatePlusMinusWO;
+    dmGDWtmp.FDMemTableResultsAgeY.AsFloat := DateWO/1.0e6;
+    dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := DatePlusMinusWO;
+    dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := DatePlusMinusWO;
+    dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := DateW/1.0e6;
+    dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := DatePlusMinusW;
+    dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := DatePlusMinusW;
+    dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[4];
+    dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DecayConst[5];
+    dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[4];
+    dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DecayConstUncertainty[5];
+    dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+    dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := U238U235;
+    dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := MSWDe;
+    dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+    dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+    dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+    dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := MSWDw;
+    dmGDWtmp.FDMemTableResultsSoftwareUsed.AsString := GeodateVersionStr;
+    dmGDWtmp.FDMemTableResultsProbOfFitequivalence.AsFloat := ProbabilityOfFitE;
+    dmGDWtmp.FDMemTableResultsProbOfFitconcordance.AsFloat := ProbabilityOfFitWO;
+    dmGDWtmp.FDMemTableResultsDVUserID.AsString := Uppercase(RegisteredUser);
+    dmGDWtmp.FDMemTableResultsSampleID.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsOriginalNo.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsIGSN.AsString := DefaultEmptyString;
+    dmGDWtmp.FDMemTableResultsLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsElevation.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspElevation.AsFloat := DefaultZero;
+  finally
+    dmGDWtmp.FDMemTableResults.SaveToFile(FileNameStr,sfAuto);
+    dmGDWtmp.FDMemTableResults.Close;
+  end;
 end;
 
 procedure TfmConcordiaDate.bPrintClick(Sender: TObject);
@@ -1606,9 +1666,8 @@ begin
 end;
 
 procedure TfmConcordiaDate.DrawEllipse ( i : integer);
-const
-  St           : double = 0.1;
 var
+  St           : double;
   T_Mult_ell            : double;
   Angle, C1, C2,
   A, B, Vx, Vy,
@@ -1623,6 +1682,7 @@ var
   EllipseArea : double;
   //MyArray : array of TPoint;
 begin
+  St := 0.1;
   ChooseEllipse := 'O';
   if (EllipseMagnif > 1.0)
     then T_Mult_ell:=TMultiplier(1.0*N_Rep)
@@ -1846,7 +1906,7 @@ procedure TfmConcordiaDate.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
   UpDateRFlg(Sender);
-  Title := eTitle.Text;
+  //Title := eTitle.Text;
   {
   GraphColour[1,1] := VtChWtAv.Plot.SeriesCollection.Item[1].DataPoints.Item[1].Marker.Pen.VtColor.Red;
   GraphColour[1,2] := VtChWtAv.Plot.SeriesCollection.Item[1].DataPoints.Item[1].Marker.Pen.VtColor.Blue;
@@ -1871,6 +1931,9 @@ end;
 
 procedure TfmConcordiaDate.FormCreate(Sender: TObject);
 begin
+  TStyleManager.TrySetStyle(GlobalChosenStyle);
+  //TSystemTheme.ApplyStyle( Chart1, StyleBook1.Style );
+  TSystemTheme.ApplyStyle( ChartConcordia, TStyleManager.ActiveStyle);
   TicksEvery := 10.0;
 end;
 

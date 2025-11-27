@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Buttons, Mask, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmGetErrorchronOption = class(TForm)
@@ -26,7 +26,7 @@ type
     rbbLwrItcpt: TRadioButton;
     eMSWD: TEdit;
     eCritF: TEdit;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure FormCreate(Sender: TObject);
     procedure bbOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);

@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, AxCtrls, OleCtrls, Buttons, ExtCtrls, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmModelPbPostFm = class(TForm)
@@ -21,7 +21,7 @@ type
     bbCalculate: TBitBtn;
     Label3: TLabel;
     Label4: TLabel;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure bbCalculateClick(Sender: TObject);
     procedure bbSaveSheetClick(Sender: TObject);
     procedure sbCloseClick(Sender: TObject);

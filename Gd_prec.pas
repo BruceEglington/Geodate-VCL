@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Buttons, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  StdCtrls, Buttons, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
+  ImageCollection_dm;
 
 type
   TfmPrecision = class(TForm)

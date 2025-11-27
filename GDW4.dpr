@@ -37,16 +37,20 @@ uses
   ErrCodes in '..\Eglington Delphi common code items\ErrCodes.pas',
   Mathproc in '..\Eglington Delphi common code items\Mathproc.pas',
   NumRecipes in '..\Eglington Delphi common code items\NumRecipes.pas',
-  NumRecipes_varb in '..\Eglington Delphi common code items\NumRecipes_varb.pas';
+  NumRecipes_varb in '..\Eglington Delphi common code items\NumRecipes_varb.pas',
+  ImageCollection_dm in '..\Eglington Delphi common code items\ImageCollection_dm.pas' {dmImageCollection: TDataModule},
+  WindowsDarkMode in '..\Eglington Delphi common code items\WindowsDarkMode.pas';
 
 {$R *.RES}
 
 begin
   Application.Initialize;
-  TStyleManager.TrySetStyle('Iceberg Classico');
+  TStyleManager.TrySetStyle('Windows10 Clear Day');
   Application.Title := 'GDW';
+  Application.CreateForm(TdmImageCollection, dmImageCollection);
   Application.CreateForm(TdmGdwtmp, dmGdwtmp);
   Application.CreateForm(TdmMSWD, dmMSWD);
   Application.CreateForm(TGDW1_MainForm, GDW1_MainForm);
   Application.Run;
 end.
+

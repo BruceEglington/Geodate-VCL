@@ -22,7 +22,8 @@ implementation
 
 procedure TooMany;
 var
-  MaxStr   : string[5];
+  //MaxStr   : string[5]; // previous definition
+  MaxStr   : string;
 begin
   Str(MaxSamp:4,MaxStr);
   MessageDlg('Too many samples!! Maximum allowed = '+MaxStr, mtWarning,[mbOk], 0);

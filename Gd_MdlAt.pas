@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Buttons, Mask, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList;
+  Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmGetMdlAt = class(TForm)

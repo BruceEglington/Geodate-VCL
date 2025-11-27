@@ -8,7 +8,7 @@ uses
   Vcl.Grids,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
   System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, FlexCel.VCLSupport,
-  FlexCel.Core;
+  FlexCel.Core, ImageCollection_dm;
 
 type
   TfmSheet = class(TForm)
@@ -80,3 +80,4 @@ begin
 end;
 
 end.
+

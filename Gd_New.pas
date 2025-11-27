@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ExtCtrls, DBCtrls, Grids, DBGrids, Data.DB,
-  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, SVGIconVirtualImageList;
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
+  ImageCollection_dm;
 
 type
   TfmNewData = class(TForm)
@@ -32,7 +33,7 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure bbCancelClick(Sender: TObject);
     procedure bbOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);

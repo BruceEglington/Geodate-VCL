@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Buttons, ExtCtrls, Grids, DBGrids, StdCtrls, DBCtrls,midaslib, Data.DB,
-  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmMSWD = class(TForm)

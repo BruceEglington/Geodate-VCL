@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   System.IOUtils,
   StdCtrls, Buttons, ExtCtrls, IniFiles, OleCtrls, ComCtrls, System.ImageList,
-  Vcl.ImgList, Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.ImgList, Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmRegUser3 = class(TForm)
@@ -17,7 +17,7 @@ type
     eRegisteredUser: TEdit;
     lSoftwareName: TLabel;
     bbOK: TBitBtn;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure FormShow(Sender: TObject);
     procedure bbOKClick(Sender: TObject);
   private
@@ -63,16 +63,16 @@ end;
 procedure TfmRegUser3.bbOKClick(Sender: TObject);
 var
   AppIni   : TIniFile;
-  PublicPath : string;
+  HomePath : string;
   IniFileName : string;
 begin
-  PublicPath := TPath.GetHomePath;
-  CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  IniFilename := CommonFilePath + 'Geodate.ini';
+  HomePath := TPath.GetHomePath;
+  CommonFilePath := TPath.Combine(HomePath,'EggSoft');
+  IniFilename := TPath.Combine(CommonFilePath,'Geodate.ini');
   AppIni := TIniFile.Create(IniFilename);
   try
     RegisteredUser := eRegisteredUser.Text;
-    RegisteredUser := AppIni.ReadString('Registration','Registered user','not defined');
+    //RegisteredUser := AppIni.ReadString('Registration','Registered user','not defined');
   finally
     AppIni.Free;
   end;

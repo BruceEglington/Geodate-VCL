@@ -11,9 +11,10 @@ interface
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Menus,
   SysUtils, System.IOUtils, System.UITypes,
   VCL.Themes,
+  VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Report,
   StdCtrls, Dialogs, Buttons, Messages, ExtCtrls, DB, IniFiles,
   System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, GDW_Varb,
-  SVGIconVirtualImageList;
+  ImageCollection_dm;
 
 type
   TGDW1_MainForm = class(TForm)
@@ -119,8 +120,9 @@ type
     OpenDialogLegacyGEODATE: TOpenDialog;
     EditConvertIsochron2InverseIsochron: TMenuItem;
     EditConvertInverseIsochron2Isochron: TMenuItem;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
     lItemsHaveChanged: TLabel;
+    SaveDialogSprdSheet: TSaveDialog;
+    VirtualImageList1: TVirtualImageList;
     procedure FormCreate(Sender: TObject);
     procedure FileOpenItemClick(Sender: TObject);
     procedure HelpAboutItemClick(Sender: TObject);
@@ -220,6 +222,7 @@ var
 implementation
 
 uses
+  WindowsDarkMode,
   allsorts, gd_about, gd_file,
   gdw_reg1, gd_drv, Gd_edit, Gd_MSWD, gdw_regp,
   gd_WtAv, Gd_MdlAt, reguser3,
@@ -270,6 +273,7 @@ begin
   if AllowMessages then ShowMessage('Date = '+DateString);
   }
   GetIniFile;
+  //SetAppropriateThemeMode('Golden Graphite', 'Windows10ClearDay');
   TStyleManager.TrySetStyle(GlobalChosenStyle);
   //Add child menu items based on available styles.
   for Style in TStyleManager.StyleNames do
@@ -300,13 +304,10 @@ var
   IniFileName : string;
 begin
   tmpStr := '1';
-  //PublicPath := TPath.GetPublicPath;
-  //CommonFilePath := IncludeTrailingPathDelimiter(PublicPath) + 'EggSoft\';
-  //Used to use CSIDL_COMMON_APPDATA but some users do not have access to this
-  //and don't know how to change their system settings and permissions to all
-  //software to write to this path.
-  //Now changed to use CSIDL_COMMON_DOCUMENTS which automatically permits
+  //Changed to use CSIDL_COMMON_DOCUMENTS which automatically permits
   //all users to have both read and write permission
+
+  //CommonFilePath := IncludeTrailingPathDelimiter(HomePath) + 'EggSoft\';
   HomePath := TPath.GetHomePath;
   CommonFilePath := TPath.Combine(HomePath,'EggSoft');
   IniFilename := TPath.Combine(CommonFilePath,'Geodate.ini');
@@ -324,6 +325,8 @@ begin
     Drive2 := AppIni.ReadString('Default directories','Drive2',TPath.Combine(CommonFilePath,'Geodate','DATA'));
     Drive3 := AppIni.ReadString('Default directories','Drive3',TPath.Combine(CommonFilePath,'Geodate','TEMP'));
     cdsPath := AppIni.ReadString('Default directories','cds',TPath.Combine(CommonFilePath,'Geodate'));
+    FlexTemplatePath := AppIni.ReadString('Default directories','Templates',TPath.Combine(CommonFilePath,'Geodate','Templates'));
+    ExportPath := AppIni.ReadString('Default directories','Export',TPath.Combine(CommonFilePath,'Geodate','TEMP'));
     LastCountry := AppIni.ReadString('Last country','LastCountry','SA');
     tmpStr := AppIni.ReadString('Statistics','Alpha','0.050');
     Val(tmpStr,FAlpha,ICode);
@@ -532,6 +535,8 @@ begin
     AppIni.WriteString('Default directories','Drive2',Drive2);
     AppIni.WriteString('Default directories','Drive3',Drive3);
     AppIni.WriteString('Default directories','cds',cdsPath);
+    AppIni.WriteString('Default directories','Templates',FlexTemplatePath);
+    AppIni.WriteString('Default directories','Export',ExportPath);
     AppIni.WriteString('Last country','LastCountry',LastCountry);
     AppIni.WriteString('Statistics','Alpha',FormatFloat('0.000',FAlpha));
     if (OptionsEllipseMagnification1.Checked)
@@ -662,29 +667,6 @@ var
 begin
   OpenDialogGEODATE.InitialDir := Drive2;
   iAnalTyp := Get_IAnal_from_AnalType(AnalType);
-  //ShowMessage('0 '+AnalType+' '+FormatFloat('#0.#',1.0*iAnalTyp));
-  {
-  AnalType := UpCase(AnalType);
-  if CharInSet(AnalType,['0','1','2','3','4','5','6','7','8','9'])
-  //if (AnalType in ['0','1','2','3','4','5','6','7','8','9'])
-    then Val(AnalType, iAnalTyp, ICode)
-    else begin
-      if (AnalType = 'A') then iAnalTyp := 10;
-      if (AnalType = 'B') then iAnalTyp := 11;
-      if (AnalType = 'C') then iAnalTyp := 12;
-      if (AnalType = 'D') then iAnalTyp := 13;
-      if (AnalType = 'E') then iAnalTyp := 14;
-      if (AnalType = 'F') then iAnalTyp := 15;
-      if (AnalType = 'G') then iAnalTyp := 16;
-      if (AnalType = 'H') then iAnalTyp := 17;
-      if (AnalType = 'I') then iAnalTyp := 18;
-      if (AnalType = 'J') then iAnalTyp := 19;
-      if CharInSet(AnalType,['A','B','C','D','E','F','G','H','I','J'])
-      //if (AnalType in ['A','B','C','D','E','F','G','H','I'])
-        then ICode := 0
-        else ICode := -1;
-    end;
-    }
   if (iAnalTyp < 0) then Exit;
   OpenDialogGEODATE.FilterIndex := iAnalTyp + 1;
   if OpenDialogGEODATE.Execute then
@@ -693,28 +675,6 @@ begin
     SPath := ExtractFilePath(OpenDialogGEODATE.FileName);
     AssignFile(Geodate_file, OpenDialogGEODATE.FileName);
     AnalType := OpenDialogGEODATE.FileName[Length(OpenDialogGEODATE.FileName)];
-    {
-    AnalType := UpCase(AnalType);
-    if CharInSet(AnalType,['0','1','2','3','4','5','6','7','8','9'])
-    //if (AnalType in ['0','1','2','3','4','5','6','7','8','9'])
-      then Val(AnalType, iAnalTyp, ICode)
-      else begin
-        if (AnalType = 'A') then iAnalTyp := 10;
-        if (AnalType = 'B') then iAnalTyp := 11;
-        if (AnalType = 'C') then iAnalTyp := 12;
-        if (AnalType = 'D') then iAnalTyp := 13;
-        if (AnalType = 'E') then iAnalTyp := 14;
-        if (AnalType = 'F') then iAnalTyp := 15;
-        if (AnalType = 'G') then iAnalTyp := 16;
-        if (AnalType = 'H') then iAnalTyp := 17;
-        if (AnalType = 'I') then iAnalTyp := 18;
-        if (AnalType = 'J') then iAnalTyp := 19;
-        if CharInSet(AnalType,['A','B','C','D','E','F','G','H','I','J'])
-        //if (AnalType in ['A','B','C','D','E','F','G','H','I'])
-          then ICode := 0
-          else ICode := -1;
-      end;
-    }
     iAnalTyp := Get_Ianal_from_AnalType(AnalType);
     if (iAnalTyp < 0) then Exit;
     if ((Sender = FileOpenItem) or (Sender = bOpen)) then
@@ -744,6 +704,7 @@ begin
     Reset(Geodate_file);
     Get_Geodate_File_Data;
     CloseFile(Geodate_file);
+    //ShowMessage('NumberOfPoints = '+int2str(NumberOfPoints));
     {
     SPath := OpenDialogGEODATE.FileName;
     }
@@ -768,6 +729,7 @@ begin
     Regress1.Enabled := true;
     Models.Enabled := true;
     Averages.Enabled := true;
+    FileExportSpreadsheet.Enabled := true;
   end;
   //ShowMessage('1 '+AnalType+' '+FormatFloat('#0.#',1.0*iAnalTyp));
 end;
@@ -1114,6 +1076,8 @@ begin
     lProjectName.Caption := 'Project = '+ProjectName;
     lItemsHaveChanged.Visible := false;
     ItemsHaveChanged := false;
+    FileSaveItem.Enabled := true;
+    FileExportSpreadsheet.Enabled := true;
   end;
 end;
 
@@ -1751,98 +1715,113 @@ begin
 end;
 
 procedure TGDW1_MainForm.FileExportSpreadsheetClick(Sender: TObject);
-//var
-  //i    : integer;
+var
+  fr: TFlexCelReport;
+  frTemplateStr, frFileNameStr : string;
+  j      : integer;
+  tmpStr : string;
+  tmpAnTyp : string;
+  tmpIsotopeProcess, tmpIsotopeSystem : string;
 begin
-  {
-  try
-    SprdSheetForm := TfmSheet.Create(Self);
-    SprdSheetForm.SprdSheet.Row := 1;
-    SprdSheetForm.SprdSheet.Col := 1;
-    SprdSheetForm.SprdSheet.Text := 'Sample';
-    SprdSheetForm.SprdSheet.Col := 2;
-    SprdSheetForm.SprdSheet.Text := Element[iAnalTyp,1];
-    SprdSheetForm.SprdSheet.Col := 3;
-    SprdSheetForm.SprdSheet.Text := Element[iAnalTyp,2];
-    SprdSheetForm.SprdSheet.Col := 4;
-    SprdSheetForm.SprdSheet.Text := XRatioStr[iAnalTyp];
-    SprdSheetForm.SprdSheet.Col := 5;
-    SprdSheetForm.SprdSheet.Text := 'Precision';
-    SprdSheetForm.SprdSheet.Col := 6;
-    SprdSheetForm.SprdSheet.Text := '1 sigma';
-    SprdSheetForm.SprdSheet.Col := 8;
-    SprdSheetForm.SprdSheet.Text := YRatioStr[iAnalTyp];
-    SprdSheetForm.SprdSheet.Col := 9;
-    SprdSheetForm.SprdSheet.Text := 'Precision';
-    SprdSheetForm.SprdSheet.Col := 10;
-    SprdSheetForm.SprdSheet.Text := '1 sigma';
-    SprdSheetForm.SprdSheet.Col := 12;
-    SprdSheetForm.SprdSheet.Text := 'R';
-    SprdSheetForm.SprdSheet.Col := 13;
-    SprdSheetForm.SprdSheet.Text := ZRatioStr[iAnalTyp];
-    SprdSheetForm.SprdSheet.Col := 14;
-    SprdSheetForm.SprdSheet.Text := 'Precision';
-    SprdSheetForm.SprdSheet.Col := 15;
-    SprdSheetForm.SprdSheet.Text := 'RFlg';
-    SprdSheetForm.SprdSheet.Col := 16;
-    SprdSheetForm.SprdSheet.Text := 'PFlg';
-    SprdSheetForm.SprdSheet.Col := 17;
-    SprdSheetForm.SprdSheet.Text := 'Latitude';
-    SprdSheetForm.SprdSheet.Col := 18;
-    SprdSheetForm.SprdSheet.Text := 'Longitude';
-    for i := 1 to NumberOfPoints do
-    begin
-      SprdSheetForm.SprdSheet.Row := i+1;
-      SprdSheetForm.SprdSheet.Col := 1;
-      SprdSheetForm.SprdSheet.Text := SmpNo[i];
-      SprdSheetForm.SprdSheet.Col := 2;
-      SprdSheetForm.SprdSheet.Number := Conc[i,1];
-      SprdSheetForm.SprdSheet.Col := 3;
-      SprdSheetForm.SprdSheet.Number := Conc[i,2];
-      SprdSheetForm.SprdSheet.Col := 4;
-      SprdSheetForm.SprdSheet.Number := Ratio[i,1];
-      SprdSheetForm.SprdSheet.Col := 5;
-      SprdSheetForm.SprdSheet.Number := XPrec[i];
-      SprdSheetForm.SprdSheet.Col := 6;
-      SprdSheetForm.SprdSheet.Number := ErrorWt[i,1];
-      SprdSheetForm.SprdSheet.Col := 7;
-      if (ErrTyp[i] in ['1','2']) then
-        SprdSheetForm.SprdSheet.Text := '%'
-      else
-        SprdSheetForm.SprdSheet.Text := 'a';
-      SprdSheetForm.SprdSheet.Col := 8;
-      SprdSheetForm.SprdSheet.Number := Ratio[i,2];
-      SprdSheetForm.SprdSheet.Col := 9;
-      SprdSheetForm.SprdSheet.Number := YPrec[i];
-      SprdSheetForm.SprdSheet.Col := 10;
-      SprdSheetForm.SprdSheet.Number := ErrorWt[i,2];
-      SprdSheetForm.SprdSheet.Col := 11;
-      if (ErrTyp[i] in ['1','3']) then
-        SprdSheetForm.SprdSheet.Text := '%'
-      else
-        SprdSheetForm.SprdSheet.Text := 'a';
-      SprdSheetForm.SprdSheet.Col := 12;
-      SprdSheetForm.SprdSheet.Number := R[i];
-      SprdSheetForm.SprdSheet.Col := 13;
-      SprdSheetForm.SprdSheet.Number := Ratio[i,3];
-      SprdSheetForm.SprdSheet.Col := 14;
-      SprdSheetForm.SprdSheet.Number := ZPrec[i];
-      SprdSheetForm.SprdSheet.Col := 15;
-      SprdSheetForm.SprdSheet.Text := RFlg[i];
-      SprdSheetForm.SprdSheet.Col := 16;
-      SprdSheetForm.SprdSheet.Text := PFlg[i];
-      SprdSheetForm.SprdSheet.Col := 17;
-      SprdSheetForm.SprdSheet.Number := Latitude[i];
-      SprdSheetForm.SprdSheet.Col := 18;
-      SprdSheetForm.SprdSheet.Number := Longitude[i];
-    end;
-    SprdSheetForm.SprdSheet.Row := 1;
-    SprdSheetForm.SprdSheet.Col := 1;
-    SprdSheetForm.ShowModal;
-  finally
-    SprdSheetForm.Free;
+  if (N_Rep < 1) then N_Rep := 999;
+  tmpIsotopeProcess := Process[iAnalTyp];
+  tmpIsotopeSystem := DefaultIsotopeSystem[iAnalTyp];
+  tmpAnTyp := AnalType;
+  with dmGdwtmp.cdsEdit do
+  begin
+    Active := true;
+    dmGdwtmp.cdsEdit.EmptyDataSet;
   end;
-  }
+  for j := 1 to NumberOfPoints do
+  begin
+    with dmGdwtmp.cdsEdit do
+    begin
+      Append;
+      dmGdwtmp.cdsEditIsotopeSystem.AsString := tmpIsotopeSystem;
+      dmGdwtmp.cdsEditIsotopeProcess.AsString := tmpIsotopeProcess;
+      dmGdwtmp.cdsEditAnTyp.AsString := tmpAnTyp;
+      dmGdwtmp.cdsEditProject.AsString := ProjectName;
+      dmGdwtmp.cdsEditSample_No.AsString := SmpNo[j];
+      dmGdwtmp.cdsEditXX.AsFloat := Conc[j,1];
+      dmGdwtmp.cdsEditYY.AsFloat := Conc[j,2];
+      dmGdwtmp.cdsEditZZ.AsFloat := Conc[j,3];
+      dmGdwtmp.cdsEditXRatio.AsFloat := Ratio[j,1];
+      dmGdwtmp.cdsEditXPrec.AsFloat := XPrec[j];
+      dmGdwtmp.cdsEditXWt.AsFloat := ErrorWt[j,1];
+      dmGdwtmp.cdsEditYRatio.AsFloat := Ratio[j,2];
+      dmGdwtmp.cdsEditYPrec.AsFloat := YPrec[j];
+      dmGdwtmp.cdsEditYWt.AsFloat := ErrorWt[j,2];
+      dmGdwtmp.cdsEditZRatio.AsFloat := Ratio[j,3];
+      dmGdwtmp.cdsEditZPrec.AsFloat := ZPrec[j];
+      dmGdwtmp.cdsEditZWt.AsFloat := ErrorWt[j,3];
+      dmGdwtmp.cdsEditR.AsFloat := R[j];
+      dmGdwtmp.cdsEditWRatio.AsFloat := Ratio[j,4];
+      dmGdwtmp.cdsEditWPrec.AsFloat := WPrec[j];
+      dmGdwtmp.cdsEditWWt.AsFloat := ErrorWt[j,4];
+      dmGdwtmp.cdsEditAgeValue.AsFloat := Ratio[j,0];
+      dmGdwtmp.cdsEditAge95pcValue.AsFloat := AgePrec[j];
+      dmGdwtmp.cdsEditRhoExtra.AsFloat := AgePrec[j];
+      case ErrTyp[j] of
+        '1' : begin
+          dmGdwtmp.cdsEditXWtType.AsString := '%';
+          dmGdwtmp.cdsEditYWtType.AsString := '%';
+          dmGdwtmp.cdsEditZWtType.AsString := '%';
+        end;
+        '2' : begin
+          dmGdwtmp.cdsEditXWtType.AsString := '%';
+          dmGdwtmp.cdsEditYWtType.AsString := 'a';
+          dmGdwtmp.cdsEditZWtType.AsString := 'a';
+        end;
+        '3' : begin
+          dmGdwtmp.cdsEditXWtType.AsString := 'a';
+          dmGdwtmp.cdsEditYWtType.AsString := '%';
+          dmGdwtmp.cdsEditZWtType.AsString := 'a';
+        end;
+        '4' : begin
+          dmGdwtmp.cdsEditXWtType.AsString := 'a';
+          dmGdwtmp.cdsEditYWtType.AsString := 'a';
+          dmGdwtmp.cdsEditZWtType.AsString := 'a';
+        end;
+      end;
+      if (RFlg[j] = 'Y') then dmGdwtmp.cdsEditRFlag.AsString := 'Y'
+                         else dmGdwtmp.cdsEditRFlag.AsString := 'N';
+      if (PFlg[j] = 'Y') then dmGdwtmp.cdsEditPFlag.AsString := 'Y'
+                         else dmGdwtmp.cdsEditPFlag.AsString := 'N';
+      if ((Latitude[j] <> 0.0) and (Longitude[j] <> 0.0)) then
+      begin
+        dmGdwtmp.cdsEditLatitude.AsFloat := Latitude[j];
+        dmGdwtmp.cdsEditLongitude.AsFloat := Longitude[j];
+      end else
+      begin
+        dmGdwtmp.cdsEditLatitude.AsString := '';
+        dmGdwtmp.cdsEditLongitude.AsString := '';
+      end;
+      Next;
+    end;
+  end;
+  dmGdwtmp.cdsEdit.First;
+
+
+  frTemplateStr := TPath.Combine(FlexTemplatePath,'geodate_data_export_template.xlsx');
+  ShowMessage(FlexTemplatePath);
+  ShowMessage(frTemplateStr);
+  SaveDialogSprdSheet.InitialDir := ExportPath;
+  SaveDialogSprdSheet.FileName := 'Geodate_project_data '+ProjectName;
+  frFileNameStr := SaveDialogSprdSheet.FileName;
+  if SaveDialogSprdSheet.Execute then
+  begin
+    frFileNameStr := SaveDialogSprdSheet.FileName;
+    ExportPath := ExtractFilePath(SaveDialogSprdSheet.FileName);
+    fr := TFlexCelReport.Create(true);
+    try
+      fr.AddTable('cdsEdit',dmGDWtmp.cdsEdit);
+      fr.Run(
+         frTemplateStr,frFileNameStr
+      );
+    finally
+      fr.Free;
+    end;
+  end;
 end;
 
 procedure TGDW1_MainForm.FileImportSpreadsheetClick(Sender: TObject);
@@ -2081,6 +2060,7 @@ begin
     Regress1.Enabled := true;
     Models.Enabled := true;
     Averages.Enabled := true;
+    FileExportSpreadsheet.Enabled := true;
     if (Sender = FileOpenLegacy) then
     begin
       FileSaveItem.Enabled := false;
@@ -2169,7 +2149,7 @@ begin
   SPath := Drive2;
   TTPath := Drive3;
   lRegisteredUser.Caption := 'Registered to: '+RegisteredUser;
-  FileExportSpreadsheet.Visible := false;
+  //FileExportSpreadsheet.Visible := false;
   FileExportSpreadsheet.Enabled := false;
   EditEdit.Enabled := false;
   bEdit.Enabled := false;
@@ -2195,6 +2175,7 @@ begin
   bSaveGDWFile.Enabled := false;
   FileSaveItem.Enabled := false;
   FileSaveAsItem.Enabled := false;
+  FileExportSpreadsheet.Enabled := false;
 end;
 
 procedure TGDW1_MainForm.AverageConcordiaClick(Sender: TObject);

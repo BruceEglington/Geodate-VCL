@@ -6,11 +6,14 @@ uses
   Windows, Messages, System.SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ExtCtrls, ComCtrls, Printers, Grids, DBGrids, DBCtrls,
   System.UITypes,
+  FireDAC.Comp.Dataset, FireDAC.Stan.Intf,
+  System.IOUtils,
+  VCL.Themes,
   OleCtrls, Mask, TeEngine, TeeProcs, Chart, TeeEdit, TeeComma,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
   VclTee.TeeGDIPlus, VCLTee.TeeErrorPoint, VCLTee.Series, System.ImageList,
-  Vcl.ImgList, Vcl.VirtualImageList, TeeTree, SVGIconVirtualImageList,
-  Vcl.Touch.GestureMgr;
+  Vcl.ImgList, Vcl.VirtualImageList, TeeTree,
+  Vcl.Touch.GestureMgr, ImageCollection_dm;
 
 type
   TfmRegressionResult = class(TForm)
@@ -128,8 +131,6 @@ type
     Series10: TPointSeries;
     cbCurrentSample: TCheckBox;
     cbLegend: TCheckBox;
-    ChartEditor1: TChartEditor;
-    TeeCommanderReg: TTeeCommander;
     SaveDialogSprdSheet: TSaveDialog;
     cbTicLabels: TCheckBox;
     Series13: TLineSeries;
@@ -138,7 +139,6 @@ type
     Series12: TPointSeries;
     lTicksEvery: TLabel;
     eTicksEvery: TEdit;
-    lModifyGraphSettings: TLabel;
     lMaxAgeConcordia: TLabel;
     eMaxAgeConcordia: TEdit;
     pTreeSmp: TPanel;
@@ -147,9 +147,8 @@ type
     TreeView1: TTreeView;
     bClose: TButton;
     bSpreadSheet: TButton;
-    bExport: TButton;
+    bExportForDateView: TButton;
     bReRegress: TButton;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
     lDatePlusErrAdjusted: TLabel;
     lDateErrPlusOnlyIncl: TLabel;
     eDateErrIncl: TEdit;
@@ -186,6 +185,8 @@ type
     eDateAdjustedIncl: TEdit;
     eLwrDateIncl: TEdit;
     eLwrDateAdjustedIncl: TEdit;
+    VirtualImageList1: TVirtualImageList;
+    TeeCommander1: TTeeCommander;
     procedure bbCloseClick(Sender: TObject);
     procedure bbSpreadSheetClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -212,6 +213,7 @@ type
     procedure ChartRegDblClick(Sender: TObject);
     procedure cbConcordiaUncertaintiesClick(Sender: TObject);
     procedure ChartRegZoom(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     //Private declarations
     //  0 = X-Y general
@@ -1472,7 +1474,7 @@ begin
   eNumberOfPointsRegressed.Text := tempStr;
   Str(NumberOfPoints:3,tempStr);
   eNumberOfPoints.Text := tempStr;
-  if (AnalType8 in ['U','L']) then
+  if CharInSet(AnalType8,['U','L']) then
   begin
     if (Model in [4]) then
     begin
@@ -1490,15 +1492,15 @@ begin
     end;
   end;
   lAugmented.Caption := Augmented;
-  if (AnalType in ['1','2','4'..'7','9','B'..'G','K','L','M']) then
+  if CharInSet(AnalType,['1','2','4'..'7','9','B'..'G','K','L','M']) then
   begin
-    if (AnalType in ['C','D']) then
+    if (CharInSet(AnalType,['C','D'])) then
     begin
-      if (AnalType in ['C']) then
+      if (CharInSet(AnalType,['C'])) then
       begin
         Str((Intercept):10:3,tempStr);
       end;
-      if (AnalType in ['D']) then
+      if (CharInSet(AnalType,['D'])) then
       begin
         InverseRatio := 1.0 / Intercept;
         Str((InverseRatio):10:3,tempStr);
@@ -1509,20 +1511,20 @@ begin
       if ((Intercept < 10.0) and (Intercept >= 1.0)) then Str(Intercept:10:6,tempStr);
       if (Intercept < 1.0) then Str(Intercept:8:6,tempStr);
     end;
-    if (AnalType in ['K','L','M']) then
+    if (CharInSet(AnalType,['K','L','M'])) then
     begin
         InverseRatio := 1.0 / Intercept;
         Str((InverseRatio):10:6,tempStr);
     end;
     eRo.Text := tempStr;
-    if (AnalType in ['C','D']) then
+    if (CharInSet(AnalType,['C','D'])) then
     begin
-      if (AnalType in ['C']) then
+      if (CharInSet(AnalType,['C'])) then
       begin
         tmpDiff := InitRatioError;
         Str((tmpDiff):10:3,tempStr);
       end;
-      if (AnalType in ['D']) then
+      if (CharInSet(AnalType,['D'])) then
       begin
         tmpPC := 100.0*InterceptError/Intercept;
         //tmpDiff := 1.0/Intercept-1.0/(Intercept+InitRatioError);
@@ -1535,14 +1537,14 @@ begin
       if ((InitRatio < 10.0) and (InitRatio >= 1.0)) then Str(InitRatioError:10:6,tempStr);
       if (InitRatio < 1.0) then Str(InitRatioError:8:6,tempStr);
     end;
-    if (AnalType in ['K','L','M']) then
+    if (CharInSet(AnalType,['K','L','M'])) then
     begin
         tmpPC := 100.0*InterceptError/Intercept;
         tmpDiff := T_Mult*tmpPC*InverseRatio/100.0;
         Str((tmpDiff):10:6,tempStr);
     end;
     eRoErr.Text := tempStr;
-    if (AnalType in ['1','2','7','9','E','F','G','K','L','M']) then
+    if (CharInSet(AnalType,['1','2','7','9','E','F','G','K','L','M'])) then
     begin
       Str(Epsilon1:10:3,tempStr);
       eEpsilon.Text := tempStr;
@@ -2102,7 +2104,7 @@ begin
     eXConstrain.Text := tempStr;
     Str(YConstrain:11:4,tempStr);
     eYConstrain.Text := tempStr;
-    if (AnalType in ['8','A']) then
+    if (CharInSet(AnalType,['8','A'])) then
     begin
       lConstrainNear.Visible := true;
       eConstrainAge.Visible := true;
@@ -2303,7 +2305,7 @@ begin
      end;
    end;
    CheckConstrain;
-   if (AnalType in ['8','A']) then
+   if (CharInSet(AnalType,['8','A'])) then
    begin
      try
        ConcordiaWtTypeForm := TfmConcordiaWtType.Create(Self);
@@ -2365,7 +2367,7 @@ begin
      //ShowMessage('4');
      Slope1:=Slope;
      Intercept1:=Intercept;
-     if (AnalType in ['3','8','A']) then
+     if (CharInSet(AnalType,['3','8','A'])) then
      begin
        Slope1:=NewSlope;
        Intercept1:=NewIntercept;
@@ -2381,9 +2383,478 @@ begin
 end;{proc Regress_Data}
 
 procedure TfmRegressionResult.bbExporttoXMLClick(Sender: TObject);
+const
+  DefaultZero = 0.0;
+  DefaultEmptyString = '';
+var
+  FileNameStr : string;
+  tmpDiff : double;
+  MaxRecordID : integer;
+  Msum_Str : string;
+  InverseRatio, tmpPC : double;
 begin
-  //
-  MessageDlg('Not yet implemented',mtInformation,[mbOK],0);
+  FileNameStr := TPath.Combine(ExportPath,'DateViewResults.XML');
+  //ShowMessage(FileNameStr);
+  try
+    dmGDWtmp.FDMemTableResults.LoadFromFile(FileNameStr,sfAuto);
+    dmGDWtmp.FDMemTableResults.Open;
+    dmGDWtmp.FDMemTableResults.Last;
+    if (dmGDWtmp.FDMemTableResults.RecordCount > 0) then MaxRecordID := dmGDWtmp.FDMemTableResultsRecordID.AsInteger
+                                                    else MaxRecordID := 0;
+    dmGDWtmp.FDMemTableResults.Append;
+    dmGDWtmp.FDMemTableResultsDateTimeCreated.AsDateTime := Now;
+    dmGDWtmp.FDMemTableResultsRecordID.AsInteger := MaxRecordID + 1;;
+    dmGDWtmp.FDMemTableResultsProject.AsString := ProjectName;
+    dmGDWtmp.FDMemTableResultsIsotopeSystemID.AsString := DefaultIsotopeSystem[iAnalTyp];
+    dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := TracerUncertainty[iAnalTyp];
+    dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+    dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+    dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+    dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+    dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsApproachID.AsString := 'Regr';
+    dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+    dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := U238U235;
+    dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+    dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+    dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPointsRegressed;
+    dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsSoftwareUsed.AsString := GeodateVersionStr;
+    dmGDWtmp.FDMemTableResultsProbOfFitequivalence.AsFloat := ProbabilityOfFit;
+    dmGDWtmp.FDMemTableResultsProbOfFitconcordance.AsFloat := ProbabilityOfFitWO;
+    dmGDWtmp.FDMemTableResultsDVUserID.AsString := Uppercase(RegisteredUser);
+    dmGDWtmp.FDMemTableResultsSampleID.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsOriginalNo.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsIGSN.AsString := DefaultEmptyString;
+    dmGDWtmp.FDMemTableResultsLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsElevation.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspElevation.AsFloat := DefaultZero;
+    case Model of
+      1 : begin
+        if Msum>MsumCutOff then
+        begin
+          Str(MsumCutoff:4:2,Msum_Str);
+          dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  Errors augmented by Sqrt(MSWD/'+Msum_Str+') ';
+        end;
+        if Msum<=MsumCutOff then
+        begin
+          dmGDWtmp.FDMemTableResultsAugmentation.AsString := ' ';
+        end;
+      end;
+      2 : begin
+        dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  No assumptions - equal weights, r=0 ';
+      end;
+      3 : begin
+        dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  Assuming variable initial ratio ';
+      end;
+      4 : begin
+        dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  Assuming multi-episodic scatter ';
+      end;
+      5 : begin
+        dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  Assuming separate anal. and geol errors ';
+      end;
+      6 : begin
+        dmGDWtmp.FDMemTableResultsAugmentation.AsString := '  Errors not augmented ';
+      end;
+   end;
+   if (CharInSet(AnalType,['1','2','4'..'7','9','B'..'G','K','L','M'])) then
+   begin
+      if (CharInSet(AnalType,['C','D'])) then
+      begin
+        if (CharInSet(AnalType,['C'])) then
+        begin
+          dmGDWtmp.FDMemTableResultsinitialRatio.AsFloat := Intercept;
+        end;
+        if (CharInSet(AnalType,['D'])) then
+        begin
+          InverseRatio := 1.0 / Intercept;
+          dmGDWtmp.FDMemTableResultsinitialRatio.AsFloat := InverseRatio;
+        end;
+      end else
+      begin
+        dmGDWtmp.FDMemTableResultsinitialRatio.AsFloat := Intercept;
+      end;
+      if (CharInSet(AnalType,['K','L','M'])) then
+      begin
+          InverseRatio := 1.0 / Intercept;
+          dmGDWtmp.FDMemTableResultsinitialRatio.AsFloat := InverseRatio;
+      end;
+      if (CharInSet(AnalType,['C','D'])) then
+      begin
+        if (CharInSet(AnalType,['C'])) then
+        begin
+          tmpDiff := InitRatioError;
+          dmGDWtmp.FDMemTableResultssInitialRatio.AsFloat := InitRatioError;
+        end;
+        if (CharInSet(AnalType,['D'])) then
+        begin
+          tmpPC := 100.0*InterceptError/Intercept;
+          tmpDiff := T_Mult*tmpPC*InverseRatio/100.0;
+          dmGDWtmp.FDMemTableResultssInitialRatio.AsFloat := tmpDiff;
+        end;
+      end else
+      begin
+        dmGDWtmp.FDMemTableResultssInitialRatio.AsFloat := InitRatioError;
+      end;
+      if (CharInSet(AnalType,['K','L','M'])) then
+      begin
+          tmpPC := 100.0*InterceptError/Intercept;
+          tmpDiff := T_Mult*tmpPC*InverseRatio/100.0;
+          dmGDWtmp.FDMemTableResultssInitialRatio.AsFloat := tmpDiff;
+      end;
+      if (CharInSet(AnalType,['1','2','7','9','E','F','G','K','L','M'])) then
+      begin
+        dmGDWtmp.FDMemTableResultsEpsilonGamma.AsFloat := Epsilon1;
+        dmGDWtmp.FDMemTableResultssEpsilonGamma.AsFloat := EpError1;
+      end;
+   end;
+   case AnalType of
+      '0' : begin
+            end;
+      '1','2','7','9','E','G' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := AgeErrorPlusIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := AgeErrorMinusIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+      '3' : begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := UpperAgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := LowerAgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := UpperAgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := LowerAgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[ord(at238UPb)];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DecayConst[ord(at235UPb)];
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[ord(at238UPb)];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DecayConstUncertainty[ord(at235UPb)];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := U238U235;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsModelSourceMu.AsFloat := Mu;
+              dmGDWtmp.FDMemTableResultssModelSourceMuPlus.AsFloat := UprMuError;
+              dmGDWtmp.FDMemTableResultssModelSourceMuMinus.AsFloat := LwrMuError;
+              if mu_choice=0 then
+                dmGDWtmp.FDMemTableResultsInitialModel.AsString := 'Single stage model';
+              if mu_choice=1 then
+                dmGDWtmp.FDMemTableResultsInitialModel.AsString := 'Stacey and Kramers two stage model';
+              if mu_choice=2 then
+                dmGDWtmp.FDMemTableResultsInitialModel.AsString := 'User defined model';
+            end;
+      '4','5','6' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := AgeErrorPlusIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := AgeErrorMinusIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+      '8','A' : begin
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[ord(at238UPb)];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DecayConst[ord(at235UPb)];
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[ord(at238UPb)];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DecayConstUncertainty[ord(at235UPb)];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := U238U235;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+              if (AnalType = '8') then
+              begin
+                dmGDWtmp.FDMemTableResultsAgeX.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := UprUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := UprLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeY.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := UprUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := UprLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprLwrAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultsOtherIntercept.AsFloat := LwrIntercept;
+                dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeError;
+                dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeError;
+                if (DecayConstUncertainty[ord(at238UPb)] > 0.0) then
+                begin
+                  dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeErrorIncl;
+                  dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeErrorIncl;
+
+                end;
+                dmGDWtmp.FDMemTableResultsWeighting.AsString := 'not weighted';
+                dmGDWtmp.FDMemTableResultsLudwig_p.AsFloat := DefaultZero;
+              end;
+              if (AnalType8='U') then
+              begin
+                dmGDWtmp.FDMemTableResultsAgeX.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := UprUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := UprLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeY.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := UprUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := UprLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprLwrAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultsOtherIntercept.AsFloat := LwrIntercept;
+                dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeError;
+                dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeError;
+                if (DecayConstUncertainty[ord(at238UPb)] > 0.0) then
+                begin
+                  dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeErrorIncl;
+                  dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeErrorIncl;
+                end;
+                dmGDWtmp.FDMemTableResultsWeighting.AsString := 'Weighted for upper intercept';
+                dmGDWtmp.FDMemTableResultsLudwig_p.AsFloat := Lud_pp;
+                dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+                dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NEquivPtsRegressed;
+              end;
+              if (AnalType8='L') then
+              begin
+                dmGDWtmp.FDMemTableResultsAgeX.AsFloat := LwrIntercept;
+                dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := LwrUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := LwrLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeY.AsFloat := LwrIntercept;
+                dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := LwrUprAgeError;
+                dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := LwrLwrAgeError;
+                dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := LwrIntercept;
+                dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := LwrUprAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := LwrLwrAgeErrorIncl;
+                dmGDWtmp.FDMemTableResultsOtherIntercept.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := UprUprAgeError;
+                dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := UprLwrAgeError;
+                if (DecayConstUncertainty[ord(at238UPb)] > 0.0) then
+                begin
+                  dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := UprUprAgeErrorIncl;
+                  dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := UprLwrAgeErrorIncl;
+                end;
+                dmGDWtmp.FDMemTableResultsWeighting.AsString := 'Weighted for lower intercept';
+                dmGDWtmp.FDMemTableResultsLudwig_p.AsFloat := Lud_pp;
+                dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+                dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NEquivPtsRegressed;
+              end;
+              // if lower intercept is within uncertainty of origin, adjust
+              // age uncertainties assuming slope line passes through origin
+              //
+              // Not appropriate to do this for a constrained fit
+              if ((AnalType = '8')
+                and (AdjustForNegativeIntercept)
+                and (not ConstrainFlag)) then
+              begin
+                tmpDiff := UprUprAgeError2-UprIntercept;
+                dmGDWtmp.FDMemTableResultsAgeX.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := UprUprAgeError-tmpDiff;
+                dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := UprLwrAgeError+tmpDiff;
+                dmGDWtmp.FDMemTableResultsAgeY.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := UprUprAgeError-tmpDiff;
+                dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := UprLwrAgeError+tmpDiff;
+                dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := UprIntercept;
+                dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl-tmpDiff;
+                dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprLwrAgeErrorIncl+tmpDiff;
+                tmpDiff := Abs(LwrIntercept);
+                dmGDWtmp.FDMemTableResultsOtherIntercept.AsFloat := DefaultZero;
+                dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeError-tmpDiff;
+                dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeError+tmpDiff;
+                if (DecayConstUncertainty[ord(at238UPb)] > 0.0) then
+                begin
+                  dmGDWtmp.FDMemTableResultsOtherInterceptPlus.AsFloat := LwrUprAgeErrorIncl-tmpDiff;
+                  dmGDWtmp.FDMemTableResultsOtherInterceptMinus.AsFloat := LwrLwrAgeErrorIncl+tmpDiff;
+                end;
+                dmGDWtmp.FDMemTableResultsWeighting.AsString := '(adj. for neg. itcpt.)';
+                dmGDWtmp.FDMemTableResultsLudwig_p.AsFloat := DefaultZero;
+              end;
+            end;
+      'B' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+      'C' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+      'D' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := UprUprAgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := UprLwrAgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := UprUprAgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := UprLwrAgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := UprUprAgeErrorIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[ord(atKAr)];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[ord(atKAr)];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[ord(atKAr)];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+              //Str(XItcpt:10:6,tempStr);
+            end;
+      'F' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := AgeErrorPlusIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := AgeErrorMinusIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[iAnalTyp];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+      'K','L','M' :
+            begin
+              dmGDWtmp.FDMemTableResultsAgeX.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeXPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeXMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeY.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeYPlus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultssAgeYMinus.AsFloat := AgeError;
+              dmGDWtmp.FDMemTableResultsAgeZ.AsFloat := Age;
+              dmGDWtmp.FDMemTableResultssAgeZPlus.AsFloat := AgeErrorPlusIncl;
+              dmGDWtmp.FDMemTableResultssAgeZMinus.AsFloat := AgeErrorMinusIncl;
+              dmGDWtmp.FDMemTableResultsDecayConst1.AsFloat := DecayConst[ord(atReOs)];
+              dmGDWtmp.FDMemTableResultsDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultssDecayConst1.AsFloat := DecayConstUncertainty[ord(atReOs)];
+              dmGDWtmp.FDMemTableResultssDecayConst2.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsTracerUncertainty.AsFloat := TracerUncertainty[ord(atReOs)];
+              dmGDWtmp.FDMemTableResultsIsotopeConstant.AsFloat := DefaultZero;
+              dmGDWtmp.FDMemTableResultsMSWDequivalence.AsFloat := Msum;
+              dmGDWtmp.FDMemTableResultsnReplicates.AsFloat := 1.0*N_Rep;
+              dmGDWtmp.FDMemTableResultsnSamples.AsFloat := 1.0*NumberOfPoints;
+              dmGDWtmp.FDMemTableResultsnSamplesRegressed.AsFloat := 1.0*NumberOfPointsRegressed;
+              dmGDWtmp.FDMemTableResultsMSWDconcordance.AsFloat := DefaultZero;
+            end;
+    end;//case
+    dmGDWtmp.FDMemTableResultsSoftwareUsed.AsString := GeodateVersionStr;
+    dmGDWtmp.FDMemTableResultsProbOfFitequivalence.AsFloat := ProbabilityOfFit;
+    dmGDWtmp.FDMemTableResultsProbOfFitconcordance.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsDVUserID.AsString := Uppercase(RegisteredUser);
+    dmGDWtmp.FDMemTableResultsSampleID.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsOriginalNo.AsString := SmpNo[1];
+    dmGDWtmp.FDMemTableResultsIGSN.AsString := DefaultEmptyString;
+    dmGDWtmp.FDMemTableResultsLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultsElevation.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLongitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspLatitude.AsFloat := DefaultZero;
+    dmGDWtmp.FDMemTableResultspElevation.AsFloat := DefaultZero;
+    if ConstrainFlag then
+    begin
+      dmGDWtmp.FDMemTableResultsConstraints.AsString := 'Constrained regression';
+      dmGDWtmp.FDMemTableResultsConstraintX.AsFloat := XConstrain;
+      dmGDWtmp.FDMemTableResultsConstraintY.AsFloat := YConstrain;
+      if (CharInSet(AnalType,['8','A'])) then
+      begin
+        dmGDWtmp.FDMemTableResultsConstraintAge.AsFloat := AgeConstrain;
+      end else
+      begin
+      end;
+    end
+    else begin
+      dmGDWtmp.FDMemTableResultsConstraints.AsString := 'Unconstrained regression';
+    end;
+  finally
+    dmGDWtmp.FDMemTableResults.SaveToFile(FileNameStr,sfAuto);
+    dmGDWtmp.FDMemTableResults.Close;
+  end;
 end;
 
 procedure TfmRegressionResult.bbSpreadSheetClick(Sender: TObject);
@@ -3671,9 +4142,9 @@ end;
 
 procedure TfmRegressionResult.DrawEllipse ( i : integer);
 const
-  St           : double = 0.1;
   StepIncrement = 200;  //originally 10
 var
+  St           : double;
   T_Mult_ell            : double;
   Angle, C1, C2,
   A, B, Vx, Vy,
@@ -3710,6 +4181,7 @@ begin
 end;//procedure CalcLW
 
 begin
+  St := 0.1;
   if (RFlg[i] = 'Y') then ChartReg.Series[iEllipsesIncluded].AddNullXY(0.0,0.0);
   if (RFlg[i] = 'N') then ChartReg.Series[iEllipsesExcluded].AddNullXY(0.0,0.0);
   if (AnalType8 = 'N') then
@@ -3832,10 +4304,10 @@ end;
 
 procedure TfmRegressionResult.SprdSheetEllipse (Xls : TExcelFile; i : integer);
 const
-  St           : double = 0.1;
   StepIncrement = 200; //originally 15
   Minus100 : double = -100.0;
 var
+  St           : double;
   MaxX, MinX, MaxY, MinY : double;
   T_Mult_ell            : double;
   Angle, C1, C2,
@@ -3874,6 +4346,7 @@ begin
 end;{procedure CalcLWt}
 
 begin
+  St := 0.1;
   MaxX := GetAxisValuesForm.XMax;
   MinX := GetAxisValuesForm.XMin;
   MaxY := GetAxisValuesForm.YMax;
@@ -4093,6 +4566,12 @@ begin
   GraphColour[7,2] := VtChartReg.Plot.SeriesCollection.Item[17].Pen.VtColor.Blue;
   GraphColour[7,3] := VtChartReg.Plot.SeriesCollection.Item[17].Pen.VtColor.Green;
   }
+end;
+
+procedure TfmRegressionResult.FormCreate(Sender: TObject);
+begin
+  TStyleManager.TrySetStyle(GlobalChosenStyle);
+  TSystemTheme.ApplyStyle(ChartReg, TStyleManager.ActiveStyle);
 end;
 
 end.

@@ -204,7 +204,7 @@ begin
                       - (N*N*N) * 0.02446);
     end else temp := 1.96;
   end;
-  if (temp > -990.0) then Result := Abs(temp);
+  if (temp >= -999.990) then Result := Abs(temp);
 end;{TMultiplier}
 
 function Ar40Ar39Age(X : double; ArArJ : double; ArArJ1sig : double) : double;
@@ -220,10 +220,10 @@ var
   tArAr, tDecayConst : double;
 begin
   sigArArJ := ArArJ1sig;
-  sigArArJ := 0.0;   // temporary to check influence of decay constants alone
+  //sigArArJ := 0.0;   // temporary to check influence of decay constants alone
   sigDCKAr := DecayConstUncertainty[ord(atKAr)]*DecayConst[ord(atKAr)]/100.0;
   sigDCKCa := DecayConstUncertainty[ord(atKCa)]*DecayConst[ord(atKCa)]/100.0;
-  tArAr := ArArJ+sigArArJ;
+  tArAr := ArArJ + sigArArJ;
   tDecayConst := (DecayConst[ord(atKAr)]-sigDCKAr) + (DecayConst[ord(atKCa)]-sigDCKCa);
   if ((X * ArArJ) > -1.0) then Result:=Ln(1.0+X*tArAr)/tDecayConst
   else Result:=0.0;
@@ -357,7 +357,7 @@ begin
     end;
     if (Age <= 0.0) then
     begin
-      if (Age < 0.0) then Age:=0.0;
+      if (Age <= 0.0) then Age:=0.0;
       T1:=Ratio[J,2];
       T2:=CHUR[iAnalTyp,3];
     end;
@@ -383,7 +383,7 @@ begin
     end;
     if (Age <= 0.0) then
     begin
-      if (Age < 0.0) then Age:=0.0;
+      if (Age <= 0.0) then Age:=0.0;
       T1:=Ratio[J,2];
       T2:=CHUR[iAnalTyp,3];
     end;
@@ -475,6 +475,8 @@ var
   temp2   :  double;
   t1, t2  :  double;
 begin
+  t1 := 0.0;
+  t2 := 0.0;
   case ErrTyp[J] of
     '1' : begin
             t1:=ErrorWt[J,1]*Ratio[J,1]/100.0;
@@ -520,6 +522,7 @@ var
                :  double;
   ThisDone         :  Boolean;
 begin
+  AgeMax := 4.570e9;
   if (CHUR[iAnalTyp,3] > 0.0) then
   begin
     if (CHUR[iAnalTyp,1] <> 0.0) then

@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, Mask, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
-  SVGIconVirtualImageList;
+  System.UITypes, ImageCollection_dm;
 
 type
   TfmAxOpt = class(TForm)
@@ -20,7 +20,7 @@ type
     meXMaxStr: TEdit;
     meYMinStr: TEdit;
     meYMaxStr: TEdit;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure bbOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -83,7 +83,7 @@ begin
       if Finished then Finished := true;
     end;
   until Finished;
-  if ((AnalType8 in ['U','L']) and (cbAugmentEllipses.Checked))
+  if (CharInSet(AnalType8,['U','L']) and (cbAugmentEllipses.Checked))
   then ChooseEllipse := 'A';
 end;
 
@@ -93,8 +93,8 @@ begin
   meXMaxStr.Text := FormatFloat('####0.000000',XMax);
   meYMinStr.Text := FormatFloat('####0.000000',YMin);
   meYMaxStr.Text := FormatFloat('####0.000000',YMax);
-  if (AnalType8 in ['L','U']) then cbAugmentEllipses.Enabled := true
-                              else cbAugmentEllipses.Enabled := false;
+  if CharInSet(AnalType8,['L','U']) then cbAugmentEllipses.Enabled := true
+                                    else cbAugmentEllipses.Enabled := false;
   if (ChooseEllipse = 'A') then cbAugmentEllipses.Checked := true
                            else cbAugmentEllipses.Checked := false;
 end;

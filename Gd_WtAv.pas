@@ -6,9 +6,11 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, DBCtrls, ExtCtrls, Grids, DBGrids, Printers, OleCtrls,
   Mask, AxCtrls, TeeEdit, Series, TeEngine, TeeComma, TeeProcs, Chart,
+  VCL.Themes,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
   VclTee.TeeGDIPlus, VCLTee.TeeErrorPoint, VCLTee.TeeSpline, TeeTree,
-  Vcl.ComCtrls, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  Vcl.ComCtrls, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
+  ImageCollection_dm;
 
 type
   TfmWtAv = class(TForm)
@@ -138,6 +140,7 @@ type
     procedure TreeView1Click(Sender: TObject);
     procedure ChWtAvDblClick(Sender: TObject);
     procedure ChWtAvZoom(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     //Private declarations
     //  0 = X-Y general
@@ -3353,8 +3356,16 @@ begin
 end;
 
 procedure TfmWtAv.bbExportmdlToXMLClick(Sender: TObject);
+const
+  DefaultZero = 0.0;
+  DefaultEmptyString = '';
 var
   iCode : integer;
+  FileNameStr : string;
+  tmpDiff : double;
+  MaxRecordID : integer;
+  Msum_Str : string;
+  InverseRatio, tmpPC : double;
 begin
   {
   if ((VarbNox = 6) and (AnalType in ['8','A','H'])) then
@@ -3505,6 +3516,13 @@ begin
   finally
   end;
   }
+end;
+
+procedure TfmWtAv.FormCreate(Sender: TObject);
+begin
+  TStyleManager.TrySetStyle(GlobalChosenStyle);
+  TSystemTheme.ApplyStyle( ChWtAv, TStyleManager.ActiveStyle);
+  TSystemTheme.ApplyStyle( ChCum, TStyleManager.ActiveStyle);
 end;
 
 end.

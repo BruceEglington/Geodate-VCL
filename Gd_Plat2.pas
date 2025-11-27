@@ -7,9 +7,10 @@ uses
   StdCtrls, Buttons, DBCtrls, ExtCtrls, Grids, DBGrids, Printers, OleCtrls,
   AxCtrls, VclTee.TeeGDIPlus, VCLTee.TeeErrorPoint, VCLTee.Series,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
+  VCL.Themes,
   VCLTee.TeEngine, VCLTee.TeeSpline, VCLTee.TeeProcs, VCLTee.Chart,
   VCLTee.TeeComma, Vcl.Mask, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
-  SVGIconVirtualImageList, Vcl.ComCtrls;
+  Vcl.ComCtrls, ImageCollection_dm;
 
 type
   TfmPlatAr = class(TForm)
@@ -115,7 +116,6 @@ type
     eProbabilityOfF: TEdit;
     Label7: TLabel;
     eNsamp: TEdit;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
     Series15: TLineSeries;
     pTreeSmp: TPanel;
     TreeView1: TTreeView;
@@ -124,6 +124,7 @@ type
     lWtAvMinusIncl: TLabel;
     eWtAvMinus95Incl: TEdit;
     lWtAvIncl: TLabel;
+    VirtualImageList1: TVirtualImageList;
     procedure FormShow(Sender: TObject);
     procedure bbOKClick(Sender: TObject);
     procedure bbSpreadSheetClick(Sender: TObject);
@@ -136,6 +137,7 @@ type
     procedure ChPlatZoom(Sender: TObject);
     procedure dbnRegClick(Sender: TObject; Button: TNavigateBtn);
     procedure TreeView1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     //Private declarations
     //  0 = X-Y general
@@ -230,6 +232,13 @@ begin
   lWtAvPlusIncl.Visible := false;
   lWtAvIncl.Visible := false;
   ChCum.Series[i]
+end;
+
+procedure TfmPlatAr.FormCreate(Sender: TObject);
+begin
+  TStyleManager.TrySetStyle(GlobalChosenStyle);
+  TSystemTheme.ApplyStyle( ChPlat, TStyleManager.ActiveStyle);
+  TSystemTheme.ApplyStyle( ChCum, TStyleManager.ActiveStyle);
 end;
 
 procedure TfmPlatAr.FormShow(Sender: TObject);

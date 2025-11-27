@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ExtCtrls, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmConcordiaWtType = class(TForm)
@@ -14,7 +14,7 @@ type
     rbConcordiaUpper: TRadioButton;
     rbConcordiaLower: TRadioButton;
     bbOK: TBitBtn;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure bbOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -54,19 +54,19 @@ end;
 
 procedure TfmConcordiaWtType.FormShow(Sender: TObject);
 begin
-  if (AnalType8 in ['N','E']) then
+  if CharInSet(AnalType8,['N','E']) then
   begin
     rbConcordiaNormal.Checked := true;
     rbConcordiaUpper.Checked := false;
     rbConcordiaLower.Checked := false;
   end;
-  if (AnalType8 in ['U']) then
+  if CharInSet(AnalType8,['U']) then
   begin
     rbConcordiaNormal.Checked := false;
     rbConcordiaUpper.Checked := true;
     rbConcordiaLower.Checked := false;
   end;
-  if (AnalType8 in ['L']) then
+  if CharInSet(AnalType8,['L']) then
   begin
     rbConcordiaNormal.Checked := false;
     rbConcordiaUpper.Checked := false;

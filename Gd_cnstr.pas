@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Buttons, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.VirtualImageList, System.UITypes, ImageCollection_dm;
 
 type
   TfmConstrain = class(TForm)
@@ -18,7 +18,7 @@ type
     eYStr: TEdit;
     lMa: TLabel;
     bbOK: TBitBtn;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure FormShow(Sender: TObject);
     procedure eAgeStrExit(Sender: TObject);
     procedure eAgeStrChange(Sender: TObject);
@@ -121,7 +121,8 @@ end;
 procedure TfmConstrain.bbOKClick(Sender: TObject);
 var
   CodeVal : integer;
-  tempStr : string[11];
+  //tempStr : string[11];  previous definition
+  tempStr : string;
 begin
   if (AnalType = '8') then
   begin

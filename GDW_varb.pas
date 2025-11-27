@@ -58,6 +58,7 @@ type
   TErrorNameType           = array [1..4] of string;
   TElementNameType     = array [0..MaxType,1..3] of string;
   TRatioNameType      = array [0..MaxType] of string;
+  TIsotopeSystemType     = array [0..MaxType] of string;
   TProcessNameType     = array [0..MaxType] of string;
   RDataRecord      = packed record
          case shortint of
@@ -351,6 +352,30 @@ const
                      'Extra      ',
                      'Extra      ',
                      'Extra      ');
+  DefaultIsotopeSystem           :  TIsotopeSystemType
+                  = ('General   ',
+                     'RbSr      ',
+                     'SmNd      ',
+                     'PbPb      ',
+                     'UPb238    ',
+                     'UPb235    ',
+                     'ThPb      ',
+                     'LuHf      ',
+                     'UPb       ',
+                     'LaCe      ',
+                     'UPb       ',
+                     'KAr       ',
+                     'ArAr      ',
+                     'ArAr      ',
+                     'KCa       ',
+                     'ReOs      ',
+                     'LaBa      ',
+                     'UPb       ',
+                     'ArAr      ',
+                     'AgeEpT2DM',
+                     'LuHf      ',
+                     'KCa       ',
+                     'ReOs      ');
   DefaultProcess           :  TProcessNameType
                   = ('X-Y general',
                      'Rb-Sr      ',
@@ -705,11 +730,11 @@ var
   FAlpha            :  double;
   T_Mult            :  double;
   FileExistChar     :  char;
-  //ProjectName       :  string[40];
   ProjectName       :  string;
   AnalType, AnalType8
                     :  char;
   GdwNetFileDir, Drive1, Drive2, Drive3 : string;
+  FlexTemplatePath, ExportPath : string;
   Ch, TC            :  char;
   Mask              :  MaskArray;
   Is_OK             :  boolean;
@@ -730,8 +755,8 @@ var
   Residual          :  array [1..MaxSamp,1..2] of double;
   RFlg              :  array [0..MaxSamp] of char;
   PFlg              :  array [0..MaxSamp] of char;
-  Conc, ErrorWt     :  array [1..MaxSamp,0..4] of double;
-  Ratio             :  array [0..MaxSamp,0..4] of double;
+  Conc, ErrorWt     :  array [1..MaxSamp,0..5] of double;
+  Ratio             :  array [0..MaxSamp,0..5] of double;
   AnalTyp           :  array [1..MaxSamp] of char;
   RR, R2                :  array [0..MaxSamp] of double;
   ErrTyp            :  array [1..MaxSamp] of char;

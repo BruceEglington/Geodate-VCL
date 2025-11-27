@@ -4,7 +4,7 @@ interface
 
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, StdCtrls,
   Buttons, ExtCtrls, Vcl.Imaging.pngimage, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, SVGIconVirtualImageList;
+  Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TAboutBox = class(TForm)
@@ -18,7 +18,7 @@ type
     lRegisteredUser: TLabel;
     Panel2: TPanel;
     Label1: TLabel;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    VirtualImageList1: TVirtualImageList;
     procedure FormShow(Sender: TObject);
   private
     { Private declarations }

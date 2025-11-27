@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDBS Version="16">
+  <Manager UpdatesRegistry="True">
+    <TableList>
+      <Table Name="FDMemTableResults" SourceName="FDMemTableResults" TabID="0" EnforceConstraints="False" MinimumCapacity="50" CheckNotNull="False">
+        <ColumnList>
+          <Column Name="RecordID" SourceName="RecordID" SourceID="1" DataType="Int64" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OInKey="True" OriginColName="RecordID"/>
+          <Column Name="DateTimeCreated" SourceName="DateTimeCreated" SourceID="2" DataType="DateTime" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="DateTimeCreated"/>
+          <Column Name="Project" SourceName="Project" SourceID="3" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Project" SourceSize="50"/>
+          <Column Name="IsotopeSystemID" SourceName="IsotopeSystemID" SourceID="4" DataType="AnsiString" Size="15" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="IsotopeSystemID" SourceSize="15"/>
+          <Column Name="AgeX" SourceName="AgeX" SourceID="5" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="AgeX"/>
+          <Column Name="AgeY" SourceName="AgeY" SourceID="6" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="AgeY"/>
+          <Column Name="AgeZ" SourceName="AgeZ" SourceID="7" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="AgeZ"/>
+          <Column Name="sAgeXPlus" SourceName="sAgeXPlus" SourceID="8" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeXPlus"/>
+          <Column Name="sAgeXMinus" SourceName="sAgeXMinus" SourceID="9" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeXMinus"/>
+          <Column Name="sAgeYPlus" SourceName="sAgeYPlus" SourceID="10" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeYPlus"/>
+          <Column Name="sAgeYMinus" SourceName="sAgeYMinus" SourceID="11" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeYMinus"/>
+          <Column Name="sAgeZPlus" SourceName="sAgeZPlus" SourceID="12" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeZPlus"/>
+          <Column Name="sAgeZMinus" SourceName="sAgeZMinus" SourceID="13" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sAgeZMinus"/>
+          <Column Name="DecayConst1" SourceName="DecayConst1" SourceID="14" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="DecayConst1"/>
+          <Column Name="DecayConst2" SourceName="DecayConst2" SourceID="15" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="DecayConst2"/>
+          <Column Name="sDecayConst1" SourceName="sDecayConst1" SourceID="16" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sDecayConst1"/>
+          <Column Name="sDecayConst2" SourceName="sDecayConst2" SourceID="17" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sDecayConst2"/>
+          <Column Name="IsotopeConstant" SourceName="IsotopeConstant" SourceID="18" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="IsotopeConstant"/>
+          <Column Name="MSWDequivalence" SourceName="MSWDequivalence" SourceID="19" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="MSWDequivalence"/>
+          <Column Name="nReplicates" SourceName="nReplicates" SourceID="20" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="nReplicates"/>
+          <Column Name="nSamples" SourceName="nSamples" SourceID="21" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="nSamples"/>
+          <Column Name="ProbOfFitequivalence" SourceName="ProbOfFitequivalence" SourceID="22" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ProbOfFitequivalence"/>
+          <Column Name="MSWDconcordance" SourceName="MSWDconcordance" SourceID="23" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="MSWDconcordance"/>
+          <Column Name="ProbOfFitconcordance" SourceName="ProbOfFitconcordance" SourceID="24" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ProbOfFitconcordance"/>
+          <Column Name="InitialRatio" SourceName="InitialRatio" SourceID="25" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="InitialRatio"/>
+          <Column Name="sInitialRatio" SourceName="sInitialRatio" SourceID="26" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sInitialRatio"/>
+          <Column Name="EpsilonGamma" SourceName="EpsilonGamma" SourceID="27" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="EpsilonGamma"/>
+          <Column Name="sEpsilonGamma" SourceName="sEpsilonGamma" SourceID="28" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sEpsilonGamma"/>
+          <Column Name="Augmentation" SourceName="Augmentation" SourceID="29" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Augmentation" SourceSize="50"/>
+          <Column Name="MSWDforced" SourceName="MSWDforced" SourceID="30" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="MSWDforced" SourceSize="50"/>
+          <Column Name="Additional" SourceName="Additional" SourceID="31" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Additional" SourceSize="50"/>
+          <Column Name="SoftwareUsed" SourceName="SoftwareUsed" SourceID="32" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="SoftwareUsed" SourceSize="50"/>
+          <Column Name="DVUserID" SourceName="DVUserID" SourceID="33" DataType="AnsiString" Size="20" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="DVUserID" SourceSize="20"/>
+          <Column Name="MaterialID" SourceName="MaterialID" SourceID="34" DataType="AnsiString" Size="10" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="MaterialID" SourceSize="10"/>
+          <Column Name="Lithology" SourceName="Lithology" SourceID="35" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Lithology" SourceSize="50"/>
+          <Column Name="ApproachID" SourceName="ApproachID" SourceID="36" DataType="AnsiString" Size="10" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ApproachID" SourceSize="10"/>
+          <Column Name="TechniqueID" SourceName="TechniqueID" SourceID="37" DataType="AnsiString" Size="10" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="TechniqueID" SourceSize="10"/>
+          <Column Name="InterpID" SourceName="InterpID" SourceID="38" DataType="AnsiString" Size="10" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="InterpID" SourceSize="10"/>
+          <Column Name="MethodID" SourceName="MethodID" SourceID="39" DataType="AnsiString" Size="5" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="MethodID" SourceSize="5"/>
+          <Column Name="OtherIntercept" SourceName="OtherIntercept" SourceID="40" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="OtherIntercept"/>
+          <Column Name="OtherInterceptPlus" SourceName="OtherInterceptPlus" SourceID="41" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="OtherInterceptPlus"/>
+          <Column Name="OtherInterceptMinus" SourceName="OtherInterceptMinus" SourceID="42" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="OtherInterceptMinus"/>
+          <Column Name="Weighting" SourceName="Weighting" SourceID="43" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Weighting" SourceSize="50"/>
+          <Column Name="Ludwig_p" SourceName="Ludwig_p" SourceID="44" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Ludwig_p"/>
+          <Column Name="Constraints" SourceName="Constraints" SourceID="45" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Constraints" SourceSize="50"/>
+          <Column Name="ConstraintAge" SourceName="ConstraintAge" SourceID="46" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ConstraintAge"/>
+          <Column Name="ConstraintX" SourceName="ConstraintX" SourceID="47" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ConstraintX"/>
+          <Column Name="ConstraintY" SourceName="ConstraintY" SourceID="48" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ConstraintY"/>
+          <Column Name="ReferenceID" SourceName="ReferenceID" SourceID="49" DataType="Int32" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ReferenceID"/>
+          <Column Name="LabID" SourceName="LabID" SourceID="50" DataType="AnsiString" Size="10" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="LabID" SourceSize="10"/>
+          <Column Name="InitialModel" SourceName="InitialModel" SourceID="51" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="InitialModel" SourceSize="50"/>
+          <Column Name="ModelSourceMu" SourceName="ModelSourceMu" SourceID="52" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="ModelSourceMu"/>
+          <Column Name="TracerUncertainty" SourceName="TracerUncertainty" SourceID="53" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="TracerUncertainty"/>
+          <Column Name="SampleID" SourceName="SampleID" SourceID="54" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="SampleID" SourceSize="50"/>
+          <Column Name="Frac" SourceName="Frac" SourceID="55" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Frac" SourceSize="50"/>
+          <Column Name="Longitude" SourceName="Longitude" SourceID="56" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Longitude"/>
+          <Column Name="Latitude" SourceName="Latitude" SourceID="57" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Latitude"/>
+          <Column Name="Elevation" SourceName="Elevation" SourceID="58" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="Elevation"/>
+          <Column Name="pLongitude" SourceName="pLongitude" SourceID="59" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="pLongitude"/>
+          <Column Name="pLatitude" SourceName="pLatitude" SourceID="60" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="pLatitude"/>
+          <Column Name="pElevation" SourceName="pElevation" SourceID="61" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="pElevation"/>
+          <Column Name="OriginalNo" SourceName="OriginalNo" SourceID="62" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="OriginalNo" SourceSize="50"/>
+          <Column Name="IGSN" SourceName="IGSN" SourceID="63" DataType="AnsiString" Size="50" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="IGSN" SourceSize="50"/>
+          <Column Name="sModelSourceMuPlus" SourceName="sModelSourceMuPlus" SourceID="64" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sModelSourceMuPlus"/>
+          <Column Name="sModelSourceMuMinus" SourceName="sModelSourceMuMinus" SourceID="65" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="sModelSourceMuMinus"/>
+          <Column Name="nSamplesRegressed" SourceName="nSamplesRegressed" SourceID="66" DataType="Double" Searchable="True" AllowNull="True" Base="True" OAllowNull="True" OInUpdate="True" OInWhere="True" OriginColName="nSamplesRegressed"/>
+        </ColumnList>
+        <ConstraintList/>
+        <ViewList/>
+        <RowList>
+          <Row RowID="0">
+            <Original RecordID="1" DateTimeCreated="20251125T193650.673" Project="Johannesburg dome granodiorite" IsotopeSystemID="PbPb      " AgeX="3069.2518000831872" AgeY="3069.2518000831872" AgeZ="3069.2518000831872" sAgeXPlus="27.026835696885107" sAgeXMinus="27.554743497294896" sAgeYPlus="27.026835696885107" sAgeYMinus="27.554743497294896" sAgeZPlus="0" sAgeZMinus="0" DecayConst1="1.55125E-10" DecayConst2="9.8485E-10" sDecayConst1="0.054" sDecayConst2="0.068" IsotopeConstant="137.81800000000002" MSWDequivalence="0.59405658713195981" nReplicates="999" nSamples="11" ProbOfFitequivalence="0.70456094255693786" MSWDconcordance="0" ProbOfFitconcordance="0" Augmentation=" " SoftwareUsed="Geodate (2025)" DVUserID="BRUCEEGLINGTON" ApproachID="Regr" Constraints="Unconstrained regression" InitialModel="Stacey and Kramers two stage model" ModelSourceMu="9.3108985143647386" TracerUncertainty="0" SampleID="B-81-21B" Longitude="0" Latitude="0" Elevation="0" pLongitude="0" pLatitude="0" pElevation="0" OriginalNo="B-81-21B" IGSN="" sModelSourceMuPlus="0.51285376664324109" sModelSourceMuMinus="0.52027948133923731" nSamplesRegressed="5"/>
+          </Row>
+          <Row RowID="1">
+            <Original RecordID="2" DateTimeCreated="20251125T193656.474" Project="Johannesburg dome granodiorite" IsotopeSystemID="PbPb      " AgeX="3069.2518000831872" AgeY="3069.2518000831872" AgeZ="3069.2518000831872" sAgeXPlus="27.026835696885107" sAgeXMinus="27.554743497294899" sAgeYPlus="27.026835696885107" sAgeYMinus="27.554743497294899" sAgeZPlus="0" sAgeZMinus="0" DecayConst1="1.55125E-10" DecayConst2="9.8485E-10" sDecayConst1="0.054" sDecayConst2="0.068" IsotopeConstant="137.81800000000002" MSWDequivalence="0.59405658713195981" nReplicates="999" nSamples="11" ProbOfFitequivalence="0.70456094255693786" MSWDconcordance="0" ProbOfFitconcordance="0" Augmentation=" " SoftwareUsed="Geodate (2025)" DVUserID="BRUCEEGLINGTON" ApproachID="Regr" Constraints="Unconstrained regression" InitialModel="Stacey and Kramers two stage model" ModelSourceMu="9.3108985143647411" TracerUncertainty="0" SampleID="B-81-21B" Longitude="0" Latitude="0" Elevation="0" pLongitude="0" pLatitude="0" pElevation="0" OriginalNo="B-81-21B" IGSN="" sModelSourceMuPlus="0.51285376664324109" sModelSourceMuMinus="0.52027948133923731" nSamplesRegressed="5"/>
+          </Row>
+        </RowList>
+      </Table>
+    </TableList>
+    <RelationList/>
+    <UpdatesJournal SavePoint="5">
+      <Changes/>
+    </UpdatesJournal>
+  </Manager>
+</FDBS>

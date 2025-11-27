@@ -9,7 +9,7 @@ uses
   Tabs, Grids,ToolWin,
   AxCtrls,
   VCL.FlexCel.Core, FlexCel.XlsAdapter, FlexCel.Render, FlexCel.Preview,
-  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmSheetImport = class(TForm)

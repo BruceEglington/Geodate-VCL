@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
-  SVGIconVirtualImageList;
+  ImageCollection_dm;
 
 type
   TfmOptDir = class(TForm)
@@ -18,7 +18,11 @@ type
     bbOK: TBitBtn;
     Label1: TLabel;
     eFTable: TEdit;
-    SVGIconVirtualImageList1: TSVGIconVirtualImageList;
+    Label2: TLabel;
+    eFlexTemplatePath: TEdit;
+    Label3: TLabel;
+    eExportPath: TEdit;
+    VirtualImageList1: TVirtualImageList;
     procedure bbOKClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -46,10 +50,12 @@ begin
   Drive3 := eDrive3.Text;
   cdsPath := eFTable.Text;
   if (GdwNetFileDir = '') then GdwNetFileDir := 'C:\';
-  if (Drive1 = '') then Drive1 := 'C:\PROGRAMDATA\EGGSOFT\';
-  if (Drive2 = '') then Drive2 := 'C:\PROGRAMDATA\EGGSOFT\GDW\DATA\';
-  if (Drive3 = '') then Drive3 := 'C:\PROGRAMDATA\EGGSOFT\GDW\TEMP\';
-  if (cdsPath = '') then cdsPath := 'C:\PROGRAMDATA\EGGSOFT\';
+  if (Drive1 = '') then Drive1 := 'C:\USERS\YourUser\Appdata\EggSoft\Geodate\temp\';
+  if (Drive2 = '') then Drive2 := 'C:\USERS\YourUser\Appdata\EggSoft\Geodate\data\';
+  if (Drive3 = '') then Drive3 := 'USERS\YourUser\Appdata\EggSoft\Geodate\temp\';
+  if (cdsPath = '') then cdsPath := 'C:USERS\YourUser\Appdata\EggSoft\Geodate\data\';
+  if (FlexTemplatePath = '') then FlexTemplatePath := 'C:\USERS\YourUser\Appdata\EggSoft\Geodate\Templates\';
+  if (ExportPath = '') then ExportPath := 'C:\USERS\YourUser\Appdata\EggSoft\Geodate\temp\';
   Close;
 end;
 
@@ -62,6 +68,8 @@ begin
   eDrive2.Text := Drive2;
   eDrive3.Text := Drive3;
   eFTable.Text := cdsPath;
+  eFlexTemplatePath.Text := FlexTemplatePath;
+  eExportPath.Text := ExportPath;
 end;
 
 end.

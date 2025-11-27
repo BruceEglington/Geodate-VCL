@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  SVGIconImageCollection;
+  FireDAC.Stan.StorageXML, FireDAC.Stan.StorageBin;
 
 type
   TdmGdwtmp = class(TDataModule)
@@ -60,7 +60,6 @@ type
     cdsRegZPrec: TFloatField;
     cdsRegR: TFloatField;
     cdsRegi: TIntegerField;
-    ImageCollection1: TImageCollection;
     FDMemTableData: TFDMemTable;
     FDMemTableDataSaNo: TStringField;
     FDMemTableDataXElemConc: TFloatField;
@@ -89,7 +88,6 @@ type
     FDMemTableDataPFlag: TStringField;
     FDMemTableDataAge: TFloatField;
     FDMemTableDatasAge: TFloatField;
-    SVGIconImageCollection1: TSVGIconImageCollection;
     cdsEditZWt: TFloatField;
     cdsEditZWtType: TStringField;
     cdsEditWRatio: TFloatField;
@@ -100,6 +98,83 @@ type
     cdsEditAge95pcValue: TFloatField;
     cdsEditRhoExtra: TFloatField;
     cdsEditZZ: TFloatField;
+    cdsEditIsotopeSystem: TStringField;
+    FDMemTableDataLatitude: TFloatField;
+    FDMemTableDataLongitude: TFloatField;
+    FDMemTableDataElevation: TFloatField;
+    FDMemTableDataIsotopeProcess: TStringField;
+    cdsEditIsotopeProcess: TStringField;
+    FDMemTableDataIsotopeSystem: TStringField;
+    FDMemTableDataProject: TStringField;
+    cdsEditAnTyp: TStringField;
+    FDMemTableResults: TFDMemTable;
+    FDMemTableResultsProject: TStringField;
+    FDMemTableResultsIsotopeSystemID: TStringField;
+    FDMemTableResultsAgeX: TFloatField;
+    FDMemTableResultsAgeY: TFloatField;
+    FDMemTableResultsAgeZ: TFloatField;
+    FDMemTableResultssAgeXPlus: TFloatField;
+    FDMemTableResultssAgeXMinus: TFloatField;
+    FDMemTableResultssAgeYPlus: TFloatField;
+    FDMemTableResultssAgeYMinus: TFloatField;
+    FDMemTableResultssAgeZPlus: TFloatField;
+    FDMemTableResultssAgeZMinus: TFloatField;
+    FDMemTableResultsDecayConst1: TFloatField;
+    FDMemTableResultsDecayConst2: TFloatField;
+    FDMemTableResultssDecayConst1: TFloatField;
+    FDMemTableResultssDecayConst2: TFloatField;
+    FDMemTableResultsIsotopeConstant: TFloatField;
+    FDMemTableResultsMSWDequivalence: TFloatField;
+    FDMemTableResultsnReplicates: TFloatField;
+    FDMemTableResultsnSamples: TFloatField;
+    FDMemTableResultsProbOfFitequivalence: TFloatField;
+    FDMemTableResultsProbOfFitconcordance: TFloatField;
+    FDMemTableResultsInitialRatio: TFloatField;
+    FDMemTableResultssInitialRatio: TFloatField;
+    FDMemTableResultsEpsilonGamma: TFloatField;
+    FDMemTableResultssEpsilonGamma: TFloatField;
+    FDMemTableResultsAugmentation: TStringField;
+    FDMemTableResultsMSWDforced: TStringField;
+    FDMemTableResultsAdditional: TStringField;
+    FDMemTableResultsDateTimeCreated: TDateTimeField;
+    FDMemTableResultsSoftwareUsed: TStringField;
+    FDMemTableResultsMSWDconcordance: TFloatField;
+    FDMemTableResultsDVUserID: TStringField;
+    FDMemTableResultsMaterialID: TStringField;
+    FDMemTableResultsLithology: TStringField;
+    FDMemTableResultsApproachID: TStringField;
+    FDMemTableResultsTechniqueID: TStringField;
+    FDMemTableResultsInterpID: TStringField;
+    FDMemTableResultsMethodID: TStringField;
+    FDMemTableResultsOtherIntercept: TFloatField;
+    FDMemTableResultsOtherInterceptPlus: TFloatField;
+    FDMemTableResultsOtherInterceptMinus: TFloatField;
+    FDMemTableResultsWeighting: TStringField;
+    FDMemTableResultsLudwig_p: TFloatField;
+    FDMemTableResultsConstraints: TStringField;
+    FDMemTableResultsConstraintAge: TFloatField;
+    FDMemTableResultsConstraintX: TFloatField;
+    FDMemTableResultsConstraintY: TFloatField;
+    FDMemTableResultsReferenceID: TIntegerField;
+    FDMemTableResultsLabID: TStringField;
+    FDMemTableResultsInitialModel: TStringField;
+    FDMemTableResultsModelSourceMu: TFloatField;
+    FDStanStorageXMLLink1: TFDStanStorageXMLLink;
+    FDMemTableResultsTracerUncertainty: TFloatField;
+    FDMemTableResultsSampleID: TStringField;
+    FDMemTableResultsFrac: TStringField;
+    FDMemTableResultsLongitude: TFloatField;
+    FDMemTableResultsLatitude: TFloatField;
+    FDMemTableResultsElevation: TFloatField;
+    FDMemTableResultspLongitude: TFloatField;
+    FDMemTableResultspLatitude: TFloatField;
+    FDMemTableResultspElevation: TFloatField;
+    FDMemTableResultsOriginalNo: TStringField;
+    FDMemTableResultsIGSN: TStringField;
+    FDMemTableResultsRecordID: TLargeintField;
+    FDMemTableResultssModelSourceMuPlus: TFloatField;
+    FDMemTableResultssModelSourceMuMinus: TFloatField;
+    FDMemTableResultsnSamplesRegressed: TFloatField;
   private
     { Private declarations }
   public

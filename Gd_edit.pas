@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Buttons, ComCtrls, ExtCtrls, DBCtrls, Mask, System.UITypes,
-  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList;
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, ImageCollection_dm;
 
 type
   TfmEdit = class(TForm)
