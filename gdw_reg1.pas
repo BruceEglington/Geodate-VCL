@@ -377,6 +377,7 @@ var
   MSWD_Str          : string;  //string[6]
   Slope_Str         : string; //string[10]
   MaxX              : double;
+  tmpBEchk : double;
 begin
   Iteration:=0;
   if Model=4 then Iteration:=1;
@@ -552,22 +553,25 @@ begin
   SSD:=0.0;
   SSLF:=0.0;
   SSPE:=0.0;
+  //Titerington ?
   for J:=1 to NumberOfPoints do begin
       Al:=Weight[J,1]*Weight[J,2];
-      if Al=0.0 then Al:=1.0E-9;
+      if (Al = 0.0) then Al:=1.0E-9;
       C:=RR[J]*Sqrt(Al);
       T1:=Z[J]*(Intercept+Slope*Ratio[J,1]-Ratio[J,2]);
       Residual[J,1]:=T1*(C-Slope*Weight[J,2])/Al;
       Residual[J,2]:=T1*(Weight[J,1]-Slope*C)/Al;
-      if (UpCase(RFlg[J])='Y') then begin
+      if (UpCase(RFlg[J])='Y') then
+      begin
         Sum[1]:=Sum[1]+Z[J]*(Ratio[J,2]-Slope*Ratio[J,1]-Intercept)
                            *(Ratio[J,2]-Slope*Ratio[J,1]-Intercept);
-        Sum[2]:=Sum[2]+Z[J]*Ratio[J,1]*Ratio[J,1];
-        Sum[3]:=Sum[3]+Z[J];
+        Sum[2]:=Sum[2]+Z[J]*Ratio[J,1]*Ratio[J,1];   // sum of Z*Xsquared
+        Sum[3]:=Sum[3]+Z[J];    // sum of Z
         tx:=Ratio[J,1]+Residual[J,1];
         Sum[4]:=Sum[4]+Z[J]*tx;
         Sum[5]:=Sum[5]+Z[J]*tx*tx;
         SST:=SST+Z[J]*U[J]*U[J];
+        //ShowMessage('Slope 1 sigma via SST = '+FormatFloat('####0.000000',Sqrt(1.0/SST)));
       end;
       if (ErrTyp[J]<>'4') then begin
         case (ErrTyp[J]) of
@@ -586,9 +590,13 @@ begin
   end;//for
   if NumberOfPointsRegressed>2 then Msum:=Sum[1]/(NumberOfPointsRegressed-2)
                                else Msum:=0.0;
-  if (Sum[3]/(Sum[5]*Sum[3]-Sum[4]*Sum[4]))<>0.0 then begin
+  tmpBEchk := Sum[3]/(Sum[5]*Sum[3]-Sum[4]*Sum[4]);
+  //ShowMessage('Slopeerror before sums = '+FormatFloat('####0.000000',tmpBEchk));
+  if ((Sum[3]/(Sum[5]*Sum[3]-Sum[4]*Sum[4])) <> 0.0) then
+  begin
     SlopeError:=Sqrt(Sum[3]/(Sum[5]*Sum[3]-Sum[4]*Sum[4]));
     InterceptError:=Sqrt(Sum[5]/(Sum[5]*Sum[3]-Sum[4]*Sum[4]));
+    //ShowMessage('Slopeerror via sums = '+FormatFloat('####0.000000',SlopeError));
   end
   else begin
     SlopeError:=0.0;
@@ -619,12 +627,10 @@ begin
       GetErrorchronOptionForm := TfmGetErrorchronOption.Create(Self);
       ModelOption:='?';
       if CharInSet(AnalType,['1','2','4'..'7','9','B','C','D','E','F','G','K','L','M']) then
-      //if (Analtype in ['1','2','4'..'7','9','B','C','D','E','F','G']) then
         GetErrorchronOptionForm.rbbVarInit.Visible := true
       else
         GetErrorchronOptionForm.rbbVarInit.Visible := false;
       if CharInSet(AnalType,['8','A']) then
-      //if (Analtype in ['8','A']) then
       begin
         GetErrorchronOptionForm.rbbUprItcpt.Visible := true;
         GetErrorchronOptionForm.rbbLwrItcpt.Visible := true;
@@ -785,7 +791,15 @@ var
   IncludeDCUncertainty : boolean;
   AgePlusAgeMinus : string;
   tAgeErrorPlus, tAgeErrorMinus : double;
+  tAgePlus, tAgeMinus,
+  SlopePlusSlopeError, SlopeMinusSlopeError : double;
 begin
+  // add this to check why SlopeError does not work correctly for inverse Re-Os and inverse Lu-Hf
+  Get_NewSlope;
+  //ShowMessage('Slope = '+FormatFloat('###0.000000',Slope));
+  //ShowMessage('NewSlope = '+FormatFloat('###0.000000',NewSlope));
+  //ShowMessage('SlopeError = '+FormatFloat('###0.000000',SlopeError));
+  //ShowMessage('NewSlopeError = '+FormatFloat('###0.000000',NewSlopeError));
   IncludeDCUncertainty := false;
   AgePlusAgeMinus := 'neither';
   //ShowMessage(IntToStr(IAnalTyp));
@@ -1118,36 +1132,60 @@ begin
               if (Slope < 0.0) then Age:=Ln(1.0+(-1.0*Slope/Intercept))/DecayConst[ord(atLuHf)]
                                else Age:=0.0;
               //ShowMessage('K1 Age =' + FormatFloat('####0.000',Age/1.0e6));
-              AgeError := Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)];
+              AgeError := Ln(1.0+(-1.0*(NewSlope+T_Mult*NewSlopeError)/NewIntercept))/DecayConst[ord(atLuHf)];
               AgeError := Age - AgeError;
-              tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)];
-              tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/DecayConst[ord(atLuHf)] - Age;
+              tAgeErrorMinus := Age - Ln(1.0+(-1.0*(NewSlope+T_Mult*NewSlopeError)/NewIntercept))/DecayConst[ord(atLuHf)];
+              tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*NewSlopeError)/NewIntercept))/DecayConst[ord(atLuHf)] - Age;
               AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
               //ShowMessage('K2 AgeError =' + FormatFloat('####0.000',AgeError/1.0e6));
+              CalcUncertaintiesInverseRegression(NewSlope, NewSlopeError, NewIntercept, NewInterceptError, Xcentroid, T_Mult, DecayConst[ord(atLuHf)], tAgeErrorPlus, tAgeErrorMinus);
+              //UprUprAgeError := tAgeErrorPlus - Age;
+              //UprLwrAgeError := Age - tAgeErrorMinus;
+              UprUprAgeError := tAgeErrorPlus;
+              UprLwrAgeError := tAgeErrorMinus;
+              //ShowMessage('K3 UprUprAgeError =' + FormatFloat('####0.000',UprUprAgeError/1.0e6));
+              //ShowMessage('K4 UprLwrAgeError =' + FormatFloat('####0.000',UprLwrAgeError/1.0e6));
               if (Model <> 5) then
               begin
                 if (DecayConstUncertainty[ord(atLuHf)] > 0.0) then
                 begin
+                  {
                   tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atLuHf)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
                   tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atLuHf)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
                   AgeErrorPlusIncl := tAgeErrorPlus;
                   AgeErrorMinusIncl := tAgeErrorMinus;
                   //ShowMessage('K3 AgeErrorPlusIncl =' + FormatFloat('####0.000',AgeErrorPlusIncl/1.0e6));
                   //ShowMessage('K4 AgeErrorMinusIncl =' + FormatFloat('####0.000',AgeErrorMinusIncl/1.0e6));
+                  }
+                  UprUprAgeError := tAgeErrorPlus - Age;
+                  UprLwrAgeError := Age - tAgeErrorMinus;
+                  t2 := UprUprAgeError/Age;
+                  t3 := DecayConstUncertainty[ord(atLuHf)]/100.0;
+                  //ShowMessage('t2 =' + FormatFloat('####0.000',100.0*t2));
+                  //ShowMessage('t3 =' + FormatFloat('####0.000',100.0*t3));
+                  AgeErrorPlusIncl := sqrt(t2*t2+t3*t3)*Age;
+                  t2 := UprLwrAgeError/Age;
+                  t3 := DecayConstUncertainty[ord(atLuHf)]/100.0;
+                  //ShowMessage('t2 =' + FormatFloat('####0.000',100.0*t2));
+                  //ShowMessage('t3 =' + FormatFloat('####0.000',100.0*t3));
+                  AgeErrorMinusIncl := sqrt(t2*t2+t3*t3)*Age;
+                  //ShowMessage('M3 AgeErrorPlusIncl =' + FormatFloat('####0.000',AgeErrorPlusIncl/1.0e6));
+                  //ShowMessage('M4 AgeErrorMinusIncl =' + FormatFloat('####0.000',AgeErrorMinusIncl/1.0e6));
                 end;
               end;
-              InitRatio := 1.0/Intercept;
-              InitRatioError:=InitRatio*(InterceptError/Intercept)*T_Mult;
-              t1:=1.0/Intercept;
-              t2:=CHUR[ord(atReOs),3]-CHUR[ord(atReOs),2]*
-                    (Exp(DecayConst[ord(atReOs)]*Age)-1.0);
+              InitRatio := 1.0/NewIntercept;
+              InitRatioError:=InitRatio*(NewInterceptError/NewIntercept)*T_Mult;
+              t1:=1.0/NewIntercept;
+              t2:=CHUR[ord(atReOs),3]-CHUR[ord(atLuHf),2]*
+                    (Exp(DecayConst[ord(atLuHf)]*Age)-1.0);
               Epsilon1:=100.0*(t1/t2-1.0);
-              EpError1:=T_Mult*Epsilon1*InterceptError/Intercept;
+              EpError1:=T_Mult*Epsilon1*NewInterceptError/NewIntercept;
               Age:=Age/1.0e6;
-              AgeError:=AgeError/1.0e6;
+              UprUprAgeError:=UprUprAgeError/1.0e6;
+              UprLwrAgeError:=UprLwrAgeError/1.0e6;
               AgeErrorPlusIncl:=AgeErrorPlusIncl/1.0e6;
               AgeErrorMinusIncl:=AgeErrorMinusIncl/1.0e6;
-              InitRatioError:=InterceptError*T_Mult;
+              InitRatioError:=NewInterceptError*T_Mult;
             end;
       'L' : begin //K-Ca inverse
               MessageDlg('Not yet implemented',mtInformation,[mbOK],0);
@@ -1161,6 +1199,8 @@ begin
               }
             end;
       'M' : begin //Re-Os inverse
+              //ShowMessage('Slope =' + FormatFloat('####0.000000',Slope));
+              //ShowMessage('SlopeError =' + FormatFloat('####0.000000',SlopeError));
               t1 := -1.0*Slope/Intercept;
               //ShowMessage(FormatFloat('###0.000000',t1));
               t1 := 1.0+t1;
@@ -1169,44 +1209,45 @@ begin
               t1 := t1/DecayConst[ord(atReOs)];
               if (Slope < 0.0) then Age:=Ln(1.0+(-1.0*Slope/Intercept))/DecayConst[ord(atReOs)]
                                else Age:=0.0;
-              //ShowMessage('M1 Age =' + FormatFloat('####0.000',Age/1.0e6));
-              AgeError := Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)];
-              AgeError := Age - AgeError;
-              tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)];
-              tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/DecayConst[ord(atReOs)] - Age;
-              AgeError := (tAgeErrorPlus + tAgeErrorMinus)/2.0;
-              //ShowMessage('M2 AgeError =' + FormatFloat('####0.000',AgeError/1.0e6));
+              CalcUncertaintiesInverseRegression(NewSlope, NewSlopeError, NewIntercept, NewInterceptError, Xcentroid, T_Mult, DecayConst[ord(atReOs)], tAgeErrorPlus, tAgeErrorMinus);
+              UprUprAgeError := tAgeErrorPlus - Age;
+              UprLwrAgeError := Age - tAgeErrorMinus;
               if (Model <> 5) then
               begin
                 if (DecayConstUncertainty[ord(atReOs)] > 0.0) then
                 begin
-                  //AgeErrorPlusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[ord(atReOs)]*DecayConstUncertainty[ord(atReOs)]/100.0);
-                  //AgeErrorMinusIncl := (ln(1.0 + T_Mult*SlopeError))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[ord(atReOs)]*DecayConstUncertainty[ord(atReOs)]/100.0);
-                  //tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
-                  //tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
-                  tAgeErrorMinus := Age - Ln(1.0+(-1.0*(Slope+T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]+T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0);
-                  tAgeErrorPlus := Ln(1.0+(-1.0*(Slope-T_Mult*SlopeError)/Intercept))/(DecayConst[ord(atReOs)]-T_Mult*DecayConst[iAnalTyp]*DecayConstUncertainty[iAnalTyp]/100.0) - Age;
-                  AgeErrorPlusIncl := tAgeErrorPlus;
-                  AgeErrorMinusIncl := tAgeErrorMinus;
+                  UprUprAgeError := tAgeErrorPlus - Age;
+                  UprLwrAgeError := Age - tAgeErrorMinus;
+                  t2 := UprUprAgeError/Age;
+                  t3 := DecayConstUncertainty[ord(atReOs)]/100.0;
+                  //ShowMessage('t2 =' + FormatFloat('####0.000',100.0*t2));
+                  //ShowMessage('t3 =' + FormatFloat('####0.000',100.0*t3));
+                  AgeErrorPlusIncl := sqrt(t2*t2+t3*t3)*Age;
+                  t2 := UprLwrAgeError/Age;
+                  t3 := DecayConstUncertainty[ord(atReOs)]/100.0;
+                  //ShowMessage('t2 =' + FormatFloat('####0.000',100.0*t2));
+                  //ShowMessage('t3 =' + FormatFloat('####0.000',100.0*t3));
+                  AgeErrorMinusIncl := sqrt(t2*t2+t3*t3)*Age;
                   //ShowMessage('M3 AgeErrorPlusIncl =' + FormatFloat('####0.000',AgeErrorPlusIncl/1.0e6));
                   //ShowMessage('M4 AgeErrorMinusIncl =' + FormatFloat('####0.000',AgeErrorMinusIncl/1.0e6));
                 end;
-                InitRatio := 1.0/Intercept;
-                InitRatioError:=InitRatio*(InterceptError/Intercept)*T_Mult;
-                t1:=1.0/Intercept;
+                InitRatio := 1.0/NewIntercept;
+                InitRatioError:=InitRatio*(NewInterceptError/NewIntercept)*T_Mult;
+                t1:=1.0/NewIntercept;
                 t2:=CHUR[ord(atReOs),3]-CHUR[ord(atReOs),2]*
                     (Exp(DecayConst[ord(atReOs)]*Age)-1.0);
                 Epsilon1:=100.0*(t1/t2-1.0);
-                EpError1:=T_Mult*Epsilon1*InterceptError/Intercept;
+                EpError1:=T_Mult*Epsilon1*NewInterceptError/NewIntercept;
               end;
-              if (Model = 5) then
+              if (Model = 5) then  // Assuming separate anal. and geol errors
               begin
                 t1:=SlopeError*Sqrt(Msum/MsumCutOff-1.0);
                 t2:=t1*TMultiplier(NumberOfPointsRegressed-2);
                 t2:=t2*t2;
                 t1:=SlopeError*TMultiplier(N_Rep);
                 t2:=Sqrt(t2+t1*t1);
-                AgeError:=Ln(1.0+t2)/DecayConst[ord(atReOs)];
+                UprUprAgeError:=Ln(1.0+t2)/DecayConst[ord(atReOs)];
+                UprLwrAgeError:=Ln(1.0+t2)/DecayConst[ord(atReOs)];
                 t1:=InterceptError*Sqrt(Msum/MsumCutOff-1.0);
                 t2:=t1*TMultiplier(NumberOfPointsRegressed-2);
                 t2:=t2*t2;
@@ -1219,7 +1260,8 @@ begin
                 EpError1:=100.0*InitRatioError/Intercept;
               end;
               Age:=Age/1.0e6;
-              AgeError:=AgeError/1.0e6;
+              UprUprAgeError:=UprUprAgeError/1.0e6;
+              UprLwrAgeError:=UprLwrAgeError/1.0e6;
               AgeErrorPlusIncl:=AgeErrorPlusIncl/1.0e6;
               AgeErrorMinusIncl:=AgeErrorMinusIncl/1.0e6;
             end;
@@ -2046,7 +2088,7 @@ begin
               lAdditionalStr.Visible := true;
             end;
           end;
-    'K','L','M' :
+    'L' :
           begin
             HideResultLabels;
             PanelDate.Visible := true;
@@ -2069,7 +2111,7 @@ begin
             lEpsilonPlusMinus.Visible := true;
             eEpsilonErr.Visible := true;
             lEpsilon95Percent.Visible := true;
-            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atReOs)]);
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
             lAdditionalStr.Visible := true;
             if (DecayConstUncertainty[iAnalTyp] > 0.0) then
             begin
@@ -2086,7 +2128,56 @@ begin
               Str(AgeErrorMinusIncl:8:2,tempStr);
               eDateErrMinusIncl.Text := tempStr;
               //ShowMessage('1');
-              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[ord(atReOs)]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[ord(atReOs)]) + ' % 1 sigma';
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
+              lAdditionalStr.Visible := true;
+            end;
+          end;
+    'K','M' :
+          begin
+            HideResultLabels;
+            PanelDate.Visible := true;
+            lDateErrPlusOnly.Visible := true;
+            lDateErrMinusOnly.Visible := true;
+            eDateErrMinus.Visible := true;
+            lDateStr.Visible := true;
+            eDate.Visible := true;
+            lDatePlusMinus.Visible := false;
+            eDateErr.Visible := true;
+            lDate95Percent.Visible := true;
+            lRoStr.Caption := 'Initial ratio =';
+            lRoPlusMinus.Visible := true;
+            lEpsilonStr.Caption := 'Epsilon =';
+            if (AnalType = 'M') then lEpsilonStr.Caption := 'Gamma =';
+            lEpsilonStr.Visible := true;
+            Str(Age:8:2,tempStr);
+            eDate.Text := tempStr;
+            Str(UprUprAgeError:8:2,tempStr);
+            eDateErr.Text := tempStr;
+            lDateErrPlusOnly.Visible := true;
+            Str(UprLwrAgeError:8:2,tempStr);
+            eDateErrMinus.Text := tempStr;
+            eEpsilon.Visible := true;
+            lEpsilonPlusMinus.Visible := true;
+            eEpsilonErr.Visible := true;
+            lEpsilon95Percent.Visible := true;
+            lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]);
+            lAdditionalStr.Visible := true;
+            if (DecayConstUncertainty[iAnalTyp] > 0.0) then
+            begin
+              lDateDCIncl.Visible := true;
+              //eDateIncl.Visible := false;
+              lDateErrPlusOnlyIncl.Visible := true;
+              eDateErrIncl.Visible := true;
+              lDateErrMinusOnlyIncl.Visible := true;
+              eDateErrMinusIncl.Visible := true;
+              lDate95PercentIncl.Visible := true;
+              //eDateAdjustedIncl.Visible := false;
+              Str(AgeErrorPlusIncl:8:2,tempStr);
+              eDateErrIncl.Text := tempStr;
+              Str(AgeErrorMinusIncl:8:2,tempStr);
+              eDateErrMinusIncl.Text := tempStr;
+              //ShowMessage('1');
+              lAdditionalStr.Caption := 'd.c. = ' + FormatFloat('0.000000E+00',DecayConst[iAnalTyp]) + ' +/- '+FormatFloat('#0.0000',DecayConstUncertainty[iAnalTyp]) + ' % 1 sigma';
               lAdditionalStr.Visible := true;
             end;
           end;

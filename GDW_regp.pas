@@ -144,6 +144,7 @@ procedure ConvertTeraWasserburg2Concordia;
 function DM2_Age_From_Epsilon(AgePref, Epsilon : double) : double;
 function Get_IAnal_from_AnalType (AnalType : string) : integer;
 procedure Convert2Inverse;
+procedure CalcUncertaintiesInverseRegression(Slope, sSlope, Intercept, sIntercept, Xcentroid, T_Mult, DecayConst : double; var AgePlus95pc : double; var AgeMinus95pc : double);
 
 implementation
 
@@ -521,6 +522,11 @@ var
   AgeMax, ApproxAge
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used non-linear curve for CHUR
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   AgeMax := 4.570e9;
   if (CHUR[iAnalTyp,3] > 0.0) then
@@ -661,6 +667,11 @@ var
   AgeMax, ApproxAge
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used when non-linear curve for DM
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   AgeMax := -999.99;
   if (DM[iAnalTyp,3] > 0.0) then
@@ -754,6 +765,11 @@ var
   AgeMax, ApproxAge
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used for non-linear DM curve
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   AgeMax := -999.99;
   tx := 0.0;
@@ -849,6 +865,11 @@ var
   X1, X2, Y1, Y2, Difference, AgeMax, ApproxAge
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   if ((Slope>0.0) and (Slope<2.0)) then
   begin
@@ -861,8 +882,6 @@ begin
         begin
           if (AgePlusAgeMinus = UncertaintyPlus) then
           begin
-            //X1:=Exp((DecayConst[ord(at238UPb)]-T_MultDC*DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
-            //X2:=Exp((DecayConst[ord(at235UPb)]+T_MultDC*DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             X1:=Exp((DecayConst[ord(at238UPb)]-DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
             X2:=Exp((DecayConst[ord(at235UPb)]+DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             Y1:=X2/X1-U238U235*Slope;
@@ -871,8 +890,6 @@ begin
           end;
           if (AgePlusAgeMinus = UncertaintyMinus) then
           begin
-            //X1:=Exp((DecayConst[ord(at238UPb)]+T_MultDC*DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
-            //X2:=Exp((DecayConst[ord(at235UPb)]-T_MultDC*DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             X1:=Exp((DecayConst[ord(at238UPb)]+DecayConstUncertainty[ord(at238UPb)]*DecayConst[ord(at238UPb)]/100.0)*AgeMax)-1.0;
             X2:=Exp((DecayConst[ord(at235UPb)]-DecayConstUncertainty[ord(at235UPb)]*DecayConst[ord(at235UPb)]/100.0)*AgeMax)-1.0;
             Y1:=X2/X1-U238U235*Slope;
@@ -908,8 +925,14 @@ var
   X1, X2, Y1, Y2, Difference, AgeMax, ApproxAge,
   Z1, Z2       :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
-  if ((Slope>0.0) and (Slope<2.0)) then begin
+  if ((Slope>0.0) and (Slope<2.0)) then
+  begin
     ThisDone:=false;
     AgeMax:=5.0E9;
     Z1:=Exp(DecayConst[ord(at238UPb)]*MuV[mu_choice,1]);
@@ -997,6 +1020,11 @@ var
   M, B, ApproxMu, Difference, U
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   ThisDone:=false;
   ApproxMu := MaxMu;
@@ -1024,6 +1052,11 @@ var
   M, B, ApproxMu, Difference, U, D, E, V
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   ThisDone:=false;
   ApproxMu := MaxMu;
@@ -1176,6 +1209,11 @@ var
   ApproxAge, Difference
                :  double;
   ThisDone         :  Boolean;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   ThisDone:=false;
   repeat
@@ -1206,6 +1244,11 @@ var
   temp, temp1      :  double;
   tDCx, tDCxErr,
   tDCy, tDCyErr : double;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   temp1 := -999.99;
   ThisDone:=false;
@@ -1797,6 +1840,11 @@ begin
   Result := (exp(DecayConst[ord(at238UPb)]*Age));
 end;
 
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   if ((Slope<>0.0)) then begin
     ThisDone:=false;
@@ -1994,24 +2042,24 @@ begin
   LwrIntercept:=TeraWasserburgIntercept(1.0E6,NewSlope,NewIntercept);
   UprUprAgeError:=TeraWasserburgAgeErr(1,5.0E9,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyPlus);
-  if AllowMessages then ShowMessage('Upr upr error = '+FormatFloat('####0.00',UprUprAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Upr upr error = '+FormatFloat('####0.00',UprUprAgeError/1.0e6));
   UprUprAgeError := UprUprAgeError - UprIntercept;
   UprLwrAgeError:=TeraWasserburgAgeErr(-1,5.0e9,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyMinus);
-  if AllowMessages then ShowMessage('Upr lwr error = '+FormatFloat('####0.00',UprLwrAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Upr lwr error = '+FormatFloat('####0.00',UprLwrAgeError/1.0e6));
   UprLwrAgeError := UprIntercept - UprLwrAgeError;
   UprUprAgeError2:=UprIntercept;
 
   AllowMessages := false;
-  if AllowMessages then ShowMessage('Lwr errors');
+  //if AllowMessages then ShowMessage('Lwr errors');
   LwrUprAgeError:=TeraWasserburgAgeErr(-1,1.0E6,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyPlus);
-  if AllowMessages then ShowMessage('Lwr upr error = '+FormatFloat('####0.00',LwrUprAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Lwr upr error = '+FormatFloat('####0.00',LwrUprAgeError/1.0e6));
   AllowMessages := false;
   LwrUprAgeError := LwrUprAgeError - LwrIntercept;
   LwrLwrAgeError:= TeraWasserburgAgeErr(1,1.0e6,NewSlope,NewSlopeError*T_Mult,
                     NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyMinus);
-  if AllowMessages then ShowMessage('Lwr lwr error = '+FormatFloat('####0.00',LwrLwrAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Lwr lwr error = '+FormatFloat('####0.00',LwrLwrAgeError/1.0e6));
   LwrLwrAgeError := LwrIntercept - LwrLwrAgeError;
 
   AllowMessages := false;
@@ -2020,28 +2068,28 @@ begin
   //LwrIntercept:=TeraWasserburgIntercept(1.0E6,NewSlope,NewIntercept);
   UprUprAgeErrorIncl:=TeraWasserburgAgeErr(1,5.0E9,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyPlus);
-  if AllowMessages then ShowMessage('Upr upr error = '+FormatFloat('####0.00',UprUprAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Upr upr error = '+FormatFloat('####0.00',UprUprAgeError/1.0e6));
   UprUprAgeErrorIncl := UprUprAgeErrorIncl - UprIntercept;
   UprLwrAgeErrorIncl:=TeraWasserburgAgeErr(-1,5.0e9,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,UncertaintyMinus);
-  if AllowMessages then ShowMessage('Upr lwr error = '+FormatFloat('####0.00',UprLwrAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Upr lwr error = '+FormatFloat('####0.00',UprLwrAgeError/1.0e6));
   UprLwrAgeErrorIncl := UprIntercept - UprLwrAgeErrorIncl;
   UprUprAgeError2:=UprIntercept;
 
   AllowMessages := false;
-  if AllowMessages then ShowMessage('Lwr errors');
+  //if AllowMessages then ShowMessage('Lwr errors');
   if (AnalType = '8') then AgePlusAgeMinus := UncertaintyPlus;
   if (AnalType = 'A') then AgePlusAgeMinus := UncertaintyMinus;
   LwrUprAgeErrorIncl:=TeraWasserburgAgeErr(-1,1.0E6,NewSlope,NewSlopeError*T_Mult,
                    NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,AgePlusAgeMinus);
-  if AllowMessages then ShowMessage('Lwr upr error = '+FormatFloat('####0.00',LwrUprAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Lwr upr error = '+FormatFloat('####0.00',LwrUprAgeError/1.0e6));
   AllowMessages := false;
   LwrUprAgeErrorIncl := LwrUprAgeErrorIncl - LwrIntercept;
   if (AnalType = '8') then AgePlusAgeMinus := UncertaintyMinus;
   if (AnalType = 'A') then AgePlusAgeMinus := UncertaintyPlus;
   LwrLwrAgeErrorIncl:= TeraWasserburgAgeErr(1,1.0e6,NewSlope,NewSlopeError*T_Mult,
                     NewIntercept,NewInterceptError*T_Mult,IncludeDCUncertainty,AgePlusAgeMinus);
-  if AllowMessages then ShowMessage('Lwr lwr error = '+FormatFloat('####0.00',LwrLwrAgeError/1.0e6));
+  //if AllowMessages then ShowMessage('Lwr lwr error = '+FormatFloat('####0.00',LwrLwrAgeError/1.0e6));
   LwrLwrAgeErrorIncl := LwrIntercept - LwrLwrAgeErrorIncl;
   AllowMessages := false;
 
@@ -2080,6 +2128,11 @@ var
 const
   Tolerance = 0.0000001;
   MaxIterations = 100;
+// Newton-Raphson method used
+// x2 = x1 - (y1/y2)
+// where y1 is f(x1)
+// and y2 is f'(x1)
+//
 begin
   if ((Slope<0.0)) then begin
     ThisDone:=false;
@@ -2140,7 +2193,7 @@ procedure ConcordiaInterceptDateErrors( t1,t2 : double;
                  var Sigmat2 : double;
                  var SigmaCovt1t2 : double);
 var
-  m, b, Phi51, Phi52, Phi81, Phi82, 
+  m, b, Phi51, Phi52, Phi81, Phi82,
   Delta, E, M1, M2, M3, M4,
   B1, B2, B3, B4 : double;
   Omega, OmegaInverted : RealArrayC;
@@ -3136,6 +3189,86 @@ begin
       AnalType := 'F';
     end;
   end;
+end;
+
+procedure CalcUncertaintiesInverseRegression(Slope, sSlope, Intercept, sIntercept, Xcentroid, T_Mult, DecayConst : double; var AgePlus95pc : double; var AgeMinus95pc : double);
+var
+  i : integer;
+  x, t2, t3, temp : double;
+  TicsIncrement : double;
+  XInterceptLine, XInterceptPlus, XInterceptMinus : double;
+  Y1, Y2, Z1 : double;
+  Xmax, ApproxX : double;
+  SlopeAge, ApproxAge, AgeMax, Difference, Tolerance : double;
+  ThisDone : boolean;
+  tSlope, Zero : double;
+begin
+  // confidence interval for inverse weighted regression
+  // ci = yest +/- t * s * sqrt[(1/sum(w)) + (x-xcentroid)*(x-xcentroid)/(sum(w)*(x-xcentroid)*x-xcentroid))]
+  Tolerance := 0.005;
+  Zero := 0.0;
+  //ShowMessage('Intercept = '+FormatFloat('####0.0000',Intercept));
+  //ShowMessage('sIntercept = '+FormatFloat('####0.0000',sIntercept));
+  //ShowMessage('Slope = '+FormatFloat('####0.000000',Slope));
+  //ShowMessage('sSlope = '+FormatFloat('####0.000000',sSlope));
+  //ShowMessage('Xcentroid = '+FormatFloat('####0.000000',Xcentroid));
+  XInterceptLine := (0.0 - Intercept) / Slope;
+  //ShowMessage('XInterceptLine = '+FormatFloat('####0.0000',XInterceptLine));
+  // Y1 is equation
+  // Y2 is first derivative
+  if (Slope < 0.0) then SlopeAge := Ln(1.0+(-1.0*Slope/Intercept))/DecayConst
+                   else SlopeAge := 0.0;
+  // upper error envelope to derive AgeMinus95pc
+  //ShowMessage('AgeMinus95pc');
+  ThisDone := false;
+  Xmax := XInterceptLine;
+  repeat
+    x := Xmax;
+    temp:=1.0*T_Mult*sqrt(sIntercept*sIntercept
+           +(sSlope*sSlope*x*(x-2.0*Xcentroid)));
+    //ShowMessage('temp = '+FormatFloat('####0.000000',temp));
+    Y1 := Intercept+Slope*x + temp;  // upper error envelope f(x) function
+    //ShowMessage('Y1 = '+FormatFloat('####0.000000',Y1));
+    Y2 := T_Mult*(-1.0*sSlope*sSlope*(x-2.0*Xcentroid)-sSlope*sSlope*x);  // first derivative f'(x)
+    //ShowMessage('Y2 1 = '+FormatFloat('####0.000000',Y2));
+    Z1 := ((sIntercept*sIntercept+sSlope*sSlope*x*(x-2.0*Xcentroid)));
+    //ShowMessage('Z1 = '+FormatFloat('####0.000000',Z1));
+    Y2 := Y2 / (2.0*sqrt(sIntercept*sIntercept+sSlope*sSlope*x*(x-2.0*Xcentroid)));
+    //ShowMessage('Y2 2 = '+FormatFloat('####0.000000',Y2));
+    Y2 := Slope + Y2;
+    //ShowMessage('Y2 3 = '+FormatFloat('####0.000000',Y2));
+    ApproxX:=Xmax-Y1/Y2;
+    //ShowMessage('ApproxX = '+FormatFloat('####0.0000',ApproxX));
+    Difference:=Abs(XMax-ApproxX);
+    Xmax := ApproxX;
+    if (Difference < Tolerance) then ThisDone:=true;
+  until ThisDone;
+  XInterceptPlus := Xmax;
+  tSlope := (Zero - Intercept) / (XInterceptPlus - Zero);
+  if (tSlope < 0.0) then AgeMinus95pc := Ln(1.0+(-1.0*tSlope/Intercept))/DecayConst
+                    else AgeMinus95pc := 0.0;
+  // lower error envelope to derive AgePlus95pc
+  //ShowMessage('AgePlus95pc');
+  ThisDone := false;
+  Xmax := XInterceptLine;
+  repeat
+    x := Xmax;
+    temp:=1.0*T_Mult*sqrt(sIntercept*sIntercept
+           +(sSlope*sSlope*x*(x-2.0*Xcentroid)));
+    Y1 := Intercept+Slope*x-temp;  // upper error envelope f(x) function
+    Y2 := T_Mult*(-1.0*sSlope*sSlope*(x-2.0*Xcentroid)-sSlope*sSlope*x);  // first derivative f'(x)
+    Y2 := Y2 / (2.0*sqrt(sIntercept*sIntercept+sSlope*sSlope*x*(x-2.0*Xcentroid)));
+    Y2 := Slope - Y2;
+    ApproxX:=Xmax-Y1/Y2;
+    //ShowMessage('ApproxX = '+FormatFloat('####0.0000',ApproxX));
+    Difference:=Abs(XMax-ApproxX);
+    Xmax := ApproxX;
+    if (Difference < Tolerance) then ThisDone:=true;
+  until ThisDone;
+  XInterceptMinus := Xmax;
+  tSlope := (Zero - Intercept) / (XInterceptMinus - Zero);
+  if (tSlope < 0.0) then AgePlus95pc := Ln(1.0+(-1.0*tSlope/Intercept))/DecayConst
+                    else AgePlus95pc := 0.0;
 end;
 
 end.
